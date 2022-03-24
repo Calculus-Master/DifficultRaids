@@ -1,0 +1,9 @@
+#Change the overall difficulty of Raids.
+#The difficulty of a Raid will depend on both this value and the game difficulty (EASY, NORMAL, HARD).
+#DEFAULT difficulty removes all of this mod's changes to raids, and uses the vanilla Minecraft Raid settings.
+#HERO is the easiest difficulty added by this mod (but still harder than DEFAULT).
+#APOCALYPSE difficulty ignores the game difficulty. WARNING: APOCALYPSE difficulty spawns massive amounts of mobs, potentially generating vast amounts of lag. Choose at your own risk!
+#
+#Allowed Values: DEFAULT, HERO, LEGEND, MASTER, APOCALYPSE
+raidDifficulty = "HERO"
+

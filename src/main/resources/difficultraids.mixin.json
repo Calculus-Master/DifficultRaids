@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "com.calculusmaster.difficultraids.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "difficultraids.refmap.json",
+  "mixins": [
+    "MixinRaid"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+  ],
+  "minVersion": "0.8"
+}
