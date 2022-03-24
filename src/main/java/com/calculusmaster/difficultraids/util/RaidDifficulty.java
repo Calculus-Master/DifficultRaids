@@ -6,5 +6,7 @@ public enum RaidDifficulty
     HERO,
     LEGEND,
     MASTER,
-    APOCALYPSE;
+    APOCALYPSE,
+
+    DEBUG;
 }

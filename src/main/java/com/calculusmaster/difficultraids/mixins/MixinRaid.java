@@ -48,6 +48,7 @@ public abstract class MixinRaid
             case LEGEND -> 25;
             case MASTER -> 50;
             case APOCALYPSE -> 100;
+            case DEBUG -> 0;
         };
 
         if(this.random.nextInt(100) < bonusChance)
@@ -68,6 +69,12 @@ public abstract class MixinRaid
     {
         RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
         Difficulty worldDifficulty = this.level.getDifficulty();
+
+        if(raidDifficulty.equals(RaidDifficulty.DEBUG))
+        {
+            callbackInfoReturnable.setReturnValue(1);
+            return;
+        }
 
         //Spawns per wave array
         int[] spawnsPerWave = RaiderDefaultSpawns.getDefaultSpawns(raiderType, raidDifficulty);

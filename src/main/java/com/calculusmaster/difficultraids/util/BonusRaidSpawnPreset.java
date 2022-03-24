@@ -59,6 +59,7 @@ public enum BonusRaidSpawnPreset
             case LEGEND -> 1.5;
             case MASTER -> 2.25;
             case APOCALYPSE -> 4.0;
+            case DEBUG -> 0.0;
         };
 
         //Avoid negative spawn counts
