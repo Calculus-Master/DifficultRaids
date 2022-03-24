@@ -41,7 +41,6 @@ public abstract class MixinRaid
     @Shadow @Final private Set<UUID> heroesOfTheVillage;
 
     @Shadow public abstract boolean isVictory();
-
     @Shadow public abstract boolean isLoss();
 
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -214,6 +213,9 @@ public abstract class MixinRaid
 
             wither.setCustomName(new TextComponent("The Apocalypse"));
             wither.setGlowingTag(true);
+            wither.setPos(this.center.getX(), this.center.getY(), this.center.getZ() + 10);
+
+            MixinRaid.outputLog("Wither Boss spawned at X: %s Y: %s Z: %s!".formatted(this.center.getX(), this.center.getY(), this.center.getZ() + 10));
 
             this.level.addFreshEntity(wither);
         }
