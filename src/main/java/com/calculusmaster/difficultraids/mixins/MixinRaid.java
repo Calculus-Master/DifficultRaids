@@ -4,14 +4,20 @@ import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import com.calculusmaster.difficultraids.util.BonusRaidSpawnPreset;
 import com.calculusmaster.difficultraids.util.RaidDifficulty;
 import com.calculusmaster.difficultraids.util.RaiderDefaultSpawns;
+import com.calculusmaster.difficultraids.util.WeightedRewardPool;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.raid.Raid;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,6 +37,10 @@ public abstract class MixinRaid
     @Shadow @Final private int numGroups;
     @Shadow @Final private ServerLevel level;
     @Shadow @Final private Random random;
+    @Shadow private BlockPos center;
+    @Shadow @Final private Set<UUID> heroesOfTheVillage;
+
+    @Shadow public abstract boolean isVictory();
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -123,5 +133,78 @@ public abstract class MixinRaid
             callbackInfoReturnable.setReturnValue(count);
         }
         else MixinRaid.outputLog("BonusRaidSpawnPreset is null! Defaulting to vanilla Minecraft bonus spawn groups...");
+    }
+
+    @Inject(at = @At("HEAD"), method = "stop")
+    public void difficultraids_grantRewards(CallbackInfo callbackInfo)
+    {
+        RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
+
+        if(this.isVictory() && !List.of(RaidDifficulty.DEFAULT, RaidDifficulty.DEBUG).contains(raidDifficulty))
+        {
+            WeightedRewardPool pool = new WeightedRewardPool()
+                    .add(Items.TOTEM_OF_UNDYING, 10, switch(raidDifficulty) {
+                        case HERO -> 2;
+                        case LEGEND -> 5;
+                        case MASTER -> 8;
+                        case APOCALYPSE -> 12;
+                        default -> 0;
+                    }, 1)
+                    .add(Items.IRON_INGOT, 15, switch(raidDifficulty) {
+                        case HERO -> 10;
+                        case LEGEND -> 15;
+                        case MASTER -> 20;
+                        case APOCALYPSE -> 40;
+                        default -> 0;
+                    }, 100)
+                    .add(Items.DIAMOND, 5, switch(raidDifficulty) {
+                        case HERO -> 1;
+                        case LEGEND -> 2;
+                        case MASTER -> 5;
+                        case APOCALYPSE -> 8;
+                        default -> 0;
+                    }, 1)
+                    .add(Items.EMERALD, 12, switch(raidDifficulty) {
+                        case HERO -> 6;
+                        case LEGEND -> 9;
+                        case MASTER -> 12;
+                        case APOCALYPSE -> 20;
+                        default -> 0;
+                    }, 3)
+                    .add(Items.LEATHER, 12, switch(raidDifficulty) {
+                        case HERO -> 7;
+                        case LEGEND -> 10;
+                        case MASTER -> 15;
+                        case APOCALYPSE -> 26;
+                        default -> 0;
+                    }, 5);
+
+            List<ItemStack> rewards = new ArrayList<>();
+
+            for(int i = 0; i < switch(raidDifficulty) {
+                case HERO -> 3;
+                case LEGEND -> 5;
+                case MASTER -> 7;
+                case APOCALYPSE -> 10;
+                default -> 0;
+            }; i++) rewards.add(pool.pull());
+
+            BlockPos rewardPos = new BlockPos(this.center.getX(), this.center.getY(), this.center.getZ() + 10);
+            rewards.forEach(stack -> {
+                ItemEntity entityItem = new ItemEntity(this.level, rewardPos.getX(), rewardPos.getY(), rewardPos.getZ(), stack);
+                entityItem.setExtendedLifetime();
+
+                this.level.addFreshEntity(entityItem);
+            });
+
+            MixinRaid.outputLog("Raid Rewards Generated: At(%s, %s, %s), Rewards: %s".formatted(rewardPos.getX(), rewardPos.getY(), rewardPos.getZ(), rewards.stream().map(stack -> stack.getItem().getRegistryName() + " (x" + stack.getCount() + ")")));
+
+            this.heroesOfTheVillage.stream().map(uuid -> this.level.getPlayerByUUID(uuid)).filter(Objects::nonNull).forEach(p -> {
+                p.sendMessage(
+                        new TextComponent("Raid Rewards have spawned at X: %s Y: %s Z: %s!".formatted(rewardPos.getX(), rewardPos.getY(), rewardPos.getZ())),
+                        p.getUUID()
+                );
+            });
+        }
     }
 }
