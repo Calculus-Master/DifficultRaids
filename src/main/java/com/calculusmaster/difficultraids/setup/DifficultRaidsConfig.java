@@ -13,6 +13,7 @@ public class DifficultRaidsConfig
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static ForgeConfigSpec.EnumValue<RaidDifficulty> RAID_DIFFICULTY;
+    public static ForgeConfigSpec.BooleanValue RAID_LOSS_APOCALYPSE_SHOULD_WITHER_SPAWN;
 
     public static void register()
     {
@@ -29,11 +30,16 @@ public class DifficultRaidsConfig
                         """)
                 .defineEnum("raidDifficulty", RaidDifficulty.HERO, EnumGetMethod.NAME_IGNORECASE);
 
+        RAID_LOSS_APOCALYPSE_SHOULD_WITHER_SPAWN = SERVER
+                .comment("If true, losing a Raid on Apocalypse difficulty will spawn a Wither at the village center. Default: true")
+                .define("raidLoss_shouldWitherSpawn", true);
+
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, SERVER.build());
 
         LOGGER.info(
                 "Server Config Successfully Loaded!\n" +
-                "Raid Difficulty: {%s}".formatted(RAID_DIFFICULTY.get())
+                "Raid Difficulty: {%s}\n".formatted(RAID_DIFFICULTY.get()) +
+                "Wither Spawn on Raid Loss at Apocalypse Difficulty: {%s}".formatted(RAID_LOSS_APOCALYPSE_SHOULD_WITHER_SPAWN)
         );
     }
 }

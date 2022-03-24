@@ -207,7 +207,7 @@ public abstract class MixinRaid
                 );
             });
         }
-        else if(this.isLoss() && raidDifficulty.equals(RaidDifficulty.APOCALYPSE))
+        else if(this.isLoss() && raidDifficulty.equals(RaidDifficulty.APOCALYPSE) && DifficultRaidsConfig.RAID_LOSS_APOCALYPSE_SHOULD_WITHER_SPAWN.get())
         {
             WitherBoss wither = new WitherBoss(EntityType.WITHER, this.level);
 
