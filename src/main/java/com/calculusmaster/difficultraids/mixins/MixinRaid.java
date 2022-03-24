@@ -198,7 +198,7 @@ public abstract class MixinRaid
                 this.level.addFreshEntity(entityItem);
             });
 
-            MixinRaid.outputLog("Raid Rewards Generated: At(%s, %s, %s), Rewards: %s".formatted(rewardPos.getX(), rewardPos.getY(), rewardPos.getZ(), rewards.stream().map(stack -> stack.getItem().getRegistryName() + " (x" + stack.getCount() + ")")));
+            MixinRaid.outputLog("Raid Rewards Generated at X: %s Y: %s Z: %s, Rewards List: %s".formatted(rewardPos.getX(), rewardPos.getY(), rewardPos.getZ(), rewards.stream().map(stack -> stack.getItem().getRegistryName() + " (x" + stack.getCount() + ")")));
 
             this.heroesOfTheVillage.stream().map(uuid -> this.level.getPlayerByUUID(uuid)).filter(Objects::nonNull).forEach(p -> {
                 p.sendMessage(
