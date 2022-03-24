@@ -7,17 +7,17 @@ import com.calculusmaster.difficultraids.util.RaiderDefaultSpawns;
 import com.calculusmaster.difficultraids.util.WeightedRewardPool;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -41,6 +41,8 @@ public abstract class MixinRaid
     @Shadow @Final private Set<UUID> heroesOfTheVillage;
 
     @Shadow public abstract boolean isVictory();
+
+    @Shadow public abstract boolean isLoss();
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -205,6 +207,15 @@ public abstract class MixinRaid
                         p.getUUID()
                 );
             });
+        }
+        else if(this.isLoss() && raidDifficulty.equals(RaidDifficulty.APOCALYPSE))
+        {
+            WitherBoss wither = new WitherBoss(EntityType.WITHER, this.level);
+
+            wither.setCustomName(new TextComponent("The Apocalypse"));
+            wither.setGlowingTag(true);
+
+            this.level.addFreshEntity(wither);
         }
     }
 }
