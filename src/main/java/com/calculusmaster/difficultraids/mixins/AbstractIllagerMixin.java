@@ -49,21 +49,9 @@ public abstract class AbstractIllagerMixin extends Raider
         {
             if(this.getCurrentRaid() != null && mobSpawnType.equals(MobSpawnType.EVENT))
             {
-                List<ArmorMaterials> tiers = switch(raidDifficulty) {
-                    case HERO -> List.of(ArmorMaterials.LEATHER, ArmorMaterials.CHAIN, ArmorMaterials.IRON);
-                    case LEGEND -> List.of(ArmorMaterials.CHAIN, ArmorMaterials.IRON, ArmorMaterials.DIAMOND);
-                    case MASTER -> List.of(ArmorMaterials.IRON, ArmorMaterials.DIAMOND, ArmorMaterials.NETHERITE);
-                    case APOCALYPSE -> List.of(ArmorMaterials.DIAMOND, ArmorMaterials.NETHERITE);
-                    default -> List.of();
-                };
-
-                int armorChance = switch(raidDifficulty) {
-                    case HERO -> 25;
-                    case LEGEND -> 45;
-                    case MASTER -> 50;
-                    case APOCALYPSE -> 80;
-                    default -> 0;
-                };
+                List<ArmorMaterials> tiers = raidDifficulty.armorMaterials;
+                int armorChance = raidDifficulty.armorChance;
+                int protectionChance = raidDifficulty.protectionChance;
 
                 StringJoiner armorLog = new StringJoiner(", ");
                 for(EquipmentSlot slot : List.of(EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET))
@@ -76,22 +64,9 @@ public abstract class AbstractIllagerMixin extends Raider
 
                         if(!armor.getItem().equals(Items.AIR))
                         {
-                            int protectionChance = switch(raidDifficulty) {
-                                case HERO -> 5;
-                                case LEGEND -> 15;
-                                case MASTER -> 33;
-                                case APOCALYPSE -> 50;
-                                default -> 0;
-                            };
-
-                            if(random.nextInt(100) < protectionChance) armor.enchant(Enchantments.ALL_DAMAGE_PROTECTION,
-                                    switch(raidDifficulty) {
-                                        case HERO -> random.nextInt(1, 3);
-                                        case LEGEND -> random.nextInt(1, 5);
-                                        case MASTER -> random.nextInt(3, 6);
-                                        case APOCALYPSE -> random.nextInt(4, 6);
-                                        default -> 1;
-                                    });
+                            if(random.nextInt(100) < protectionChance)
+                                armor.enchant(Enchantments.ALL_DAMAGE_PROTECTION,
+                                        raidDifficulty.protectionLevelFunction.apply(random));
 
                             if(raidDifficulty.equals(RaidDifficulty.LEGEND) && random.nextInt(100) < 15)
                                 armor.enchant(Enchantments.THORNS, random.nextInt(1, 4));

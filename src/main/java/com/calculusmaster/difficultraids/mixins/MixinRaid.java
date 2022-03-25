@@ -20,7 +20,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.raid.Raid;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.slf4j.Logger;
@@ -96,17 +95,7 @@ public abstract class MixinRaid
                     spawn.setPos(pos.getX(), pos.getY(), pos.getZ());
 
                     if(entityEntry.getKey().equals(EntityType.ZOMBIE))
-                    {
-                        Item helmet = switch(raidDifficulty) {
-                            case HERO -> Items.CHAINMAIL_HELMET;
-                            case LEGEND -> Items.IRON_HELMET;
-                            case MASTER -> Items.DIAMOND_HELMET;
-                            case APOCALYPSE -> Items.NETHERITE_HELMET;
-                            default -> Items.LEATHER_HELMET;
-                        };
-
-                        spawn.setItemSlot(EquipmentSlot.HEAD, new ItemStack(helmet));
-                    }
+                        spawn.setItemSlot(EquipmentSlot.HEAD, new ItemStack(raidDifficulty.zombieSpawnHelmet));
 
                     this.level.addFreshEntity(spawn);
                 }
@@ -222,13 +211,7 @@ public abstract class MixinRaid
 
             List<ItemStack> rewards = new ArrayList<>();
 
-            for(int i = 0; i < switch(raidDifficulty) {
-                case HERO -> 3;
-                case LEGEND -> 5;
-                case MASTER -> 7;
-                case APOCALYPSE -> 10;
-                default -> 0;
-            }; i++) rewards.add(pool.pull());
+            for(int i = 0; i < raidDifficulty.totalLootDrops; i++) rewards.add(pool.pull());
 
             BlockPos rewardPos = new BlockPos(this.center.getX(), this.center.getY(), this.center.getZ() + 10);
             rewards.forEach(stack -> {
