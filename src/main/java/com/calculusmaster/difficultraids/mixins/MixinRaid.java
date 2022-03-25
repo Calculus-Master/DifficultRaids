@@ -16,9 +16,11 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.raid.Raid;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.slf4j.Logger;
@@ -56,6 +58,9 @@ public abstract class MixinRaid
     @Inject(at = @At("HEAD"), method = "spawnGroup", cancellable = true)
     private void difficultraids_spawnGroup(BlockPos pos, CallbackInfo callbackInfo)
     {
+        Difficulty worldDifficulty = this.level.getDifficulty();
+        RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
+
         int bonusChance = switch(DifficultRaidsConfig.RAID_DIFFICULTY.get()) {
             case DEFAULT -> 10;
             case HERO -> 15;
@@ -80,12 +85,25 @@ public abstract class MixinRaid
         //Non-Raider Entity Reinforcements
         if(this.raidReinforcements != null)
         {
-            for(Map.Entry<EntityType<?>, Integer> entityEntry : this.raidReinforcements.getGenericReinforcements(this.level.getDifficulty(), DifficultRaidsConfig.RAID_DIFFICULTY.get()).entrySet())
+            for(Map.Entry<EntityType<?>, Integer> entityEntry : this.raidReinforcements.getGenericReinforcements(worldDifficulty, raidDifficulty).entrySet())
             {
                 for(int i = 0; i < entityEntry.getValue(); i++)
                 {
                     Entity spawn = entityEntry.getKey().create(this.level);
                     spawn.setPos(pos.getX(), pos.getY(), pos.getZ());
+
+                    if(entityEntry.getKey().equals(EntityType.ZOMBIE))
+                    {
+                        Item helmet = switch(raidDifficulty) {
+                            case HERO -> Items.CHAINMAIL_HELMET;
+                            case LEGEND -> Items.IRON_HELMET;
+                            case MASTER -> Items.DIAMOND_HELMET;
+                            case APOCALYPSE -> Items.NETHERITE_HELMET;
+                            default -> Items.LEATHER_HELMET;
+                        };
+
+                        spawn.setItemSlot(EquipmentSlot.HEAD, new ItemStack(helmet));
+                    }
 
                     this.level.addFreshEntity(spawn);
                 }
