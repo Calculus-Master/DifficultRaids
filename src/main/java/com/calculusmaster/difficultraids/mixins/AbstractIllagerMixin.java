@@ -49,16 +49,13 @@ public abstract class AbstractIllagerMixin extends Raider
         {
             if(this.getCurrentRaid() != null && mobSpawnType.equals(MobSpawnType.EVENT))
             {
-                List<ArmorMaterials> tiers = List.of(ArmorMaterials.LEATHER, ArmorMaterials.CHAIN, ArmorMaterials.IRON, ArmorMaterials.DIAMOND, ArmorMaterials.NETHERITE);
-
-                int[] subListIndices = switch(raidDifficulty) {
-                    case HERO -> new int[]{0, 2};
-                    case LEGEND -> new int[]{1, 4};
-                    case MASTER -> new int[]{2, 4};
-                    case APOCALYPSE -> new int[]{3, 4};
-                    default -> new int[]{0, 1};
+                List<ArmorMaterials> tiers = switch(raidDifficulty) {
+                    case HERO -> List.of(ArmorMaterials.LEATHER, ArmorMaterials.CHAIN, ArmorMaterials.IRON);
+                    case LEGEND -> List.of(ArmorMaterials.CHAIN, ArmorMaterials.IRON, ArmorMaterials.DIAMOND);
+                    case MASTER -> List.of(ArmorMaterials.IRON, ArmorMaterials.DIAMOND, ArmorMaterials.NETHERITE);
+                    case APOCALYPSE -> List.of(ArmorMaterials.DIAMOND, ArmorMaterials.NETHERITE);
+                    default -> List.of();
                 };
-                subListIndices[1]++;
 
                 int armorChance = switch(raidDifficulty) {
                     case HERO -> 25;
@@ -71,10 +68,9 @@ public abstract class AbstractIllagerMixin extends Raider
                 StringJoiner armorLog = new StringJoiner(", ");
                 for(EquipmentSlot slot : List.of(EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET))
                 {
-                    if(random.nextInt(100) < armorChance)
+                    if(!tiers.isEmpty() && random.nextInt(100) < armorChance)
                     {
-                        List<ArmorMaterials> pool = tiers.subList(subListIndices[0], subListIndices[1]);
-                        ArmorMaterials mat = pool.get(random.nextInt(pool.size()));
+                        ArmorMaterials mat = tiers.get(random.nextInt(tiers.size()));
 
                         ItemStack armor = this.getArmorPiece(slot, mat);
 
