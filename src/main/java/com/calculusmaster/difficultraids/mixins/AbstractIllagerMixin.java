@@ -1,7 +1,7 @@
 package com.calculusmaster.difficultraids.mixins;
 
+import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
-import com.calculusmaster.difficultraids.util.RaidDifficulty;
 import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;

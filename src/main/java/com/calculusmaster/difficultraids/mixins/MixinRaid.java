@@ -1,9 +1,9 @@
 package com.calculusmaster.difficultraids.mixins;
 
+import com.calculusmaster.difficultraids.raids.RaidDifficulty;
+import com.calculusmaster.difficultraids.raids.RaidReinforcements;
+import com.calculusmaster.difficultraids.raids.RaiderDefaultSpawns;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
-import com.calculusmaster.difficultraids.util.RaidDifficulty;
-import com.calculusmaster.difficultraids.util.RaidReinforcements;
-import com.calculusmaster.difficultraids.util.RaiderDefaultSpawns;
 import com.calculusmaster.difficultraids.util.WeightedRewardPool;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;

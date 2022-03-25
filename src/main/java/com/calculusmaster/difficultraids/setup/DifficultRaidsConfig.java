@@ -1,6 +1,6 @@
 package com.calculusmaster.difficultraids.setup;
 
-import com.calculusmaster.difficultraids.util.RaidDifficulty;
+import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.electronwill.nightconfig.core.EnumGetMethod;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.common.ForgeConfigSpec;

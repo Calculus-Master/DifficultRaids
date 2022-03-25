@@ -1,4 +1,4 @@
-package com.calculusmaster.difficultraids.util;
+package com.calculusmaster.difficultraids.raids;
 
 public enum RaidDifficulty
 {

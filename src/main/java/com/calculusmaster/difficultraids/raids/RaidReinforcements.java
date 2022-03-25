@@ -1,4 +1,4 @@
-package com.calculusmaster.difficultraids.util;
+package com.calculusmaster.difficultraids.raids;
 
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntityType;
