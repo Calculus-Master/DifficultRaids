@@ -45,6 +45,11 @@ public enum RaidReinforcements
                     new EntitySpawnData(EntityType.SPIDER, 5),
                     new EntitySpawnData(EntityType.CREEPER, 5)
             )
+    ),
+    PRESET_6(
+            "Sheep?",
+            List.of(),
+            List.of(new EntitySpawnData(EntityType.SHEEP, 20))
     );
 
     private final String chatName;
