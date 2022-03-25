@@ -87,6 +87,7 @@ public abstract class MixinRaid
             return;
         }
 
+        outputLog("Searching for Default Spawns: Raider Type {%s}, Raid Difficulty {%s}".formatted(raiderType.toString(), raidDifficulty.toString()));
         //Spawns per wave array
         int[] spawnsPerWave = RaiderDefaultSpawns.getDefaultSpawns(raiderType, raidDifficulty);
         //Selected spawns for the current wave

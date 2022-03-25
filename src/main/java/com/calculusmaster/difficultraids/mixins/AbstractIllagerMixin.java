@@ -5,6 +5,7 @@ import com.calculusmaster.difficultraids.util.RaidDifficulty;
 import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -99,12 +100,12 @@ public abstract class AbstractIllagerMixin extends Raider
                             if(raidDifficulty.equals(RaidDifficulty.LEGEND) && random.nextInt(100) < 15)
                                 armor.enchant(Enchantments.THORNS, random.nextInt(1, 4));
 
-                            armorLog.add(armor.getDisplayName() + " [" + armor.getEnchantmentTags().stream().map(Tag::getAsString).collect(Collectors.joining(", ")) + "]");
+                            armorLog.add(((TranslatableComponent)(armor.getHoverName())).getKey() + " [" + armor.getEnchantmentTags().stream().map(Tag::getAsString).collect(Collectors.joining(", ")) + "]");
                             this.setItemSlot(slot, armor);
                         }
                     }
 
-                    LogUtils.getLogger().info("Equipping Armor: Raider {%s}, Armor Pieces {%s}".formatted(this.getDisplayName(), armorLog.toString()));
+                    LogUtils.getLogger().debug("Equipping Armor: Raider {%s}, Armor Pieces {%s}".formatted(((TranslatableComponent)(this.getName())).getKey(), armorLog.toString()));
                 }
             }
         }

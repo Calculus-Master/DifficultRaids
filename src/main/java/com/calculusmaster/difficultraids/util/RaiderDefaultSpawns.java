@@ -17,7 +17,7 @@ public class RaiderDefaultSpawns
                 .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 0, 2, 2, 1, 4, 2, 5})
                 .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 0, 4, 2, 2, 4, 4, 9})
                 .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 5, 4, 4, 5, 9, 10, 16})
-                .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 10, 20, 20, 25, 30, 50, 100})
+                .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 10, 20, 20, 25, 30, 34, 45})
                 .register();
 
         RaiderDefaultSpawns.createFor(Raid.RaiderType.EVOKER)
@@ -33,6 +33,7 @@ public class RaiderDefaultSpawns
                 .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 5, 4, 4, 6, 6, 6, 6})
                 .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 5, 5, 5, 7, 8, 8, 10})
                 .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 8, 8, 10, 10, 12, 16, 20})
+                .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 10, 20, 23, 28, 32, 45, 50})
                 .register();
 
         RaiderDefaultSpawns.createFor(Raid.RaiderType.WITCH)
