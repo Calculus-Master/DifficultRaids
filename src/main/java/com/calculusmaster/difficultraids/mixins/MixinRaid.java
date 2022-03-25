@@ -1,8 +1,8 @@
 package com.calculusmaster.difficultraids.mixins;
 
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
-import com.calculusmaster.difficultraids.util.BonusRaidSpawnPreset;
 import com.calculusmaster.difficultraids.util.RaidDifficulty;
+import com.calculusmaster.difficultraids.util.RaidReinforcements;
 import com.calculusmaster.difficultraids.util.RaiderDefaultSpawns;
 import com.calculusmaster.difficultraids.util.WeightedRewardPool;
 import com.mojang.logging.LogUtils;
@@ -14,6 +14,7 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -34,7 +35,7 @@ import java.util.*;
 @Mixin(Raid.class)
 public abstract class MixinRaid
 {
-    private BonusRaidSpawnPreset preset;
+    private RaidReinforcements raidReinforcements;
 
     @Shadow @Final private int numGroups;
     @Shadow @Final private ServerLevel level;
@@ -66,15 +67,30 @@ public abstract class MixinRaid
 
         if(this.random.nextInt(100) < bonusChance)
         {
-            this.preset = BonusRaidSpawnPreset.getRandom();
+            this.raidReinforcements = RaidReinforcements.getRandom();
 
             //TODO: Only send to players within the raid boundaries
             Minecraft.getInstance().player.sendMessage(
-                    new TextComponent("The " + this.preset.getChatName() + " has spawned!"),
+                    new TextComponent("The " + this.raidReinforcements.getChatName() + " has spawned!"),
                     Minecraft.getInstance().player.getUUID()
             );
         }
-        else this.preset = null;
+        else this.raidReinforcements = null;
+
+        //Non-Raider Entity Reinforcements
+        if(this.raidReinforcements != null)
+        {
+            for(Map.Entry<EntityType<?>, Integer> entityEntry : this.raidReinforcements.getGenericReinforcements(this.level.getDifficulty(), DifficultRaidsConfig.RAID_DIFFICULTY.get()).entrySet())
+            {
+                for(int i = 0; i < entityEntry.getValue(); i++)
+                {
+                    Entity spawn = entityEntry.getKey().create(this.level);
+                    spawn.setPos(pos.getX(), pos.getY(), pos.getZ());
+
+                    this.level.addFreshEntity(spawn);
+                }
+            }
+        }
     }
 
     @Inject(at = @At("HEAD"), method = "getDefaultNumSpawns", cancellable = true)
@@ -122,12 +138,12 @@ public abstract class MixinRaid
     private void difficultraids_getPotentialBonusSpawns(Raid.RaiderType raiderType, Random random,
             int groupsSpawned, DifficultyInstance difficultyInstance, boolean shouldSpawnBonusGroup, CallbackInfoReturnable<Integer> callbackInfoReturnable)
     {
-        if(this.preset != null)
+        if(this.raidReinforcements != null)
         {
             Difficulty worldDifficulty = difficultyInstance.getDifficulty();
             RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
 
-            int count = this.preset.getBonusSpawnCount(raiderType, worldDifficulty, raidDifficulty);
+            int count = this.raidReinforcements.getRaiderReinforcementCount(raiderType, worldDifficulty, raidDifficulty);
 
             MixinRaid.outputLog(
                     "Bonus Spawns: Raider Type {%s}, Spawn Count {%s}, Difficulty {World: %s, Raid: %s}"
