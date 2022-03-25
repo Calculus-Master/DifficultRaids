@@ -12,6 +12,8 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -210,10 +212,10 @@ public abstract class MixinRaid
         }
         else if(this.isLoss() && raidDifficulty.equals(RaidDifficulty.APOCALYPSE) && DifficultRaidsConfig.RAID_LOSS_APOCALYPSE_SHOULD_WITHER_SPAWN.get())
         {
-            WitherBoss wither = new WitherBoss(EntityType.WITHER, this.level);
+            WitherBoss wither = EntityType.WITHER.create(this.level);
 
             wither.setCustomName(new TextComponent("The Apocalypse"));
-            wither.setGlowingTag(true);
+            wither.addEffect(new MobEffectInstance(MobEffects.GLOWING));
             wither.setPos(this.center.getX(), this.center.getY(), this.center.getZ() + 10);
 
             MixinRaid.outputLog("Wither Boss spawned at X: %s Y: %s Z: %s!".formatted(this.center.getX(), this.center.getY(), this.center.getZ() + 10));
