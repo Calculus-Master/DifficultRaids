@@ -60,16 +60,7 @@ public abstract class MixinRaid
         Difficulty worldDifficulty = this.level.getDifficulty();
         RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
 
-        int bonusChance = switch(DifficultRaidsConfig.RAID_DIFFICULTY.get()) {
-            case DEFAULT -> 10;
-            case HERO -> 15;
-            case LEGEND -> 25;
-            case MASTER -> 50;
-            case APOCALYPSE -> 100;
-            case DEBUG -> 0;
-        };
-
-        if(this.random.nextInt(100) < bonusChance)
+        if(this.random.nextInt(100) < raidDifficulty.reinforcementChance)
         {
             this.raidReinforcements = RaidReinforcements.getRandom();
 
