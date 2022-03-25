@@ -33,6 +33,18 @@ public enum RaidReinforcements
                     new EntitySpawnData(EntityType.ZOMBIE, 20),
                     new EntitySpawnData(EntityType.HUSK, 5)
             )
+    ),
+    PRESET_5(
+            "",
+            List.of(new RaiderSpawnData(Raid.RaiderType.VINDICATOR, 2)),
+            List.of(
+                    new EntitySpawnData(EntityType.ZOMBIE, 5),
+                    new EntitySpawnData(EntityType.HUSK, 5),
+                    new EntitySpawnData(EntityType.SKELETON, 5),
+                    new EntitySpawnData(EntityType.STRAY, 5),
+                    new EntitySpawnData(EntityType.SPIDER, 5),
+                    new EntitySpawnData(EntityType.CREEPER, 5)
+            )
     );
 
     private final String chatName;
@@ -55,6 +67,11 @@ public enum RaidReinforcements
     public String getChatName()
     {
         return this.chatName;
+    }
+
+    public boolean shouldSendChatMessage()
+    {
+        return !this.chatName.isEmpty();
     }
 
     public int getRaiderReinforcementCount(Raid.RaiderType type, Difficulty worldDifficulty, RaidDifficulty raidDifficulty)

@@ -75,10 +75,13 @@ public abstract class MixinRaid
             this.raidReinforcements = RaidReinforcements.getRandom();
 
             //TODO: Only send to players within the raid boundaries
-            Minecraft.getInstance().player.sendMessage(
-                    new TextComponent("The " + this.raidReinforcements.getChatName() + " has spawned!"),
-                    Minecraft.getInstance().player.getUUID()
-            );
+            if(this.raidReinforcements.shouldSendChatMessage())
+            {
+                Minecraft.getInstance().player.sendMessage(
+                        new TextComponent("The " + this.raidReinforcements.getChatName() + " has spawned!"),
+                        Minecraft.getInstance().player.getUUID()
+                );
+            }
         }
         else this.raidReinforcements = null;
 
