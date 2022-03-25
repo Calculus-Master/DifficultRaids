@@ -13,6 +13,7 @@ import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.monster.AbstractIllager;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.item.ArmorMaterials;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -76,28 +77,31 @@ public abstract class AbstractIllagerMixin extends Raider
 
                         ItemStack armor = this.getArmorPiece(slot, mat);
 
-                        int protectionChance = switch(raidDifficulty) {
-                            case HERO -> 5;
-                            case LEGEND -> 15;
-                            case MASTER -> 33;
-                            case APOCALYPSE -> 50;
-                            default -> 0;
-                        };
+                        if(!armor.getItem().equals(Items.AIR))
+                        {
+                            int protectionChance = switch(raidDifficulty) {
+                                case HERO -> 5;
+                                case LEGEND -> 15;
+                                case MASTER -> 33;
+                                case APOCALYPSE -> 50;
+                                default -> 0;
+                            };
 
-                        if(random.nextInt(100) < protectionChance) armor.enchant(Enchantments.ALL_DAMAGE_PROTECTION,
-                                switch(raidDifficulty) {
-                                    case HERO -> random.nextInt(1, 3);
-                                    case LEGEND -> random.nextInt(1, 5);
-                                    case MASTER -> random.nextInt(3, 6);
-                                    case APOCALYPSE -> random.nextInt(4, 6);
-                                    default -> 1;
-                                });
+                            if(random.nextInt(100) < protectionChance) armor.enchant(Enchantments.ALL_DAMAGE_PROTECTION,
+                                    switch(raidDifficulty) {
+                                        case HERO -> random.nextInt(1, 3);
+                                        case LEGEND -> random.nextInt(1, 5);
+                                        case MASTER -> random.nextInt(3, 6);
+                                        case APOCALYPSE -> random.nextInt(4, 6);
+                                        default -> 1;
+                                    });
 
-                        if(raidDifficulty.equals(RaidDifficulty.LEGEND) && random.nextInt(100) < 15)
-                            armor.enchant(Enchantments.THORNS, random.nextInt(1, 4));
+                            if(raidDifficulty.equals(RaidDifficulty.LEGEND) && random.nextInt(100) < 15)
+                                armor.enchant(Enchantments.THORNS, random.nextInt(1, 4));
 
-                        armorLog.add(armor.getDisplayName() + " [" + armor.getEnchantmentTags().stream().map(Tag::getAsString).collect(Collectors.joining(", ")) + "]");
-                        this.setItemSlot(slot, armor);
+                            armorLog.add(armor.getDisplayName() + " [" + armor.getEnchantmentTags().stream().map(Tag::getAsString).collect(Collectors.joining(", ")) + "]");
+                            this.setItemSlot(slot, armor);
+                        }
                     }
 
                     LogUtils.getLogger().info("Equipping Armor: Raider {%s}, Armor Pieces {%s}".formatted(this.getDisplayName(), armorLog.toString()));
@@ -110,43 +114,60 @@ public abstract class AbstractIllagerMixin extends Raider
 
     private ItemStack getArmorPiece(EquipmentSlot slot, ArmorMaterials material)
     {
-        return new ItemStack(switch(material) {
-            case LEATHER -> switch(slot) {
+        Item item;
+
+        if(material.equals(ArmorMaterials.LEATHER))
+        {
+            item = switch(slot) {
                 case HEAD -> Items.LEATHER_HELMET;
                 case CHEST -> Items.LEATHER_CHESTPLATE;
                 case LEGS -> Items.LEATHER_LEGGINGS;
                 case FEET -> Items.LEATHER_BOOTS;
                 default -> null;
             };
-            case CHAIN -> switch(slot) {
+        }
+        else if(material.equals(ArmorMaterials.CHAIN))
+        {
+            item = switch(slot) {
                 case HEAD -> Items.CHAINMAIL_HELMET;
                 case CHEST -> Items.CHAINMAIL_CHESTPLATE;
                 case LEGS -> Items.CHAINMAIL_LEGGINGS;
                 case FEET -> Items.CHAINMAIL_BOOTS;
                 default -> null;
             };
-            case IRON -> switch(slot) {
+        }
+        else if(material.equals(ArmorMaterials.IRON))
+        {
+            item = switch(slot) {
                 case HEAD -> Items.IRON_HELMET;
                 case CHEST -> Items.IRON_CHESTPLATE;
                 case LEGS -> Items.IRON_LEGGINGS;
                 case FEET -> Items.IRON_BOOTS;
                 default -> null;
             };
-            case DIAMOND -> switch(slot) {
+        }
+        else if(material.equals(ArmorMaterials.DIAMOND))
+        {
+            item = switch(slot) {
                 case HEAD -> Items.DIAMOND_HELMET;
                 case CHEST -> Items.DIAMOND_CHESTPLATE;
                 case LEGS -> Items.DIAMOND_LEGGINGS;
                 case FEET -> Items.DIAMOND_BOOTS;
                 default -> null;
             };
-            case NETHERITE -> switch(slot) {
+        }
+        else if(material.equals(ArmorMaterials.NETHERITE))
+        {
+            item = switch(slot) {
                 case HEAD -> Items.NETHERITE_HELMET;
                 case CHEST -> Items.NETHERITE_CHESTPLATE;
                 case LEGS -> Items.NETHERITE_LEGGINGS;
                 case FEET -> Items.NETHERITE_BOOTS;
                 default -> null;
             };
-            default -> Items.AIR;
-        });
+        }
+        else item = Items.AIR;
+
+        return new ItemStack(item);
     }
 }
