@@ -207,7 +207,14 @@ public abstract class MixinRaid
                         case MASTER -> 15;
                         case APOCALYPSE -> 26;
                         default -> 0;
-                    }, 5);
+                    }, 5)
+                    .add(Items.GOLD_INGOT, 5, switch(raidDifficulty) {
+                        case HERO -> 8;
+                        case LEGEND -> 12;
+                        case MASTER -> 18;
+                        case APOCALYPSE -> 25;
+                        default -> 0;
+                    }, 3);
 
             List<ItemStack> rewards = new ArrayList<>();
 
