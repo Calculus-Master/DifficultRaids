@@ -91,7 +91,7 @@ public abstract class MixinRaid
 
         outputLog("Searching for Default Spawns: Raider Type {%s}, Raid Difficulty {%s}".formatted(raiderType.toString(), raidDifficulty.toString()));
         //Spawns per wave array
-        int[] spawnsPerWave = RaiderDefaultSpawns.getDefaultSpawns(raiderType, raidDifficulty);
+        int[] spawnsPerWave = RaiderDefaultSpawns.getDefaultSpawns(raiderType.toString(), raidDifficulty);
         //Selected spawns for the current wave
         int baseSpawnCount = spawnBonusGroup ? spawnsPerWave[this.numGroups] : spawnsPerWave[groupsSpawned];
 

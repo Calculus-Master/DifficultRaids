@@ -1,18 +1,16 @@
 package com.calculusmaster.difficultraids.util;
 
-import net.minecraft.world.entity.raid.Raid;
-
 import java.util.HashMap;
 import java.util.Map;
 
 public class RaiderDefaultSpawns
 {
-    public static final Map<Raid.RaiderType, RaiderDefaultSpawns> SPAWNS = new HashMap<>();
+    public static final Map<String, RaiderDefaultSpawns> SPAWNS = new HashMap<>();
 
     //TODO: Move this to DifficultRaidsConfig
     public static void init()
     {
-        RaiderDefaultSpawns.createFor(Raid.RaiderType.VINDICATOR)
+        RaiderDefaultSpawns.createFor("VINDICATOR")
                 .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 2, 0, 1, 4, 2, 5})
                 .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 0, 2, 2, 1, 4, 2, 5})
                 .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 0, 4, 2, 2, 4, 4, 9})
@@ -20,7 +18,7 @@ public class RaiderDefaultSpawns
                 .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 10, 20, 20, 25, 30, 34, 45})
                 .register();
 
-        RaiderDefaultSpawns.createFor(Raid.RaiderType.EVOKER)
+        RaiderDefaultSpawns.createFor("EVOKER")
                 .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 0, 0, 0, 1, 1, 2})
                 .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 0, 0, 0, 1, 1, 1, 3})
                 .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 0, 0, 2, 2, 2, 3, 4})
@@ -28,7 +26,7 @@ public class RaiderDefaultSpawns
                 .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 6, 8, 10, 12, 16, 20, 25})
                 .register();
 
-        RaiderDefaultSpawns.createFor(Raid.RaiderType.PILLAGER)
+        RaiderDefaultSpawns.createFor("PILLAGER")
                 .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 4, 3, 3, 4, 4, 4, 2})
                 .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 5, 4, 4, 6, 6, 6, 6})
                 .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 5, 5, 5, 7, 8, 8, 10})
@@ -36,7 +34,7 @@ public class RaiderDefaultSpawns
                 .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 10, 20, 23, 28, 32, 45, 50})
                 .register();
 
-        RaiderDefaultSpawns.createFor(Raid.RaiderType.WITCH)
+        RaiderDefaultSpawns.createFor("WITCH")
                 .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 0, 0, 3, 0, 0, 1})
                 .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 0, 0, 1, 3, 0, 1, 3})
                 .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 0, 2, 2, 3, 3, 3, 5})
@@ -44,7 +42,7 @@ public class RaiderDefaultSpawns
                 .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 5, 7, 10, 30, 20, 23, 30})
                 .register();
 
-        RaiderDefaultSpawns.createFor(Raid.RaiderType.RAVAGER)
+        RaiderDefaultSpawns.createFor("RAVAGER")
                 .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 0, 1, 0, 1, 0, 2})
                 .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 0, 1, 1, 0, 1, 0, 2})
                 .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 0, 1, 1, 1, 1, 1, 2})
@@ -53,24 +51,24 @@ public class RaiderDefaultSpawns
                 .register();
     }
 
-    public static int[] getDefaultSpawns(Raid.RaiderType raiderType, RaidDifficulty difficulty)
+    public static int[] getDefaultSpawns(String raiderType, RaidDifficulty difficulty)
     {
         return SPAWNS
                 .entrySet()
                 .stream()
-                .filter(e -> e.getKey().equals(raiderType))
-                .findFirst().orElseThrow(() -> new IllegalStateException("Missing RaiderDefaultSpawns entry for RaiderType " + raiderType)).getValue() //There is no way this fails
+                .filter(e -> e.getKey().equalsIgnoreCase(raiderType))
+                .findFirst().orElseThrow(() -> new IllegalStateException("Missing RaiderDefaultSpawns entry for RaiderType " + raiderType)).getValue()
                 .defaults
                 .get(difficulty);
     }
 
-    private Raid.RaiderType raiderType;
+    private String raiderType;
     private Map<RaidDifficulty, int[]> defaults;
 
-    public static RaiderDefaultSpawns createFor(Raid.RaiderType raiderType)
+    public static RaiderDefaultSpawns createFor(String raider)
     {
         RaiderDefaultSpawns spawns = new RaiderDefaultSpawns();
-        spawns.raiderType = raiderType;
+        spawns.raiderType = raider;
         spawns.defaults = new HashMap<>();
         return spawns;
     }
