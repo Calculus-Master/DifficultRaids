@@ -4,6 +4,7 @@ import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.TextComponent;
@@ -25,7 +26,17 @@ public class SetRaidDifficultyCommand
         //Change Raid Difficulty Command
         for(RaidDifficulty d : Arrays.copyOfRange(RaidDifficulty.values(), 0, RaidDifficulty.values().length - 1))
         {
-            literalArgumentBuilder.then(Commands.literal(d.toString().toLowerCase()).executes(css -> {
+            literalArgumentBuilder.then(Commands.literal(d.toString().toLowerCase()).requires(css -> {
+                try
+                {
+                    return css.getPlayerOrException().hasPermissions(2);
+                }
+                catch (CommandSyntaxException e)
+                {
+                    e.printStackTrace();
+                    return false;
+                }
+            }).executes(css -> {
                 DifficultRaidsConfig.RAID_DIFFICULTY.set(d);
 
                 css.getSource().sendSuccess(new TextComponent("Set Raid Difficulty to " + d.getFormattedName() + "!"), true);
