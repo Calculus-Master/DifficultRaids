@@ -19,6 +19,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.item.ItemStack;
@@ -92,10 +93,19 @@ public abstract class MixinRaid
             {
                 for(int i = 0; i < entityEntry.getValue(); i++)
                 {
-                    Entity spawn = entityEntry.getKey().create(this.level);
+                    EntityType<?> type = entityEntry.getKey();
+                    Entity spawn = type.create(this.level);
                     spawn.setPos(pos.getX(), pos.getY(), pos.getZ());
 
-                    if(entityEntry.getKey().equals(EntityType.ZOMBIE) || entityEntry.getKey().equals(EntityType.SKELETON))
+                    int creeperInvisChance = DifficultRaidsConfig.RAID_CREEPER_INVIS_CHANCE_MASTER.get() + (raidDifficulty.equals(RaidDifficulty.APOCALYPSE) ? 5 : 0);
+                    if(creeperInvisChance != 0 &&
+                            type.equals(EntityType.CREEPER) &&
+                            List.of(RaidDifficulty.MASTER, RaidDifficulty.APOCALYPSE).contains(raidDifficulty) &&
+                            this.random.nextInt(100) < DifficultRaidsConfig.RAID_CREEPER_INVIS_CHANCE_MASTER.get())
+                        ((Monster)spawn).addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 15));
+
+                    if(DifficultRaidsConfig.RAID_PREVENT_SUNLIGHT_BURNING_HELMETS.get() &&
+                            (entityEntry.getKey().equals(EntityType.ZOMBIE) || entityEntry.getKey().equals(EntityType.SKELETON)))
                         spawn.setItemSlot(EquipmentSlot.HEAD, new ItemStack(raidDifficulty.daylightHelmet));
 
                     this.level.addFreshEntity(spawn);

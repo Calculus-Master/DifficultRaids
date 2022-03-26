@@ -15,6 +15,7 @@ public class DifficultRaidsConfig
     public static ForgeConfigSpec.EnumValue<RaidDifficulty> RAID_DIFFICULTY;
     public static ForgeConfigSpec.BooleanValue RAID_LOSS_APOCALYPSE_SHOULD_WITHER_SPAWN;
     public static ForgeConfigSpec.BooleanValue RAID_PREVENT_SUNLIGHT_BURNING_HELMETS;
+    public static ForgeConfigSpec.IntValue RAID_CREEPER_INVIS_CHANCE_MASTER;
 
     public static void register()
     {
@@ -38,6 +39,10 @@ public class DifficultRaidsConfig
         RAID_PREVENT_SUNLIGHT_BURNING_HELMETS = SERVER
                 .comment("If true, any Zombies or Skeletons that spawn as Raid Reinforcements will automatically have a helmet equipped to prevent them from burning in daylight.")
                 .define("raidPreventBurningHelmets", true);
+
+        RAID_CREEPER_INVIS_CHANCE_MASTER = SERVER
+                .comment("The chance that a Creeper will be invisible for a few seconds when summoned as part of Raid Reinforcements on Master and Apocalypse difficulty raids. This chance will be increased by 5% on Apocalypse difficulty. Set to 0 to disable this feature.")
+                .defineInRange("raidCreeperInvisChance", 15, 0, 100);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, SERVER.build());
 
