@@ -247,6 +247,7 @@ public abstract class MixinRaid
      * @reason Changing the wave counts based on RaidDifficulty and World Difficulty
      */
     //TODO: Reenable after changing default spawn arrays
+    //TODO: Check the applyRaidBuffs methods in Vindicator, Pillager, Evoker, Ravager, (?)Witch
     //@Overwrite
     public int getNumGroups(Difficulty p_37725_)
     {
