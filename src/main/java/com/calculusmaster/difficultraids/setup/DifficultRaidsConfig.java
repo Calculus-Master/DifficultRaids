@@ -14,6 +14,7 @@ public class DifficultRaidsConfig
 
     public static ForgeConfigSpec.EnumValue<RaidDifficulty> RAID_DIFFICULTY;
     public static ForgeConfigSpec.BooleanValue RAID_LOSS_APOCALYPSE_SHOULD_WITHER_SPAWN;
+    public static ForgeConfigSpec.BooleanValue RAID_PREVENT_SUNLIGHT_BURNING_HELMETS;
 
     public static void register()
     {
@@ -33,6 +34,10 @@ public class DifficultRaidsConfig
         RAID_LOSS_APOCALYPSE_SHOULD_WITHER_SPAWN = SERVER
                 .comment("If true, losing a Raid on Apocalypse difficulty will spawn a Wither at the village center. Default: true")
                 .define("raidLoss_shouldWitherSpawn", true);
+
+        RAID_PREVENT_SUNLIGHT_BURNING_HELMETS = SERVER
+                .comment("If true, any Zombies or Skeletons that spawn as Raid Reinforcements will automatically have a helmet equipped to prevent them from burning in daylight.")
+                .define("raidPreventBurningHelmets", true);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, SERVER.build());
 

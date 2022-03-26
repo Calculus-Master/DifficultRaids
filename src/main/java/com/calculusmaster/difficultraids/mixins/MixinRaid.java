@@ -95,8 +95,8 @@ public abstract class MixinRaid
                     Entity spawn = entityEntry.getKey().create(this.level);
                     spawn.setPos(pos.getX(), pos.getY(), pos.getZ());
 
-                    if(entityEntry.getKey().equals(EntityType.ZOMBIE))
-                        spawn.setItemSlot(EquipmentSlot.HEAD, new ItemStack(raidDifficulty.zombieSpawnHelmet));
+                    if(entityEntry.getKey().equals(EntityType.ZOMBIE) || entityEntry.getKey().equals(EntityType.SKELETON))
+                        spawn.setItemSlot(EquipmentSlot.HEAD, new ItemStack(raidDifficulty.daylightHelmet));
 
                     this.level.addFreshEntity(spawn);
                 }

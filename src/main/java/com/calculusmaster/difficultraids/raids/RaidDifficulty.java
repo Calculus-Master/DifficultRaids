@@ -73,13 +73,13 @@ public enum RaidDifficulty
     public final int armorChance;
     public final int protectionChance;
     public final Function<Random, Integer> protectionLevelFunction;
-    public final Item zombieSpawnHelmet;
+    public final Item daylightHelmet;
 
     RaidDifficulty(int reinforcementChance,
                    int totalLootDrops,
                    List<ArmorMaterials> armorMaterials, int armorChance,
                    int protectionChance, Function<Random, Integer> protectionLevelFunction,
-                   Item zombieSpawnHelmet)
+                   Item daylightHelmet)
     {
         this.reinforcementChance = reinforcementChance;
         this.totalLootDrops = totalLootDrops;
@@ -87,7 +87,7 @@ public enum RaidDifficulty
         this.armorChance = armorChance;
         this.protectionChance = protectionChance;
         this.protectionLevelFunction = protectionLevelFunction;
-        this.zombieSpawnHelmet = zombieSpawnHelmet;
+        this.daylightHelmet = daylightHelmet;
     }
 
     public String getFormattedName()
