@@ -19,9 +19,11 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.AABB;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -37,6 +39,7 @@ import java.util.*;
 public abstract class MixinRaid
 {
     private RaidReinforcements raidReinforcements;
+    private int players;
 
     @Shadow @Final private int numGroups;
     @Shadow @Final private ServerLevel level;
@@ -54,7 +57,14 @@ public abstract class MixinRaid
         LOGGER.info("Difficult Raids - Log Info - [[ " + text + " ]]");
     }
 
-    @Inject(at = @At("HEAD"), method = "spawnGroup", cancellable = true)
+    @Inject(at = @At("TAIL"), method = "absorbBadOmen")
+    private void difficultraids_raidStart(Player p_37729_, CallbackInfo callbackInfo)
+    {
+        AABB validArea = new AABB(this.center).inflate(Math.sqrt(Raid.VALID_RAID_RADIUS_SQR));
+        this.players = this.level.getEntitiesOfClass(Player.class, validArea).size();
+    }
+
+    @Inject(at = @At("HEAD"), method = "spawnGroup")
     private void difficultraids_spawnGroup(BlockPos pos, CallbackInfo callbackInfo)
     {
         Difficulty worldDifficulty = this.level.getDifficulty();
@@ -126,6 +136,15 @@ public abstract class MixinRaid
                 case HARD -> baseSpawnCount = Math.max(1, baseSpawnCount + this.random.nextInt(6));
             }
         }
+
+        //Modifiers based on Player Count
+        baseSpawnCount *= 1 + this.players * switch(raidDifficulty) {
+            case HERO -> 0.05;
+            case LEGEND -> 0.1;
+            case MASTER -> 0.15;
+            case APOCALYPSE -> 0.2;
+            default -> 0.0;
+        };
 
         MixinRaid.outputLog(
                 "Default Spawns: Raider Type {%s}, Spawns per Wave {%s}, Selected Spawn Count {%s}, Difficulty {World: %s, Raid: %s}"
