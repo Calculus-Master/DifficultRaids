@@ -241,4 +241,46 @@ public abstract class MixinRaid
             this.level.addFreshEntity(wither);
         }
     }
+
+    /**
+     * @author CalculusMaster
+     * @reason Changing the wave counts based on RaidDifficulty and World Difficulty
+     */
+    //TODO: Reenable after changing default spawn arrays
+    //@Overwrite
+    public int getNumGroups(Difficulty p_37725_)
+    {
+        RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
+
+        if(raidDifficulty.equals(RaidDifficulty.DEFAULT))
+        {
+            //Vanilla Defaults
+            return switch(p_37725_) {
+                case EASY -> 3;
+                case NORMAL -> 5;
+                case HARD -> 7;
+                case PEACEFUL -> 0;
+            };
+        }
+        else if(raidDifficulty.equals(RaidDifficulty.DEBUG)) return 1;
+
+        //Base Waves (from RaidDifficulty)
+        int waves = switch(raidDifficulty) {
+            case HERO -> 5;
+            case LEGEND -> 7;
+            case MASTER -> 9;
+            case APOCALYPSE -> 11;
+            default -> 0;
+        };
+
+        //Waves Modifier (from World Difficulty)
+        waves += switch(p_37725_) {
+            case PEACEFUL -> -waves;
+            case EASY -> -2;
+            case NORMAL -> 0;
+            case HARD -> +2;
+        };
+
+        return waves;
+    }
 }

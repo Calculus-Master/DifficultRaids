@@ -10,6 +10,9 @@ public class RaiderDefaultSpawns
     //TODO: Move this to DifficultRaidsConfig
     public static void init()
     {
+        //TODO: Look into using Reflection instead
+        //ObfuscationReflectionHelper.findField(Raid.RaiderType.class, "f_37815_").set(Raid.RaiderType.VINDICATOR, new int[]{0, 0, 2, 0, 1, 4, 2, 5});
+
         RaiderDefaultSpawns.createFor("VINDICATOR")
                 .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 2, 0, 1, 4, 2, 5})
                 .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 0, 2, 2, 1, 4, 2, 5})
