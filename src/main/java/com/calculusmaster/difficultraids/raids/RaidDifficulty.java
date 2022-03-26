@@ -89,4 +89,9 @@ public enum RaidDifficulty
         this.protectionLevelFunction = protectionLevelFunction;
         this.zombieSpawnHelmet = zombieSpawnHelmet;
     }
+
+    public String getFormattedName()
+    {
+        return this.toString().charAt(0) + this.toString().substring(1).toLowerCase();
+    }
 }

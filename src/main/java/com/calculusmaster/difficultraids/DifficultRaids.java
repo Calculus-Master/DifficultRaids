@@ -2,9 +2,11 @@ package com.calculusmaster.difficultraids;
 
 import com.calculusmaster.difficultraids.raids.RaiderDefaultSpawns;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
+import com.calculusmaster.difficultraids.util.SetRaidDifficultyCommand;
 import com.mojang.logging.LogUtils;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -34,6 +36,16 @@ public class DifficultRaids
     private void setup(final FMLCommonSetupEvent event)
     {
         // some preinit code
+    }
+
+    @Mod.EventBusSubscriber(modid = "difficultraids")
+    public static class GeneralEvents
+    {
+        @SubscribeEvent
+        public static void onCommandsRegister(RegisterCommandsEvent event)
+        {
+            SetRaidDifficultyCommand.register(event.getDispatcher());
+        }
     }
 
     // You can use EventBusSubscriber to automatically subscribe events on the contained class (this is subscribing to the MOD
