@@ -14,7 +14,11 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.List;
 import java.util.Map;
 
 @Mixin(Pillager.class)
@@ -36,7 +40,7 @@ public abstract class PillagerMixin extends AbstractIllager
 
         ItemStack item = this.getMainHandItem();
 
-        if(item.is(Items.CROSSBOW))
+        if(!List.of(RaidDifficulty.DEBUG, RaidDifficulty.DEFAULT).contains(raidDifficulty) && item.is(Items.CROSSBOW))
         {
             Map<Enchantment, Integer> enchants = EnchantmentHelper.getEnchantments(item);
 
@@ -78,5 +82,13 @@ public abstract class PillagerMixin extends AbstractIllager
             EnchantmentHelper.setEnchantments(enchants, item);
             this.setItemSlot(EquipmentSlot.MAINHAND, item);
         }
+    }
+
+    @Inject(at = @At("HEAD"), method = "applyRaidBuffs", cancellable = true)
+    public void applyRaidBuffs(int p_37844_, boolean p_37845_, CallbackInfo callbackInfo)
+    {
+        RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
+
+        if(!List.of(RaidDifficulty.DEBUG, RaidDifficulty.DEFAULT).contains(raidDifficulty)) callbackInfo.cancel();
     }
 }
