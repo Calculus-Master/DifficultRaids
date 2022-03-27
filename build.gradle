@@ -22,7 +22,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 
 
-version = '0.1-alpha-hotfix 1'
+version = '0.2-alpha'
 group = 'com.calculusmaster.difficultraids'
 archivesBaseName = 'difficultraids'
 
