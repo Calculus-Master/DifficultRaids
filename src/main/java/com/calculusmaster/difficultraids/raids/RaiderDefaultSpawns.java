@@ -47,9 +47,9 @@ public class RaiderDefaultSpawns
 
         RaiderDefaultSpawns.createFor("RAVAGER")
                 .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 0, 1, 0, 1, 0, 2})
-                .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 0, 1, 1, 0, 1, 0, 2})
-                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 0, 1, 1, 1, 1, 1, 2})
-                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 0, 2, 2, 2, 2, 0, 5})
+                .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 0, 1, 1, 0, 2, 0, 2})
+                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 0, 1, 0, 0, 1, 0, 3})
+                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 0, 2, 0, 1, 3, 0, 3})
                 .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 5, 5, 8, 8, 10, 10, 20})
                 .register();
     }
