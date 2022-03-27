@@ -2,10 +2,7 @@ package com.calculusmaster.difficultraids.mixins;
 
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
-import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -25,8 +22,6 @@ import org.spongepowered.asm.mixin.Mixin;
 
 import java.util.List;
 import java.util.Random;
-import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 @Mixin(AbstractIllager.class)
 public abstract class AbstractIllagerMixin extends Raider
@@ -53,13 +48,22 @@ public abstract class AbstractIllagerMixin extends Raider
                 int armorChance = raidDifficulty.armorChance;
                 int protectionChance = raidDifficulty.protectionChance;
 
-                StringJoiner armorLog = new StringJoiner(", ");
+                int maxArmorPieces;
+
+                if(raidDifficulty.equals(RaidDifficulty.APOCALYPSE)) maxArmorPieces = 4;
+                else if(this.getType().equals(EntityType.EVOKER)) maxArmorPieces = switch(raidDifficulty) {
+                    case HERO, LEGEND -> 2;
+                    case MASTER -> 3;
+                    default -> 1;
+                };
+                else maxArmorPieces = 1;
+
+                int armorCount = 0;
                 for(EquipmentSlot slot : List.of(EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET))
                 {
-                    if(!tiers.isEmpty() && random.nextInt(100) < armorChance)
+                    if(armorCount < maxArmorPieces && !tiers.isEmpty() && random.nextInt(100) < armorChance)
                     {
                         ArmorMaterials mat = tiers.get(random.nextInt(tiers.size()));
-
                         ItemStack armor = this.getArmorPiece(slot, mat);
 
                         if(!armor.getItem().equals(Items.AIR))
@@ -71,12 +75,11 @@ public abstract class AbstractIllagerMixin extends Raider
                             if(raidDifficulty.equals(RaidDifficulty.LEGEND) && random.nextInt(100) < 15)
                                 armor.enchant(Enchantments.THORNS, random.nextInt(1, 4));
 
-                            armorLog.add(((TranslatableComponent)(armor.getHoverName())).getKey() + " [" + armor.getEnchantmentTags().stream().map(Tag::getAsString).collect(Collectors.joining(", ")) + "]");
                             this.setItemSlot(slot, armor);
                         }
-                    }
 
-                    LogUtils.getLogger().debug("Equipping Armor: Raider {%s}, Armor Pieces {%s}".formatted(((TranslatableComponent)(this.getName())).getKey(), armorLog.toString()));
+                        armorCount++;
+                    }
                 }
             }
         }
