@@ -5,7 +5,8 @@
   "refmap": "difficultraids.refmap.json",
   "mixins": [
     "AbstractIllagerMixin",
-    "MixinRaid"
+    "MixinRaid",
+    "PillagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
