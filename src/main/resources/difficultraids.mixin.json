@@ -5,6 +5,7 @@
   "refmap": "difficultraids.refmap.json",
   "mixins": [
     "AbstractIllagerMixin",
+    "IllusionerBlindnessSpellGoalMixin",
     "MixinRaid",
     "PillagerMixin"
   ],
