@@ -6,7 +6,6 @@ import com.calculusmaster.difficultraids.raids.RaiderDefaultSpawns;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import com.calculusmaster.difficultraids.util.WeightedRewardPool;
 import com.mojang.logging.LogUtils;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerLevel;
@@ -41,6 +40,7 @@ public abstract class MixinRaid
 {
     private RaidReinforcements raidReinforcements;
     private int players;
+    private AABB validRaidArea;
 
     @Shadow @Final private int numGroups;
     @Shadow @Final private ServerLevel level;
@@ -61,13 +61,16 @@ public abstract class MixinRaid
     @Inject(at = @At("TAIL"), method = "absorbBadOmen")
     private void difficultraids_raidStart(Player p_37729_, CallbackInfo callbackInfo)
     {
-        AABB validArea = new AABB(this.center).inflate(Math.sqrt(Raid.VALID_RAID_RADIUS_SQR));
-        this.players = this.level.getEntitiesOfClass(Player.class, validArea).size();
+        this.validRaidArea = new AABB(this.center).inflate(Math.sqrt(Raid.VALID_RAID_RADIUS_SQR));
+        this.players = this.level.getEntitiesOfClass(Player.class, this.validRaidArea).size();
     }
 
     @Inject(at = @At("HEAD"), method = "spawnGroup")
     private void difficultraids_spawnGroup(BlockPos pos, CallbackInfo callbackInfo)
     {
+        List<Player> participants = this.level.getEntitiesOfClass(Player.class, this.validRaidArea);
+        this.players = participants.size();
+
         Difficulty worldDifficulty = this.level.getDifficulty();
         RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
 
@@ -75,14 +78,9 @@ public abstract class MixinRaid
         {
             this.raidReinforcements = RaidReinforcements.getRandom();
 
-            //TODO: Only send to players within the raid boundaries
-            if(this.raidReinforcements.shouldSendChatMessage())
-            {
-                Minecraft.getInstance().player.sendMessage(
+            if(this.raidReinforcements.shouldSendChatMessage()) participants.forEach(p -> p.sendMessage(
                         new TextComponent("The " + this.raidReinforcements.getChatName() + " has spawned!"),
-                        Minecraft.getInstance().player.getUUID()
-                );
-            }
+                        p.getUUID()));
         }
         else this.raidReinforcements = null;
 
