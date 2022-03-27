@@ -23,7 +23,7 @@ public enum RaidReinforcements
     ),
     PRESET_3(
             "Explosives Party",
-            List.of(new RaiderSpawnData(Raid.RaiderType.RAVAGER, 2)),
+            List.of(),
             List.of(new EntitySpawnData(EntityType.CREEPER, 10))
     ),
     PRESET_4(

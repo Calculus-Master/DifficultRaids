@@ -103,7 +103,7 @@ public abstract class MixinRaid
                         ((Monster)spawn).addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 15));
 
                     if(DifficultRaidsConfig.RAID_PREVENT_SUNLIGHT_BURNING_HELMETS.get() &&
-                            (entityEntry.getKey().equals(EntityType.ZOMBIE) || entityEntry.getKey().equals(EntityType.SKELETON)))
+                            (entityEntry.getKey().equals(EntityType.ZOMBIE) || entityEntry.getKey().equals(EntityType.SKELETON) || entityEntry.getKey().equals(EntityType.STRAY)))
                         spawn.setItemSlot(EquipmentSlot.HEAD, new ItemStack(raidDifficulty.daylightHelmet));
 
                     this.level.addFreshEntity(spawn);
