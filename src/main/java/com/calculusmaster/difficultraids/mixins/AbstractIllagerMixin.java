@@ -57,6 +57,7 @@ public abstract class AbstractIllagerMixin extends Raider
                     case MASTER -> 3;
                     default -> 1;
                 };
+                else if(this.getType().equals(EntityType.ILLUSIONER)) maxArmorPieces = raidDifficulty.equals(RaidDifficulty.MASTER) ? 2 : 1;
                 else maxArmorPieces = 1;
 
                 int armorCount = 0;

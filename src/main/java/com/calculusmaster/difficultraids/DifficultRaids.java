@@ -25,6 +25,7 @@ public class DifficultRaids
         DifficultRaidsConfig.register();
 
         RaiderDefaultSpawns.init();
+        RaiderDefaultSpawns.registerNewRaiders();
 
         // Register the setup method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
