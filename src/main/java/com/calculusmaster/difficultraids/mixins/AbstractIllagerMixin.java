@@ -14,6 +14,8 @@ import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -21,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 @Mixin(AbstractIllager.class)
@@ -69,16 +72,18 @@ public abstract class AbstractIllagerMixin extends Raider
 
                         if(!armor.getItem().equals(Items.AIR))
                         {
+                            Map<Enchantment, Integer> enchants = EnchantmentHelper.getEnchantments(armor);
+
                             if(random.nextInt(100) < protectionChance)
-                                armor.enchant(Enchantments.ALL_DAMAGE_PROTECTION,
-                                        raidDifficulty.protectionLevelFunction.apply(random));
+                                enchants.put(Enchantments.ALL_DAMAGE_PROTECTION, raidDifficulty.protectionLevelFunction.apply(random));
 
                             if(raidDifficulty.equals(RaidDifficulty.LEGEND) && random.nextInt(100) < 15)
-                                armor.enchant(Enchantments.THORNS, random.nextInt(1, 4));
+                                enchants.put(Enchantments.THORNS, random.nextInt(1, 4));
 
                             //So the armor doesn't drop on death
-                            armor.enchant(Enchantments.VANISHING_CURSE, 1);
+                            enchants.put(Enchantments.VANISHING_CURSE, 1);
 
+                            EnchantmentHelper.setEnchantments(enchants, armor);
                             this.setItemSlot(slot, armor);
                         }
 
