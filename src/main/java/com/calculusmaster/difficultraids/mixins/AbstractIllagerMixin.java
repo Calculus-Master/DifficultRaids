@@ -4,7 +4,6 @@ import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.MobSpawnType;
@@ -77,6 +76,9 @@ public abstract class AbstractIllagerMixin extends Raider
                             if(raidDifficulty.equals(RaidDifficulty.LEGEND) && random.nextInt(100) < 15)
                                 armor.enchant(Enchantments.THORNS, random.nextInt(1, 4));
 
+                            //So the armor doesn't drop on death
+                            armor.enchant(Enchantments.VANISHING_CURSE, 1);
+
                             this.setItemSlot(slot, armor);
                         }
 
@@ -87,13 +89,6 @@ public abstract class AbstractIllagerMixin extends Raider
         }
 
         return super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawnGroupData, tag);
-    }
-
-    @Override
-    protected void dropCustomDeathLoot(DamageSource p_21385_, int p_21386_, boolean p_21387_)
-    {
-        //Disabling equipment drops during Raids
-        if(this.getCurrentRaid() == null) super.dropCustomDeathLoot(p_21385_, p_21386_, p_21387_);
     }
 
     private ItemStack getArmorPiece(EquipmentSlot slot, ArmorMaterials material)
