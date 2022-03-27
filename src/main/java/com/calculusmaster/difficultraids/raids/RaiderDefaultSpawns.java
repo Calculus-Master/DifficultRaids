@@ -63,9 +63,9 @@ public class RaiderDefaultSpawns
 
         RaiderDefaultSpawns.createFor("ILLUSIONER")
                 .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 0, 0, 1, 0, 2, 2})
-                .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 0, 1, 0, 2, 0, 1, 2})
-                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 0, 1, 1, 2, 0, 2, 3})
-                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 2, 1, 1, 1, 3, 3, 4})
+                .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 0, 1, 1, 2, 0, 1, 2})
+                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 1, 1, 2, 2, 3, 2, 3})
+                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 2, 1, 2, 2, 4, 3, 5})
                 .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 5, 8, 10, 11, 15, 18, 22})
                 .register();
     }
