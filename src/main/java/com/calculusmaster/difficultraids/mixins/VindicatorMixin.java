@@ -108,7 +108,7 @@ public abstract class VindicatorMixin extends AbstractIllager
             };
 
             if(this.random.nextInt(100) < swiftnessChance)
-                this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 3));
+                this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 20 * 20, 3));
         }
     }
 }
