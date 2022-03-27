@@ -124,25 +124,28 @@ public abstract class MixinRaid
             return;
         }
 
-        outputLog("Searching for Default Spawns: Raider Type {%s}, Raid Difficulty {%s}".formatted(raiderType.toString(), raidDifficulty.toString()));
+        //outputLog("Searching for Default Spawns: Raider Type {%s}, Raid Difficulty {%s}".formatted(raiderType.toString(), raidDifficulty.toString()));
+
         //Spawns per wave array
         int[] spawnsPerWave = RaiderDefaultSpawns.getDefaultSpawns(raiderType.toString(), raidDifficulty);
         //Selected spawns for the current wave
         int baseSpawnCount = spawnBonusGroup ? spawnsPerWave[this.numGroups] : spawnsPerWave[groupsSpawned];
 
         //Modifiers based on Game Difficulty (Default and Apocalypse ignore this)
-        if(!List.of(RaidDifficulty.DEFAULT, RaidDifficulty.APOCALYPSE).contains(raidDifficulty))
+        if(!List.of(RaidDifficulty.DEFAULT, RaidDifficulty.APOCALYPSE).contains(raidDifficulty) && baseSpawnCount != 0 && !raiderType.equals(Raid.RaiderType.RAVAGER))
         {
             switch(worldDifficulty)
             {
                 case PEACEFUL -> baseSpawnCount = 0; //Don't think this ever executes?
                 //BSC ranges from BSC - 3 to BSC - 1 -- Minimum: 0
-                case EASY -> baseSpawnCount = Math.max(0, baseSpawnCount - this.random.nextInt(1, 4));
+                case EASY -> baseSpawnCount = this.random.nextInt(baseSpawnCount - 3, baseSpawnCount);
                 //BSC ranges from BSC - 2 to BSC + 2 -- Minimum: 0 if no mobs are supposed to spawn this wave, 1 if any are
-                case NORMAL -> baseSpawnCount = Math.max(baseSpawnCount == 0 ? 0 : 1, baseSpawnCount + (this.random.nextInt(3) - 1) * (this.random.nextInt(1, 3)));
+                case NORMAL -> baseSpawnCount = this.random.nextInt(baseSpawnCount - 2, baseSpawnCount + 2 + 1);
                 //BSC ranges from BSC to BSC + 5 -- Minimum: 1
-                case HARD -> baseSpawnCount = Math.max(1, baseSpawnCount + this.random.nextInt(6));
+                case HARD -> baseSpawnCount = this.random.nextInt(baseSpawnCount, baseSpawnCount + 3 + 1);
             }
+
+            if(baseSpawnCount < 0) baseSpawnCount = 0;
         }
 
         //Modifiers based on Player Count
