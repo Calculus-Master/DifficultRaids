@@ -7,7 +7,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -20,7 +19,6 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.monster.AbstractIllager;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.monster.Ravager;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raider;
@@ -61,7 +59,7 @@ public class WarriorIllagerEntity extends AbstractIllager
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new AbstractIllager.RaiderOpenDoorGoal(this));
         this.goalSelector.addGoal(2, new Raider.HoldGroundAttackGoal(this, 10.0F));
-        this.goalSelector.addGoal(3, new WarriorIllagerMeleeAttackGoal(this));
+        this.goalSelector.addGoal(3, new MeleeAttackGoal(this, 1.0D, false));
 
         this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, Raider.class)).setAlertOthers());
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
@@ -194,26 +192,5 @@ public class WarriorIllagerEntity extends AbstractIllager
     protected SoundEvent getHurtSound(DamageSource p_33034_)
     {
         return SoundEvents.VINDICATOR_HURT;
-    }
-
-    static class WarriorIllagerMeleeAttackGoal extends MeleeAttackGoal
-    {
-        public WarriorIllagerMeleeAttackGoal(WarriorIllagerEntity p_34123_)
-        {
-            super(p_34123_, 1.0D, false);
-        }
-
-        protected double getAttackReachSqr(LivingEntity p_34125_)
-        {
-            if (this.mob.getVehicle() instanceof Ravager)
-            {
-                float f = this.mob.getVehicle().getBbWidth() - 0.1F;
-                return f * 2.0F * f * 2.0F + p_34125_.getBbWidth();
-            }
-            else
-            {
-                return super.getAttackReachSqr(p_34125_);
-            }
-        }
     }
 }
