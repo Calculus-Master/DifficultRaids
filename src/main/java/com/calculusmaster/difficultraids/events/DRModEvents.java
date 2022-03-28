@@ -2,6 +2,7 @@ package com.calculusmaster.difficultraids.events;
 
 import com.calculusmaster.difficultraids.DifficultRaids;
 import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
+import com.calculusmaster.difficultraids.entity.entities.DartIllagerEntity;
 import com.calculusmaster.difficultraids.entity.entities.WarriorIllagerEntity;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -14,5 +15,6 @@ public class DRModEvents
     public static void addEntityAttributes(EntityAttributeCreationEvent event)
     {
         event.put(DifficultRaidsEntityTypes.WARRIOR_ILLAGER.get(), WarriorIllagerEntity.createAttributes().build());
+        event.put(DifficultRaidsEntityTypes.DART_ILLAGER.get(), DartIllagerEntity.createAttributes().build());
     }
 }

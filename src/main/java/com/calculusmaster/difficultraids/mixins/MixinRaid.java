@@ -2,7 +2,7 @@ package com.calculusmaster.difficultraids.mixins;
 
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.raids.RaidReinforcements;
-import com.calculusmaster.difficultraids.raids.RaiderDefaultSpawns;
+import com.calculusmaster.difficultraids.raids.RaiderSpawnRegistry;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import com.calculusmaster.difficultraids.util.WeightedRewardPool;
 import com.mojang.logging.LogUtils;
@@ -127,7 +127,7 @@ public abstract class MixinRaid
         //outputLog("Searching for Default Spawns: Raider Type {%s}, Raid Difficulty {%s}".formatted(raiderType.toString(), raidDifficulty.toString()));
 
         //Spawns per wave array
-        int[] spawnsPerWave = RaiderDefaultSpawns.getDefaultSpawns(raiderType.toString(), raidDifficulty);
+        int[] spawnsPerWave = RaiderSpawnRegistry.getDefaultSpawns(raiderType.toString(), raidDifficulty);
         //Selected spawns for the current wave
         int baseSpawnCount = spawnBonusGroup ? spawnsPerWave[this.numGroups] : spawnsPerWave[groupsSpawned];
 

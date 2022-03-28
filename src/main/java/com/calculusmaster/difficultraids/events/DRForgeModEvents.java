@@ -1,6 +1,7 @@
 package com.calculusmaster.difficultraids.events;
 
 import com.calculusmaster.difficultraids.DifficultRaids;
+import com.calculusmaster.difficultraids.entity.entities.DartIllagerEntity;
 import com.calculusmaster.difficultraids.entity.entities.WarriorIllagerEntity;
 import com.calculusmaster.difficultraids.util.SetRaidDifficultyCommand;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
@@ -31,6 +32,9 @@ public class DRForgeModEvents
         {
             villager.goalSelector.addGoal(1,
                     new AvoidEntityGoal<>(villager, WarriorIllagerEntity.class, defaultMaxDistance, defaultWalkSpeedModifier, defaultSprintSpeedModifier));
+
+            villager.goalSelector.addGoal(1,
+                    new AvoidEntityGoal<>(villager, DartIllagerEntity.class, defaultMaxDistance + 2.0F, defaultWalkSpeedModifier, defaultSprintSpeedModifier));
         }
     }
 }

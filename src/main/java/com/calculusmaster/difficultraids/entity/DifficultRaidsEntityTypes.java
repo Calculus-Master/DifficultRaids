@@ -1,6 +1,7 @@
 package com.calculusmaster.difficultraids.entity;
 
 import com.calculusmaster.difficultraids.DifficultRaids;
+import com.calculusmaster.difficultraids.entity.entities.DartIllagerEntity;
 import com.calculusmaster.difficultraids.entity.entities.WarriorIllagerEntity;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
@@ -19,6 +20,12 @@ public class DifficultRaidsEntityTypes
                     () -> EntityType.Builder.of(WarriorIllagerEntity::new, MobCategory.MONSTER)
                             .sized(0.6F, 1.95F).clientTrackingRange(8)
                             .build(new ResourceLocation(DifficultRaids.MODID, "warrior_illager").toString()));
+
+    public static final RegistryObject<EntityType<DartIllagerEntity>> DART_ILLAGER =
+            ENTITY_TYPES.register("dart_illager",
+                    () -> EntityType.Builder.of(DartIllagerEntity::new, MobCategory.MONSTER)
+                            .sized(0.6F, 1.95F).clientTrackingRange(8)
+                            .build(new ResourceLocation(DifficultRaids.MODID, "dart_illager").toString()));
 
     public static void register(IEventBus eventBus)
     {

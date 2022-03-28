@@ -1,7 +1,7 @@
 package com.calculusmaster.difficultraids;
 
 import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
-import com.calculusmaster.difficultraids.raids.RaiderDefaultSpawns;
+import com.calculusmaster.difficultraids.raids.RaiderSpawnRegistry;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import com.mojang.logging.LogUtils;
 import net.minecraft.world.level.block.Block;
@@ -53,8 +53,8 @@ public class DifficultRaids
 
     private void onLoadComplete(final FMLLoadCompleteEvent event)
     {
-        RaiderDefaultSpawns.init();
-        RaiderDefaultSpawns.registerNewRaiders();
+        RaiderSpawnRegistry.init();
+        RaiderSpawnRegistry.registerNewRaiders();
     }
 
     // You can use EventBusSubscriber to automatically subscribe events on the contained class (this is subscribing to the MOD

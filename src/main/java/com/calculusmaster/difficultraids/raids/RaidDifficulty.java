@@ -94,4 +94,9 @@ public enum RaidDifficulty
     {
         return this.toString().charAt(0) + this.toString().substring(1).toLowerCase();
     }
+
+    public boolean ignore()
+    {
+        return this.equals(DEBUG) || this.equals(DEFAULT);
+    }
 }
