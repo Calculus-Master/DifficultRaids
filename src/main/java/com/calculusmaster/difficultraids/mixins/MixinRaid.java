@@ -87,6 +87,7 @@ public abstract class MixinRaid
         //Non-Raider Entity Reinforcements
         if(this.raidReinforcements != null)
         {
+            //TODO: Either spawn Raid Reinforcements at the village center, or closer to the village, or set aggro to players within the village
             for(Map.Entry<EntityType<?>, Integer> entityEntry : this.raidReinforcements.getGenericReinforcements(worldDifficulty, raidDifficulty).entrySet())
             {
                 for(int i = 0; i < entityEntry.getValue(); i++)
