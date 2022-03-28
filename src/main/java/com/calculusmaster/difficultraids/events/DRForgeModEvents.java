@@ -1,9 +1,10 @@
 package com.calculusmaster.difficultraids.events;
 
 import com.calculusmaster.difficultraids.DifficultRaids;
+import com.calculusmaster.difficultraids.commands.PrintRaidersCommand;
+import com.calculusmaster.difficultraids.commands.SetRaidDifficultyCommand;
 import com.calculusmaster.difficultraids.entity.entities.DartIllagerEntity;
 import com.calculusmaster.difficultraids.entity.entities.WarriorIllagerEntity;
-import com.calculusmaster.difficultraids.util.SetRaidDifficultyCommand;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -18,6 +19,7 @@ public class DRForgeModEvents
     public static void onCommandsRegister(RegisterCommandsEvent event)
     {
         SetRaidDifficultyCommand.register(event.getDispatcher());
+        PrintRaidersCommand.register(event.getDispatcher());
     }
 
     @SubscribeEvent

@@ -1,4 +1,4 @@
-package com.calculusmaster.difficultraids.util;
+package com.calculusmaster.difficultraids.commands;
 
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
@@ -15,7 +15,7 @@ public class SetRaidDifficultyCommand
 {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
     {
-        LiteralArgumentBuilder<CommandSourceStack> literalArgumentBuilder = Commands.literal("raiddifficulty");
+        LiteralArgumentBuilder<CommandSourceStack> literalArgumentBuilder = Commands.literal("dr_raiddifficulty");
 
         //Get Raid Difficulty Command
         literalArgumentBuilder.executes(css -> {
