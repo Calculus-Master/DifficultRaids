@@ -5,9 +5,7 @@ import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
@@ -161,6 +159,24 @@ public class WarriorIllagerEntity extends AbstractIllager
         }
 
         this.setItemSlot(EquipmentSlot.MAINHAND, sword);
+    }
+
+    @Override
+    public boolean isAlliedTo(Entity pEntity)
+    {
+        //Default Raider isAlliedTo
+        if(super.isAlliedTo(pEntity))
+        {
+            return true;
+        }
+        else if(pEntity instanceof LivingEntity && ((LivingEntity)pEntity).getMobType() == MobType.ILLAGER)
+        {
+            return this.getTeam() == null && pEntity.getTeam() == null;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     @Override
