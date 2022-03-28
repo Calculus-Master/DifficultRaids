@@ -59,7 +59,7 @@ public class WarriorIllagerEntity extends AbstractIllager
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new AbstractIllager.RaiderOpenDoorGoal(this));
         this.goalSelector.addGoal(2, new Raider.HoldGroundAttackGoal(this, 10.0F));
-        this.goalSelector.addGoal(3, new MeleeAttackGoal(this, 1.0D, false));
+        this.goalSelector.addGoal(3, new MeleeAttackGoal(this, 1.2D, false));
 
         this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, Raider.class)).setAlertOthers());
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
