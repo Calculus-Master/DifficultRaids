@@ -5,10 +5,11 @@
   "refmap": "difficultraids.refmap.json",
   "mixins": [
     "AbstractIllagerMixin",
-    "IllusionerBlindnessSpellGoalMixin",
     "MixinRaid",
     "PillagerMixin",
-    "VindicatorMixin"
+    "VindicatorMixin",
+    "illusioner.IllusionerBlindnessSpellGoalMixin",
+    "illusioner.IllusionerMirrorSpellGoalMixin"
   ],
   "injectors": {
     "defaultRequire": 1
