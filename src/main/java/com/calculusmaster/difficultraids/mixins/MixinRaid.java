@@ -78,8 +78,8 @@ public abstract class MixinRaid
         {
             this.raidReinforcements = RaidReinforcements.getRandom();
 
-            if(this.raidReinforcements.shouldSendChatMessage()) participants.forEach(p -> p.sendMessage(
-                        new TextComponent("The " + this.raidReinforcements.getChatName() + " has spawned!"),
+            participants.forEach(p -> p.sendMessage(
+                        new TextComponent("Raid Reinforcements have arrived!"), //TODO: Remove RaidReinforcements#chatName field – Ideas: have different generic messages, give information of what spawns, ??
                         p.getUUID()));
         }
         else this.raidReinforcements = null;

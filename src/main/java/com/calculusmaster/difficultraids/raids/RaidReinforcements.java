@@ -1,5 +1,6 @@
 package com.calculusmaster.difficultraids.raids;
 
+import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.raid.Raid;
@@ -50,6 +51,11 @@ public enum RaidReinforcements
             "Sheep?",
             List.of(),
             List.of(new EntitySpawnData(EntityType.SHEEP, 20))
+    ),
+    PRESET_7(
+            "",
+            List.of(new RaiderSpawnData(Raid.RaiderType.VINDICATOR, 6)),
+            List.of(new EntitySpawnData(DifficultRaidsEntityTypes.WARRIOR_ILLAGER.get(), 6))
     );
 
     private final String chatName;

@@ -1,34 +1,41 @@
 package com.calculusmaster.difficultraids;
 
+import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
 import com.calculusmaster.difficultraids.raids.RaiderDefaultSpawns;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
-import com.calculusmaster.difficultraids.util.SetRaidDifficultyCommand;
 import com.mojang.logging.LogUtils;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
-@Mod("difficultraids")
+@Mod(DifficultRaids.MODID)
 public class DifficultRaids
 {
+    public static final String MODID = "difficultraids";
+
     // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public DifficultRaids()
     {
+        IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
         DifficultRaidsConfig.register();
 
-        RaiderDefaultSpawns.init();
-        RaiderDefaultSpawns.registerNewRaiders();
+        DifficultRaidsEntityTypes.register(eventBus);
 
         // Register the setup method for modloading
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
+        eventBus.addListener(this::setup);
+        eventBus.addListener(this::clientSetup);
+        eventBus.addListener(this::onLoadComplete);
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
@@ -39,14 +46,15 @@ public class DifficultRaids
         // some preinit code
     }
 
-    @Mod.EventBusSubscriber(modid = "difficultraids")
-    public static class GeneralEvents
+    private void clientSetup(final FMLClientSetupEvent event)
     {
-        @SubscribeEvent
-        public static void onCommandsRegister(RegisterCommandsEvent event)
-        {
-            SetRaidDifficultyCommand.register(event.getDispatcher());
-        }
+
+    }
+
+    private void onLoadComplete(final FMLLoadCompleteEvent event)
+    {
+        RaiderDefaultSpawns.init();
+        RaiderDefaultSpawns.registerNewRaiders();
     }
 
     // You can use EventBusSubscriber to automatically subscribe events on the contained class (this is subscribing to the MOD

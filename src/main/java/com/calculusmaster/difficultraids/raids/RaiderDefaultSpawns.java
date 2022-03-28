@@ -1,5 +1,6 @@
 package com.calculusmaster.difficultraids.raids;
 
+import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.raid.Raid;
 
@@ -67,6 +68,16 @@ public class RaiderDefaultSpawns
                 .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 1, 1, 2, 2, 3, 2, 3})
                 .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 2, 1, 2, 2, 4, 3, 5})
                 .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 5, 8, 10, 11, 15, 18, 22})
+                .register();
+
+        Raid.RaiderType.create("WARRIOR_ILLAGER", DifficultRaidsEntityTypes.WARRIOR_ILLAGER.get(), new int[]{0, 0, 3, 1, 2, 4, 2, 6});
+
+        RaiderDefaultSpawns.createFor("WARRIOR_ILLAGER")
+                .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 3, 1, 2, 4, 2, 6})
+                .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 2, 4, 2, 3, 4, 3, 8})
+                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 1, 3, 3, 3, 4, 3, 7})
+                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 3, 5, 1, 1, 6, 10, 10})
+                .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 10, 16, 16, 25, 25, 30, 40})
                 .register();
     }
 
