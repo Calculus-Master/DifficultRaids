@@ -100,7 +100,7 @@ public abstract class MixinRaid
                             type.equals(EntityType.CREEPER) &&
                             List.of(RaidDifficulty.MASTER, RaidDifficulty.APOCALYPSE).contains(raidDifficulty) &&
                             this.random.nextInt(100) < DifficultRaidsConfig.RAID_CREEPER_INVIS_CHANCE_MASTER.get())
-                        ((Monster)spawn).addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 15));
+                        ((Monster)spawn).addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 15 * 20));
 
                     if(DifficultRaidsConfig.RAID_PREVENT_SUNLIGHT_BURNING_HELMETS.get() &&
                             (entityEntry.getKey().equals(EntityType.ZOMBIE) || entityEntry.getKey().equals(EntityType.SKELETON) || entityEntry.getKey().equals(EntityType.STRAY)))
