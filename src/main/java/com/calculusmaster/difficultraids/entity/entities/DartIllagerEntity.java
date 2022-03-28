@@ -83,8 +83,10 @@ public class DartIllagerEntity extends AbstractIllager
         if(this.getHealth() < this.getMaxHealth() / 2 && !this.hasEffect(MobEffects.MOVEMENT_SPEED))
             this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 20 * 20, 3));
 
-        if(!this.hasEffect(MobEffects.GLOWING))
+        if(!this.hasEffect(MobEffects.GLOWING) && this.isAggressive())
             this.addEffect(new MobEffectInstance(MobEffects.GLOWING, 50 * 20));
+        else if(this.hasEffect(MobEffects.GLOWING) && !this.isAggressive())
+            this.removeEffect(MobEffects.GLOWING);
     }
 
     @Override
