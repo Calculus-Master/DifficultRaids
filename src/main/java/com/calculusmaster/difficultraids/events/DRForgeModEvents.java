@@ -4,8 +4,7 @@ import com.calculusmaster.difficultraids.DifficultRaids;
 import com.calculusmaster.difficultraids.entity.entities.WarriorIllagerEntity;
 import com.calculusmaster.difficultraids.util.SetRaidDifficultyCommand;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
-import net.minecraft.world.entity.npc.Villager;
-import net.minecraft.world.entity.npc.WanderingTrader;
+import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -27,16 +26,11 @@ public class DRForgeModEvents
         final float defaultWalkSpeedModifier = 0.8F;
         final float defaultSprintSpeedModifier = 0.85F;
 
-        if(event.getEntity() instanceof Villager villager)
+        //Both Villager and WanderingTrader
+        if(event.getEntity() instanceof AbstractVillager villager)
         {
             villager.goalSelector.addGoal(1,
                     new AvoidEntityGoal<>(villager, WarriorIllagerEntity.class, defaultMaxDistance, defaultWalkSpeedModifier, defaultSprintSpeedModifier));
-        }
-
-        if(event.getEntity() instanceof WanderingTrader wanderingTrader)
-        {
-            wanderingTrader.goalSelector.addGoal(1,
-                    new AvoidEntityGoal<>(wanderingTrader, WarriorIllagerEntity.class, defaultMaxDistance, defaultWalkSpeedModifier, defaultSprintSpeedModifier));
         }
     }
 }
