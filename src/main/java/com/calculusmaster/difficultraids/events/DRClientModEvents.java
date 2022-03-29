@@ -3,6 +3,7 @@ package com.calculusmaster.difficultraids.events;
 import com.calculusmaster.difficultraids.DifficultRaids;
 import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
 import com.calculusmaster.difficultraids.entity.renderer.DartIllagerRenderer;
+import com.calculusmaster.difficultraids.entity.renderer.ElectroIllagerRenderer;
 import com.calculusmaster.difficultraids.entity.renderer.WarriorIllagerRenderer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -19,5 +20,6 @@ public class DRClientModEvents
     {
         event.registerEntityRenderer(DifficultRaidsEntityTypes.WARRIOR_ILLAGER.get(), WarriorIllagerRenderer::new);
         event.registerEntityRenderer(DifficultRaidsEntityTypes.DART_ILLAGER.get(), DartIllagerRenderer::new);
+        event.registerEntityRenderer(DifficultRaidsEntityTypes.ELECTRO_ILLAGER.get(), ElectroIllagerRenderer::new);
     }
 }
