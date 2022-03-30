@@ -233,6 +233,12 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
         }
 
         @Override
+        public boolean canUse()
+        {
+            return super.canUse() && ElectroIllagerEntity.this.getHealth() > ElectroIllagerEntity.this.getMaxHealth() / 2;
+        }
+
+        @Override
         protected int getCastingTime()
         {
             return 60;
@@ -413,6 +419,12 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
                 });
                 //System.out.println("Spell Cast! Ring Lightning");
             }
+        }
+
+        @Override
+        public boolean canUse()
+        {
+            return super.canUse() && ElectroIllagerEntity.this.getHealth() < ElectroIllagerEntity.this.getMaxHealth() / 2;
         }
 
         @Override
