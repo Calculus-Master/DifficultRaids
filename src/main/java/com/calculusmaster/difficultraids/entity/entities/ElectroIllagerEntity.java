@@ -115,9 +115,16 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
 
                 if(target.isAlive())
                 {
-                    MobEffectInstance slowness = new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 200, 2);
-                    MobEffectInstance miningFatigue = new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 200, 1);
-                    MobEffectInstance weakness = new MobEffectInstance(MobEffects.WEAKNESS, 200, 2);
+                    boolean rain = level.isRainingAt(ElectroIllagerEntity.this.blockPosition());
+                    boolean thunder = level.isThundering();
+
+                    int slownessLevel = 2 + (rain ? 1 : 0) + (thunder ? 2 : 0);
+                    int miningFatigueLevel = 1 + (rain ? 1 : 0);
+                    int weaknessLevel = 2 + (rain ? 1 : 0) + (thunder ? 1 : 0);
+
+                    MobEffectInstance slowness = new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 200, slownessLevel);
+                    MobEffectInstance miningFatigue = new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 200, miningFatigueLevel);
+                    MobEffectInstance weakness = new MobEffectInstance(MobEffects.WEAKNESS, 200, weaknessLevel);
 
                     target.addEffect(slowness);
                     target.addEffect(miningFatigue);
@@ -177,6 +184,8 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
         {
             LivingEntity target = ElectroIllagerEntity.this.getTarget();
             ServerLevel level = (ServerLevel)ElectroIllagerEntity.this.getLevel();
+            boolean rain = level.isRainingAt(ElectroIllagerEntity.this.blockPosition());
+            boolean thunder = level.isThundering();
 
             if(target != null)
             {
@@ -205,6 +214,15 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
                     case EASY -> -2.0F;
                     case NORMAL -> 0.0F;
                     case HARD -> 2.0F;
+                };
+
+                if(rain) damage++;
+
+                if(thunder) damage *= switch(level.getDifficulty()) {
+                    case PEACEFUL -> 0.0;
+                    case EASY -> 1.05;
+                    case NORMAL -> 1.1;
+                    case HARD -> 1.2;
                 };
 
                 lightning.setDamage(damage);
@@ -255,6 +273,8 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
         {
             LivingEntity target = ElectroIllagerEntity.this.getTarget();
             ServerLevel level = (ServerLevel)ElectroIllagerEntity.this.getLevel();
+            boolean rain = level.isRainingAt(ElectroIllagerEntity.this.blockPosition());
+            boolean thunder = level.isThundering();
 
             if(target != null)
             {
@@ -298,7 +318,7 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
                         case EASY -> 6.0F;
                         case NORMAL -> 8.0F;
                         case HARD -> 10.0F;
-                    };
+                    } + (rain ? 1.0F : 0.0F) + (thunder ? 2.0F : 0.0F);
 
                     lightning.setDamage(damage);
                     lightning.moveTo(offsetPos, 0.0F, 0.0F);
@@ -351,6 +371,7 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
         {
             LivingEntity target = ElectroIllagerEntity.this.getTarget();
             ServerLevel level = (ServerLevel)ElectroIllagerEntity.this.getLevel();
+            boolean thunder = level.isThundering();
 
             if(target != null)
             {
@@ -386,7 +407,7 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
                 offsets.forEach(pos -> {
                     LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(level);
                     bolt.moveTo(pos, 0, 0);
-                    bolt.setDamage(1.0F);
+                    bolt.setDamage(thunder ? 3.0F : 1.0F);
 
                     level.addFreshEntity(bolt);
                 });
