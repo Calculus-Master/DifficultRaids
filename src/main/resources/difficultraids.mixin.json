@@ -6,6 +6,7 @@
   "mixins": [
     "AbstractIllagerMixin",
     "MixinRaid",
+    "MixinVex",
     "PillagerMixin",
     "VindicatorMixin",
     "illusioner.IllusionerBlindnessSpellGoalMixin",
