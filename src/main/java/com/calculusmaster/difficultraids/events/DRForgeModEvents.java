@@ -3,9 +3,7 @@ package com.calculusmaster.difficultraids.events;
 import com.calculusmaster.difficultraids.DifficultRaids;
 import com.calculusmaster.difficultraids.commands.PrintRaidersCommand;
 import com.calculusmaster.difficultraids.commands.SetRaidDifficultyCommand;
-import com.calculusmaster.difficultraids.entity.entities.DartIllagerEntity;
-import com.calculusmaster.difficultraids.entity.entities.ElectroIllagerEntity;
-import com.calculusmaster.difficultraids.entity.entities.WarriorIllagerEntity;
+import com.calculusmaster.difficultraids.entity.entities.*;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -41,6 +39,12 @@ public class DRForgeModEvents
 
             villager.goalSelector.addGoal(1,
                     new AvoidEntityGoal<>(villager, ElectroIllagerEntity.class, defaultMaxDistance, defaultWalkSpeedModifier - 0.2F, defaultSprintSpeedModifier - 0.1F));
+
+            villager.goalSelector.addGoal(1,
+                    new AvoidEntityGoal<>(villager, NecromancerIllagerEntity.class, defaultMaxDistance - 4.0F, defaultWalkSpeedModifier - 0.3F, defaultSprintSpeedModifier - 0.2F));
+
+            villager.goalSelector.addGoal(1,
+                    new AvoidEntityGoal<>(villager, ShamanIllagerEntity.class, defaultMaxDistance - 10.0F, defaultWalkSpeedModifier - 0.3F, defaultSprintSpeedModifier - 0.2F));
         }
     }
 }

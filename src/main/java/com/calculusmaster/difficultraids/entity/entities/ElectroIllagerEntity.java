@@ -9,7 +9,10 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
@@ -171,7 +174,7 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
         @Override
         protected SpellType getSpellType()
         {
-            return SpellType.SLOWNESS_BOLT;
+            return SpellType.ELECTRO_SLOWNESS_BOLT;
         }
     }
 
@@ -266,7 +269,7 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
         @Override
         protected SpellType getSpellType()
         {
-            return SpellType.CONCENTRATED_BOLT;
+            return SpellType.ELECTRO_CONCENTRATED_BOLT;
         }
     }
 
@@ -315,7 +318,7 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
 
                 for(int i = 0; i < strikes; i++)
                 {
-                    BlockPos offsetPos = targetPos.offset(-2 + random.nextInt(5), -2 + random.nextInt(5), 0);
+                    BlockPos offsetPos = targetPos.offset(-2 + random.nextInt(5), 0, -2 + random.nextInt(5));
 
                     LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level);
 
@@ -363,7 +366,7 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
         @Override
         protected SpellType getSpellType()
         {
-            return SpellType.SUMMON_BASIC_LIGHTNING_BOLTS;
+            return SpellType.ELECTRO_SUMMON_BASIC_LIGHTNING_BOLTS;
         }
     }
 
@@ -387,12 +390,12 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
                 List<BlockPos> offsets = new ArrayList<>(List.of(
                         targetPos.offset(dist, 0, 0),
                         targetPos.offset(-dist, 0, 0),
-                        targetPos.offset(0, dist, 0),
-                        targetPos.offset(0, -dist, 0),
-                        targetPos.offset(dist, dist, 0),
-                        targetPos.offset(dist, -dist, 0),
-                        targetPos.offset(-dist, dist, 0),
-                        targetPos.offset(-dist, -dist, 0)
+                        targetPos.offset(0, 0, dist),
+                        targetPos.offset(0, 0, dist),
+                        targetPos.offset(dist, 0, dist),
+                        targetPos.offset(dist, 0, -dist),
+                        targetPos.offset(-dist, 0, dist),
+                        targetPos.offset(-dist, 0, -dist)
                 ));
 
                 if(ElectroIllagerEntity.this.getCurrentRaid() != null)
@@ -402,8 +405,8 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
 
                     if(raidDifficulty.equals(RaidDifficulty.MASTER)) offsets.forEach(pos -> {
                         BlockPos farPos = new BlockPos(pos);
-                        if(pos.getX() != 0) farPos = pos.offset(pos.getX() * 2, 0, 0);
-                        if(pos.getY() != 0) farPos = pos.offset(0, pos.getY() * 2, 0);
+                        if(pos.getX() != 0) farPos = pos.offset(pos.getX(), 0, 0);
+                        if(pos.getZ() != 0) farPos = pos.offset(0, 0, pos.getZ());
                         extraOffsets.add(farPos);
                     });
 
@@ -455,55 +458,7 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
         @Override
         protected SpellType getSpellType()
         {
-            return SpellType.SUMMON_LIGHTNING_RING;
+            return SpellType.ELECTRO_LIGHTNING_RING;
         }
-    }
-
-    @Override
-    public boolean isAlliedTo(Entity pEntity)
-    {
-        //Default Raider isAlliedTo
-        if(super.isAlliedTo(pEntity))
-        {
-            return true;
-        }
-        else if(pEntity instanceof LivingEntity && ((LivingEntity)pEntity).getMobType() == MobType.ILLAGER)
-        {
-            return this.getTeam() == null && pEntity.getTeam() == null;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    @Override
-    protected SoundEvent getSpellSound()
-    {
-        return SoundEvents.EVOKER_CAST_SPELL;
-    }
-
-    @Override
-    public SoundEvent getCelebrateSound()
-    {
-        return SoundEvents.EVOKER_CELEBRATE;
-    }
-
-    @Override
-    protected SoundEvent getAmbientSound()
-    {
-        return SoundEvents.EVOKER_AMBIENT;
-    }
-
-    @Override
-    protected SoundEvent getDeathSound()
-    {
-        return SoundEvents.EVOKER_DEATH;
-    }
-
-    @Override
-    protected SoundEvent getHurtSound(DamageSource p_33034_)
-    {
-        return SoundEvents.EVOKER_HURT;
     }
 }

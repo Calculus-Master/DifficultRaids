@@ -1,5 +1,7 @@
 {
     "entity.difficultraids.warrior_illager": "Warrior Illager",
     "entity.difficultraids.dart_illager": "Dart Illager",
-    "entity.difficultraids.electro_illager": "Electro Illager"
+    "entity.difficultraids.electro_illager": "Electro Illager",
+    "entity.difficultraids.necromancer_illager": "Necromancer",
+    "entity.difficultraids.shaman_illager": "Shaman"
 }

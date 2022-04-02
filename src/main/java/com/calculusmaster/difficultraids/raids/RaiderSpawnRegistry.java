@@ -99,6 +99,26 @@ public class RaiderSpawnRegistry
                 .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 1, 0, 3, 1, 5, 2, 6})
                 .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 5, 6, 7, 8, 9, 10, 11})
                 .register();
+
+        Raid.RaiderType.create("NECROMANCER_ILLAGER", DifficultRaidsEntityTypes.NECROMANCER_ILLAGER.get(), new int[]{0, 0, 0, 0, 1, 0, 0, 1});
+
+        RaiderSpawnRegistry.createFor("NECROMANCER_ILLAGER")
+                .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 0, 0, 1, 0, 0, 1})
+                .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 0, 1, 0, 1, 0, 1, 1})
+                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 0, 1, 1, 1, 1, 0, 2})
+                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 1, 1, 2, 0, 1, 1, 3})
+                .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 2, 2, 3, 5, 2, 4, 8})
+                .register();
+
+        Raid.RaiderType.create("SHAMAN_ILLAGER", DifficultRaidsEntityTypes.SHAMAN_ILLAGER.get(), new int[]{0, 0, 1, 0, 1, 0, 0, 1});
+
+        RaiderSpawnRegistry.createFor("SHAMAN_ILLAGER")
+                .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 1, 0, 1, 0, 0, 1})
+                .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 1, 1, 1, 1, 1, 0, 1})
+                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 2, 1, 1, 3, 0, 3, 1})
+                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 2, 2, 4, 2, 0, 4, 2})
+                .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 4, 4, 3, 1, 6, 6, 6})
+                .register();
     }
 
     public static int[] getDefaultSpawns(String raiderType, RaidDifficulty difficulty)

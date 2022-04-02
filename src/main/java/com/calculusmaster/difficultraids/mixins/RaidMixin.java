@@ -16,6 +16,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
@@ -36,7 +37,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.*;
 
 @Mixin(Raid.class)
-public abstract class MixinRaid
+public abstract class RaidMixin
 {
     private RaidReinforcements raidReinforcements;
     private int players;
@@ -107,6 +108,9 @@ public abstract class MixinRaid
                             (entityEntry.getKey().equals(EntityType.ZOMBIE) || entityEntry.getKey().equals(EntityType.SKELETON) || entityEntry.getKey().equals(EntityType.STRAY)))
                         spawn.setItemSlot(EquipmentSlot.HEAD, new ItemStack(raidDifficulty.daylightHelmet));
 
+                    if(spawn instanceof Monster monster && this.random.nextInt(100) < 70) monster.getNavigation().createPath(this.center, 15);
+                    else if(spawn instanceof Animal animal) animal.getNavigation().createPath(this.center, 30);
+
                     this.level.addFreshEntity(spawn);
                 }
             }
@@ -158,7 +162,7 @@ public abstract class MixinRaid
             default -> 0.0;
         };
 
-        MixinRaid.outputLog(
+        RaidMixin.outputLog(
                 "Default Spawns: Raider Type {%s}, Spawns per Wave {%s}, Selected Spawn Count {%s}, Difficulty {World: %s, Raid: %s}"
                 .formatted(raiderType.toString(), Arrays.toString(spawnsPerWave), baseSpawnCount, worldDifficulty, raidDifficulty)
         );
@@ -177,14 +181,14 @@ public abstract class MixinRaid
 
             int count = this.raidReinforcements.getRaiderReinforcementCount(raiderType, worldDifficulty, raidDifficulty);
 
-            MixinRaid.outputLog(
+            RaidMixin.outputLog(
                     "Bonus Spawns: Raider Type {%s}, Spawn Count {%s}, Difficulty {World: %s, Raid: %s}"
                     .formatted(raiderType.toString(), count, worldDifficulty.toString(), raidDifficulty.toString())
             );
 
             callbackInfoReturnable.setReturnValue(count);
         }
-        else MixinRaid.outputLog("BonusRaidSpawnPreset is null! Defaulting to vanilla Minecraft bonus spawn groups...");
+        else RaidMixin.outputLog("BonusRaidSpawnPreset is null! Defaulting to vanilla Minecraft bonus spawn groups...");
     }
 
     @Inject(at = @At("HEAD"), method = "stop")
@@ -250,7 +254,7 @@ public abstract class MixinRaid
                 this.level.addFreshEntity(entityItem);
             });
 
-            MixinRaid.outputLog("Raid Rewards Generated at X: %s Y: %s Z: %s, Rewards List: %s".formatted(rewardPos.getX(), rewardPos.getY(), rewardPos.getZ(), rewards.stream().map(stack -> stack.getItem().getRegistryName() + " (x" + stack.getCount() + ")")));
+            RaidMixin.outputLog("Raid Rewards Generated at X: %s Y: %s Z: %s, Rewards List: %s".formatted(rewardPos.getX(), rewardPos.getY(), rewardPos.getZ(), rewards.stream().map(stack -> stack.getItem().getRegistryName() + " (x" + stack.getCount() + ")")));
 
             this.heroesOfTheVillage.stream().map(uuid -> this.level.getPlayerByUUID(uuid)).filter(Objects::nonNull).forEach(p -> {
                 p.sendMessage(
@@ -267,7 +271,7 @@ public abstract class MixinRaid
             wither.addEffect(new MobEffectInstance(MobEffects.GLOWING));
             wither.setPos(this.center.getX(), this.center.getY(), this.center.getZ() + 10);
 
-            MixinRaid.outputLog("Wither Boss spawned at X: %s Y: %s Z: %s!".formatted(this.center.getX(), this.center.getY(), this.center.getZ() + 10));
+            RaidMixin.outputLog("Wither Boss spawned at X: %s Y: %s Z: %s!".formatted(this.center.getX(), this.center.getY(), this.center.getZ() + 10));
 
             this.level.addFreshEntity(wither);
         }

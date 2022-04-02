@@ -27,7 +27,7 @@ apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
 
 
-version = '0.7.3-alpha'
+version = '0.8-alpha'
 group = 'com.calculusmaster.difficultraids'
 archivesBaseName = 'difficultraids'
 

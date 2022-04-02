@@ -6,9 +6,13 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.monster.AbstractIllager;
 import net.minecraft.world.level.Level;
@@ -107,15 +111,25 @@ public abstract class AbstractSpellcastingIllager extends AbstractIllager
         return this.spellTicks;
     }
 
-    protected abstract SoundEvent getSpellSound();
+    protected SoundEvent getSpellSound()
+    {
+        return SoundEvents.EVOKER_CAST_SPELL;
+    }
 
     public enum SpellType
     {
         NONE(0, 0.0D, 0.0D, 0.0D),
-        SUMMON_BASIC_LIGHTNING_BOLTS(1, 0.56D, 0.89D, 0.96D),
-        SUMMON_LIGHTNING_RING(2, 0.20D, 0.90D, 0.80D),
-        CONCENTRATED_BOLT(3, 0.9D, 0.1D, 0.1D),
-        SLOWNESS_BOLT(4, 0.5D , 0.5D, 0.5D);
+        ELECTRO_SUMMON_BASIC_LIGHTNING_BOLTS(1, 0.56D, 0.89D, 0.96D),
+        ELECTRO_LIGHTNING_RING(2, 0.20D, 0.90D, 0.80D),
+        ELECTRO_CONCENTRATED_BOLT(3, 0.9D, 0.1D, 0.1D),
+        ELECTRO_SLOWNESS_BOLT(4, 0.5D , 0.5D, 0.5D),
+        NECROMANCER_SUMMON_MINIONS(5, 0.1D, 0.1D, 0.1D),
+        NECROMANCER_SUMMON_HORDE(6, 0.5D, 0.05D, 0.5D),
+        NECROMANCER_BURY_TARGET(7, 0.0D, 0.9D, 0.2D),
+        SHAMAN_ATTACK_BOOST(8, 0.3D, 0.9D, 0.0D),
+        SHAMAN_DEFENSE_BOOST(9, 0.0D, 0.9D, 0.3D),
+        SHAMAN_DEBUFF(10, 0.1D, 0.1D, 0.1D),
+        SHAMAN_INVISIBILITY(11, 0.2D, 0.3D, 0.4D);
 
         final int ID;
         final double[] spellColor;
@@ -231,5 +245,49 @@ public abstract class AbstractSpellcastingIllager extends AbstractIllager
         protected abstract SoundEvent getSpellPrepareSound();
 
         protected abstract SpellType getSpellType();
+    }
+
+    //Default isAlliedTo for Raiders
+    @Override
+    public boolean isAlliedTo(Entity pEntity)
+    {
+        //Default Raider isAlliedTo
+        if(super.isAlliedTo(pEntity))
+        {
+            return true;
+        }
+        else if(pEntity instanceof LivingEntity && ((LivingEntity)pEntity).getMobType() == MobType.ILLAGER)
+        {
+            return this.getTeam() == null && pEntity.getTeam() == null;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    //Default Evoker Sounds
+    @Override
+    public SoundEvent getCelebrateSound()
+    {
+        return SoundEvents.EVOKER_CELEBRATE;
+    }
+
+    @Override
+    protected SoundEvent getAmbientSound()
+    {
+        return SoundEvents.EVOKER_AMBIENT;
+    }
+
+    @Override
+    protected SoundEvent getDeathSound()
+    {
+        return SoundEvents.EVOKER_DEATH;
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(DamageSource p_33034_)
+    {
+        return SoundEvents.EVOKER_HURT;
     }
 }

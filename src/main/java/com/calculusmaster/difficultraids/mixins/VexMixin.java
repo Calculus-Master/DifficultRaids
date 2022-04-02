@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Random;
 
 @Mixin(Vex.class)
-public abstract class MixinVex
+public abstract class VexMixin
 {
     @Shadow public abstract void setLimitedLife(int pLimitedLifeTicks);
 
@@ -31,7 +31,7 @@ public abstract class MixinVex
             this.setLimitedLife(20 * (10 + random.nextInt(20)));
     }
 
-    @Inject(at = @At("HEAD"), method = "createAttributes")
+    @Inject(at = @At("HEAD"), method = "createAttributes", cancellable = true)
     private static void difficultraids_createVexAttributes(CallbackInfoReturnable<AttributeSupplier.Builder> callbackInfoReturnable)
     {
         AttributeSupplier.Builder builder = Monster.createMonsterAttributes()

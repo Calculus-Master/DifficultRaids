@@ -99,4 +99,9 @@ public enum RaidDifficulty
     {
         return this.equals(DEBUG) || this.equals(DEFAULT);
     }
+
+    public boolean is(RaidDifficulty... others)
+    {
+        return List.of(others).contains(this);
+    }
 }
