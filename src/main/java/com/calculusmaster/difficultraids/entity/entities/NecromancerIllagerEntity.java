@@ -3,16 +3,15 @@ package com.calculusmaster.difficultraids.entity.entities;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
@@ -40,6 +39,10 @@ import java.util.Random;
 
 public class NecromancerIllagerEntity extends AbstractSpellcastingIllager
 {
+    private List<Monster> activeHorde = new ArrayList<>();
+    private int hordeLifetimeTicks = 0;
+    private List<Monster> activeMinions = new ArrayList<>();
+
     public NecromancerIllagerEntity(EntityType<? extends AbstractSpellcastingIllager> p_33724_, Level p_33725_)
     {
         super(p_33724_, p_33725_);
@@ -78,6 +81,81 @@ public class NecromancerIllagerEntity extends AbstractSpellcastingIllager
     public void applyRaidBuffs(int p_37844_, boolean p_37845_)
     {
 
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag pCompound)
+    {
+        super.addAdditionalSaveData(pCompound);
+
+        List<Integer> hordeIDs = this.activeHorde.stream().filter(Monster::isAlive).map(Entity::getId).toList();
+        pCompound.putIntArray("ActiveHorde", hordeIDs);
+        pCompound.putInt("ActiveHordeLifetimeTicks", this.hordeLifetimeTicks);
+
+        List<Integer> minionIDs = this.activeMinions.stream().filter(Monster::isAlive).map(Entity::getId).toList();
+        pCompound.putIntArray("ActiveMinions", minionIDs);
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag pCompound)
+    {
+        super.readAdditionalSaveData(pCompound);
+
+        int[] hordeIDs = pCompound.getIntArray("ActiveHorde");
+        for(int ID : hordeIDs)
+        {
+            Entity entity = this.level.getEntity(ID);
+            if(entity instanceof Monster monster && monster.isAlive()) this.activeHorde.add(monster);
+        }
+        this.hordeLifetimeTicks = pCompound.getInt("ActiveHordeLifetimeTicks");
+
+        int[] minionIDs = pCompound.getIntArray("ActiveMinions");
+        for(int ID : minionIDs)
+        {
+            Entity entity = this.level.getEntity(ID);
+            if(entity instanceof Monster monster && monster.isAlive()) this.activeMinions.add(monster);
+        }
+    }
+
+    @Override
+    public void die(DamageSource pCause)
+    {
+        super.die(pCause);
+
+        this.activeHorde.forEach(m -> m.hurt(DamageSource.STARVE, m.getHealth() + 1.0F));
+        this.activeMinions.forEach(m -> m.hurt(DamageSource.STARVE, m.getHealth() + 1.0F));
+    }
+
+    @Override
+    public void tick()
+    {
+        super.tick();
+
+        //Remove dead Horde members
+        if(!this.activeHorde.isEmpty())
+        {
+            this.activeHorde.removeIf(LivingEntity::isDeadOrDying);
+
+            if(this.activeHorde.isEmpty()) this.hordeLifetimeTicks = 0;
+        }
+
+        //Remove dead Minions
+        if(!this.activeMinions.isEmpty()) this.activeMinions.removeIf(LivingEntity::isDeadOrDying);
+
+        //If the Horde lifetime expires, kill remaining alive Horde members
+        if(this.hordeLifetimeTicks > 0)
+        {
+            this.hordeLifetimeTicks--;
+
+            if(this.hordeLifetimeTicks == 0)
+            {
+                this.activeHorde.forEach(m -> m.hurt(DamageSource.STARVE, m.getHealth() + 1.0F));
+                this.activeHorde.clear();
+            }
+        }
+
+        //If Minions aren't targeting anything, make them target whatever the Necromancer is targeting
+        if(!this.activeMinions.isEmpty() && this.getTarget() != null) for(Monster minion : this.activeMinions) if(minion.getTarget() == null) minion.setTarget(this.getTarget());
     }
 
     private class NecromancerCastSpellGoal extends SpellcastingIllagerCastSpellGoal
@@ -177,8 +255,21 @@ public class NecromancerIllagerEntity extends AbstractSpellcastingIllager
                     minion.setTarget(target);
 
                     level.addFreshEntity(minion);
+                    NecromancerIllagerEntity.this.activeMinions.add(minion);
                 }
             }
+        }
+
+        @Override
+        public boolean canUse()
+        {
+            int minionThreshold = switch(NecromancerIllagerEntity.this.getLevel().getDifficulty()) {
+                case PEACEFUL -> 0;
+                case EASY -> 1;
+                case NORMAL, HARD -> 2;
+            };
+
+            return super.canUse() && NecromancerIllagerEntity.this.activeMinions.size() <= minionThreshold && NecromancerIllagerEntity.this.hordeLifetimeTicks < 20 * 2;
         }
 
         @Override
@@ -271,8 +362,35 @@ public class NecromancerIllagerEntity extends AbstractSpellcastingIllager
                     hordeMember.moveTo(summonPos, 0, 0);
 
                     level.addFreshEntity(hordeMember);
+                    NecromancerIllagerEntity.this.activeHorde.add(hordeMember);
                 }
+
+                NecromancerIllagerEntity.this.hordeLifetimeTicks = raid ? switch(DifficultRaidsConfig.RAID_DIFFICULTY.get()) {
+                    case HERO -> 20 * 30;
+                    case LEGEND -> 20 * 60;
+                    case MASTER -> 20 * 90;
+                    case APOCALYPSE -> 20 * 180;
+                    default -> 20 * 15;
+                } : switch(level.getDifficulty()) {
+                    case PEACEFUL -> 1;
+                    case EASY -> 20 * 15;
+                    case NORMAL -> 20 * 30;
+                    case HARD -> 20 * 45;
+                };
             }
+        }
+
+        @Override
+        public boolean canUse()
+        {
+            int minionThreshold = switch(NecromancerIllagerEntity.this.getLevel().getDifficulty()) {
+                case PEACEFUL -> 0;
+                case EASY -> 1;
+                case NORMAL -> 2;
+                case HARD -> 3;
+            };
+
+            return super.canUse() && NecromancerIllagerEntity.this.activeMinions.size() <= minionThreshold && NecromancerIllagerEntity.this.activeHorde.isEmpty();
         }
 
         @Override
