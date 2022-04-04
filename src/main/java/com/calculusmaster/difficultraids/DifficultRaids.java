@@ -1,6 +1,7 @@
 package com.calculusmaster.difficultraids;
 
 import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
+import com.calculusmaster.difficultraids.raids.RaidLoot;
 import com.calculusmaster.difficultraids.raids.RaiderSpawnRegistry;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import com.mojang.logging.LogUtils;
@@ -55,6 +56,7 @@ public class DifficultRaids
     {
         RaiderSpawnRegistry.init();
         RaiderSpawnRegistry.registerNewRaiders();
+        RaidLoot.register();
     }
 
     // You can use EventBusSubscriber to automatically subscribe events on the contained class (this is subscribing to the MOD

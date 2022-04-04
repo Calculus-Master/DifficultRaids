@@ -1,10 +1,10 @@
 package com.calculusmaster.difficultraids.mixins;
 
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
+import com.calculusmaster.difficultraids.raids.RaidLoot;
 import com.calculusmaster.difficultraids.raids.RaidReinforcements;
 import com.calculusmaster.difficultraids.raids.RaiderSpawnRegistry;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
-import com.calculusmaster.difficultraids.util.WeightedRewardPool;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextComponent;
@@ -23,7 +23,6 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.AABB;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
@@ -198,61 +197,20 @@ public abstract class RaidMixin
 
         if(this.isVictory() && !List.of(RaidDifficulty.DEFAULT, RaidDifficulty.DEBUG).contains(raidDifficulty))
         {
-            WeightedRewardPool pool = new WeightedRewardPool()
-                    .add(Items.TOTEM_OF_UNDYING, 10, switch(raidDifficulty) {
-                        case HERO -> 2;
-                        case LEGEND -> 5;
-                        case MASTER -> 8;
-                        case APOCALYPSE -> 12;
-                        default -> 0;
-                    }, 1)
-                    .add(Items.IRON_INGOT, 15, switch(raidDifficulty) {
-                        case HERO -> 10;
-                        case LEGEND -> 15;
-                        case MASTER -> 20;
-                        case APOCALYPSE -> 40;
-                        default -> 0;
-                    }, 100)
-                    .add(Items.DIAMOND, 5, switch(raidDifficulty) {
-                        case HERO -> 1;
-                        case LEGEND -> 2;
-                        case MASTER -> 5;
-                        case APOCALYPSE -> 8;
-                        default -> 0;
-                    }, 1)
-                    .add(Items.EMERALD, 12, switch(raidDifficulty) {
-                        case HERO -> 6;
-                        case LEGEND -> 9;
-                        case MASTER -> 12;
-                        case APOCALYPSE -> 20;
-                        default -> 0;
-                    }, 3)
-                    .add(Items.LEATHER, 12, switch(raidDifficulty) {
-                        case HERO -> 7;
-                        case LEGEND -> 10;
-                        case MASTER -> 15;
-                        case APOCALYPSE -> 26;
-                        default -> 0;
-                    }, 5)
-                    .add(Items.GOLD_INGOT, 5, switch(raidDifficulty) {
-                        case HERO -> 8;
-                        case LEGEND -> 12;
-                        case MASTER -> 18;
-                        case APOCALYPSE -> 25;
-                        default -> 0;
-                    }, 3);
-
-            List<ItemStack> rewards = new ArrayList<>();
-
-            for(int i = 0; i < raidDifficulty.totalLootDrops; i++) rewards.add(pool.pull());
+            List<ItemStack> rewards = RaidLoot.generate(raidDifficulty, this.level.getDifficulty());
 
             BlockPos rewardPos = new BlockPos(this.center.getX(), this.center.getY(), this.center.getZ() + 10);
             rewards.forEach(stack -> {
-                ItemEntity entityItem = new ItemEntity(this.level, rewardPos.getX(), rewardPos.getY(), rewardPos.getZ(), stack);
+                int x = rewardPos.getX();
+                int y = rewardPos.getY();
+                int z = rewardPos.getZ();
+
+                ItemEntity entityItem = new ItemEntity(this.level, this.random.nextInt(x - 5, x + 6), this.random.nextInt(y - 5, y + 6), this.random.nextInt(z - 5, z + 6), stack);
                 entityItem.setExtendedLifetime();
 
                 this.level.addFreshEntity(entityItem);
             });
+            //TODO: Chest with loot instead of dropping on ground
 
             RaidMixin.outputLog("Raid Rewards Generated at X: %s Y: %s Z: %s, Rewards List: %s".formatted(rewardPos.getX(), rewardPos.getY(), rewardPos.getZ(), rewards.stream().map(stack -> stack.getItem().getRegistryName() + " (x" + stack.getCount() + ")")));
 
@@ -268,10 +226,9 @@ public abstract class RaidMixin
             WitherBoss wither = EntityType.WITHER.create(this.level);
 
             wither.setCustomName(new TextComponent("The Apocalypse"));
-            wither.addEffect(new MobEffectInstance(MobEffects.GLOWING));
-            wither.setPos(this.center.getX(), this.center.getY(), this.center.getZ() + 10);
+            wither.setPos(this.center.getX(), this.center.getY() + 10, this.center.getZ());
 
-            RaidMixin.outputLog("Wither Boss spawned at X: %s Y: %s Z: %s!".formatted(this.center.getX(), this.center.getY(), this.center.getZ() + 10));
+            RaidMixin.outputLog("Wither Boss spawned at X: %s Y: %s Z: %s!".formatted(this.center.getX(), this.center.getY() + 10, this.center.getZ()));
 
             this.level.addFreshEntity(wither);
         }
