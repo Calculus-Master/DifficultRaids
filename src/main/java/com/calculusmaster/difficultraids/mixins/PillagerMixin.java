@@ -18,7 +18,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.List;
 import java.util.Map;
 
 @Mixin(Pillager.class)
@@ -40,7 +39,7 @@ public abstract class PillagerMixin extends AbstractIllager
 
         ItemStack item = this.getMainHandItem();
 
-        if(!List.of(RaidDifficulty.DEBUG, RaidDifficulty.DEFAULT).contains(raidDifficulty) && item.is(Items.CROSSBOW))
+        if(!raidDifficulty.isDefault() && item.is(Items.CROSSBOW))
         {
             Map<Enchantment, Integer> enchants = EnchantmentHelper.getEnchantments(item);
 
@@ -89,6 +88,6 @@ public abstract class PillagerMixin extends AbstractIllager
     {
         RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
 
-        if(!List.of(RaidDifficulty.DEBUG, RaidDifficulty.DEFAULT).contains(raidDifficulty)) callbackInfo.cancel();
+        if(!raidDifficulty.isDefault()) callbackInfo.cancel();
     }
 }

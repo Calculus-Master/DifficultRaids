@@ -38,14 +38,14 @@ public abstract class VindicatorMixin extends AbstractIllager
     {
         RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
 
-        if(!List.of(RaidDifficulty.DEFAULT, RaidDifficulty.DEBUG).contains(raidDifficulty))
+        if(!raidDifficulty.isDefault())
         {
             List<Item> axePool = switch(raidDifficulty) {
+                case DEFAULT -> List.of(Items.GOLDEN_AXE);
                 case HERO -> List.of(Items.IRON_AXE);
                 case LEGEND -> List.of(Items.IRON_AXE, Items.DIAMOND_AXE);
                 case MASTER -> List.of(Items.IRON_AXE, Items.DIAMOND_AXE, Items.NETHERITE_AXE);
                 case APOCALYPSE -> List.of(Items.NETHERITE_AXE);
-                default -> List.of(Items.GOLDEN_AXE);
             };
 
             ItemStack axe = new ItemStack(axePool.get(this.random.nextInt(axePool.size())));
@@ -53,21 +53,21 @@ public abstract class VindicatorMixin extends AbstractIllager
 
             //Sharpness
             int sharpnessChance = switch(raidDifficulty) {
+                case DEFAULT -> 0;
                 case HERO -> 20;
                 case LEGEND -> 40;
                 case MASTER -> 60;
                 case APOCALYPSE -> 90;
-                default -> 0;
             };
 
             if(this.random.nextInt(100) < sharpnessChance)
             {
                 int sharpnessLevel = switch(raidDifficulty) {
+                    case DEFAULT -> 0;
                     case HERO -> this.random.nextInt(1, 3);
                     case LEGEND -> this.random.nextInt(2, 4);
                     case MASTER -> this.random.nextInt(3, 6);
                     case APOCALYPSE -> this.random.nextInt(5, 7);
-                    default -> 0;
                 };
 
                 enchants.put(Enchantments.SHARPNESS, sharpnessLevel);
@@ -75,20 +75,20 @@ public abstract class VindicatorMixin extends AbstractIllager
 
             //Fire Aspect
             int fireAspectChance = switch(raidDifficulty) {
+                case DEFAULT -> 0;
                 case HERO -> 5;
                 case LEGEND -> 10;
                 case MASTER -> 15;
                 case APOCALYPSE -> 50;
-                default -> 0;
             };
 
             if(this.random.nextInt(100) < fireAspectChance)
             {
                 int fireAspectLevel = switch(raidDifficulty) {
+                    case DEFAULT -> 0;
                     case HERO, LEGEND -> 1;
                     case MASTER -> 2;
                     case APOCALYPSE -> 3;
-                    default -> 0;
                 };
 
                 enchants.put(Enchantments.FIRE_ASPECT, fireAspectLevel);
@@ -101,10 +101,11 @@ public abstract class VindicatorMixin extends AbstractIllager
 
             //Vindicator Swiftness
             int swiftnessChance = switch(raidDifficulty) {
+                case DEFAULT -> 0;
                 case HERO -> 2;
                 case LEGEND -> 5;
                 case MASTER -> 7;
-                default -> 0;
+                case APOCALYPSE -> 25;
             };
 
             if(this.random.nextInt(100) < swiftnessChance)

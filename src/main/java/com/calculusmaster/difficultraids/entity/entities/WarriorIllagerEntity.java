@@ -85,7 +85,7 @@ public class WarriorIllagerEntity extends AbstractIllager
 
         ItemStack sword = new ItemStack(swordPool.get(this.random.nextInt(swordPool.size())));
 
-        if(!raidDifficulty.equals(RaidDifficulty.DEFAULT) && !raidDifficulty.equals(RaidDifficulty.DEBUG))
+        if(!raidDifficulty.isDefault())
         {
             Map<Enchantment, Integer> enchants = new HashMap<>();
 

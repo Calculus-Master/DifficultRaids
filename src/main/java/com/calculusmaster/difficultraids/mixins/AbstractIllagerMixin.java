@@ -58,7 +58,7 @@ public abstract class AbstractIllagerMixin extends Raider
         RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
         Random random = new Random();
 
-        if(!List.of(RaidDifficulty.DEFAULT, RaidDifficulty.DEBUG).contains(raidDifficulty))
+        if(!raidDifficulty.isDefault())
         {
             if(this.getCurrentRaid() != null && mobSpawnType.equals(MobSpawnType.EVENT))
             {

@@ -207,7 +207,7 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
                         case LEGEND -> 20.0F;
                         case MASTER -> 24.0F;
                         case APOCALYPSE -> 30.0F;
-                        case DEFAULT, DEBUG -> 18.0F;
+                        case DEFAULT -> 18.0F;
                     };
                 }
                 else damage = 18.0F;
@@ -297,11 +297,11 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
                     RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
 
                     strikes = switch(raidDifficulty) {
+                        case DEFAULT -> 3;
                         case HERO -> 4;
                         case LEGEND -> 6;
                         case MASTER -> 8;
                         case APOCALYPSE -> 10;
-                        case DEFAULT, DEBUG -> 3;
                     };
                 }
                 else strikes = 3;

@@ -55,16 +55,6 @@ public enum RaidDifficulty
             50,
             r -> r.nextInt(4, 6),
             Items.NETHERITE_HELMET
-    ),
-
-    DEBUG(
-            0,
-            0,
-            List.of(),
-            0,
-            0,
-            r -> 0,
-            Items.LEATHER_HELMET
     );
 
     public final int reinforcementChance;
@@ -90,14 +80,14 @@ public enum RaidDifficulty
         this.daylightHelmet = daylightHelmet;
     }
 
+    public boolean isDefault()
+    {
+        return this.equals(DEFAULT);
+    }
+
     public String getFormattedName()
     {
         return this.toString().charAt(0) + this.toString().substring(1).toLowerCase();
-    }
-
-    public boolean ignore()
-    {
-        return this.equals(DEBUG) || this.equals(DEFAULT);
     }
 
     public boolean is(RaidDifficulty... others)

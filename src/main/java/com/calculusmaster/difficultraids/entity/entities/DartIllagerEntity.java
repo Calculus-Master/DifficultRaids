@@ -94,7 +94,7 @@ public class DartIllagerEntity extends AbstractIllager
 
         ItemStack sword = new ItemStack(Items.GOLDEN_SWORD);
 
-        if(!raidDifficulty.ignore())
+        if(!raidDifficulty.is(RaidDifficulty.DEFAULT))
         {
             Map<Enchantment, Integer> enchants = new HashMap<>();
 

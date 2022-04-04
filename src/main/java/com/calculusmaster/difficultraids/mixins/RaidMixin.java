@@ -122,12 +122,6 @@ public abstract class RaidMixin
         RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
         Difficulty worldDifficulty = this.level.getDifficulty();
 
-        if(raidDifficulty.equals(RaidDifficulty.DEBUG))
-        {
-            callbackInfoReturnable.setReturnValue(1);
-            return;
-        }
-
         //outputLog("Searching for Default Spawns: Raider Type {%s}, Raid Difficulty {%s}".formatted(raiderType.toString(), raidDifficulty.toString()));
 
         //Spawns per wave array
@@ -195,7 +189,7 @@ public abstract class RaidMixin
     {
         RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
 
-        if(this.isVictory() && !List.of(RaidDifficulty.DEFAULT, RaidDifficulty.DEBUG).contains(raidDifficulty))
+        if(this.isVictory() && !raidDifficulty.isDefault())
         {
             List<ItemStack> rewards = RaidLoot.generate(raidDifficulty, this.level.getDifficulty());
 
@@ -245,7 +239,7 @@ public abstract class RaidMixin
     {
         RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
 
-        if(raidDifficulty.equals(RaidDifficulty.DEFAULT))
+        if(raidDifficulty.isDefault())
         {
             //Vanilla Defaults
             return switch(p_37725_) {
@@ -255,7 +249,6 @@ public abstract class RaidMixin
                 case PEACEFUL -> 0;
             };
         }
-        else if(raidDifficulty.equals(RaidDifficulty.DEBUG)) return 1;
 
         //Base Waves (from RaidDifficulty)
         int waves = switch(raidDifficulty) {

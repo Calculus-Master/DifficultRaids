@@ -113,7 +113,6 @@ public enum RaidReinforcements
             case LEGEND -> 1.5;
             case MASTER -> 2.25;
             case APOCALYPSE -> 3.5;
-            case DEBUG -> 0.0;
         };
 
         return base;
