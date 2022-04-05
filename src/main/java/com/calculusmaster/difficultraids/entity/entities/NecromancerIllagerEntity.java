@@ -508,7 +508,7 @@ public class NecromancerIllagerEntity extends AbstractSpellcastingIllager
         {
             Level level = NecromancerIllagerEntity.this.getLevel();
             LivingEntity target = NecromancerIllagerEntity.this.getTarget();
-            return super.canUse() && level.getBlockState(target.eyeBlockPosition()).isAir();
+            return super.canUse() && level.getBlockState(target.eyeBlockPosition()).isAir() && Math.pow(NecromancerIllagerEntity.this.blockPosition().distSqr(target.blockPosition()), 0.5) < 4;
         }
 
         @Override
