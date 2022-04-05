@@ -275,13 +275,13 @@ public class NecromancerIllagerEntity extends AbstractSpellcastingIllager
         @Override
         protected int getCastingTime()
         {
-            return 120;
+            return 240;
         }
 
         @Override
         protected int getCastingInterval()
         {
-            return 560;
+            return 600;
         }
 
         @Override
@@ -402,7 +402,7 @@ public class NecromancerIllagerEntity extends AbstractSpellcastingIllager
         @Override
         protected int getCastingInterval()
         {
-            return 460;
+            return 700;
         }
 
         @Override
@@ -520,7 +520,7 @@ public class NecromancerIllagerEntity extends AbstractSpellcastingIllager
         @Override
         protected int getCastingInterval()
         {
-            return 200;
+            return NecromancerIllagerEntity.this.getHealth() < NecromancerIllagerEntity.this.getMaxHealth() / 5 ? 100 : 600;
         }
 
         @Override
