@@ -193,6 +193,14 @@ public abstract class RaidMixin
         {
             List<ItemStack> rewards = RaidLoot.generate(raidDifficulty, this.level.getDifficulty());
 
+            //TODO: Temporary
+            if(raidDifficulty.is(RaidDifficulty.APOCALYPSE))
+            {
+                rewards.addAll(RaidLoot.generate(RaidDifficulty.MASTER, this.level.getDifficulty()));
+                rewards.addAll(RaidLoot.generate(RaidDifficulty.MASTER, this.level.getDifficulty()));
+                rewards.addAll(RaidLoot.generate(List.of(RaidDifficulty.HERO, RaidDifficulty.LEGEND, RaidDifficulty.MASTER).get(this.random.nextInt(3)), this.level.getDifficulty()));
+            }
+
             BlockPos rewardPos = new BlockPos(this.center.getX(), this.center.getY(), this.center.getZ() + 10);
             rewards.forEach(stack -> {
                 int x = rewardPos.getX();
