@@ -13,11 +13,11 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Mixin(Pillager.class)
@@ -29,19 +29,16 @@ public abstract class PillagerMixin extends AbstractIllager
         super(p_33262_, p_33263_);
     }
 
-    /**
-     * @author Changing Pillager Crossbow Enchants
-     */
-    @Overwrite
-    protected void enchantSpawnedWeapon(float p_33316_)
+    @Inject(at = @At("TAIL"), method = "applyRaidBuffs", cancellable = true)
+    public void applyRaidBuffs(int p_37844_, boolean p_37845_, CallbackInfo callbackInfo)
     {
         RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
 
-        ItemStack item = this.getMainHandItem();
-
-        if(!raidDifficulty.isDefault() && item.is(Items.CROSSBOW))
+        if(!raidDifficulty.isDefault() && this.getItemBySlot(EquipmentSlot.MAINHAND).is(Items.CROSSBOW))
         {
-            Map<Enchantment, Integer> enchants = EnchantmentHelper.getEnchantments(item);
+            ItemStack crossbow = new ItemStack(Items.CROSSBOW);
+
+            Map<Enchantment, Integer> enchants = new HashMap<>();
 
             //Quick Charge
             int quickChargeChance = switch(raidDifficulty) {
@@ -78,16 +75,10 @@ public abstract class PillagerMixin extends AbstractIllager
             if(rand < piercingMultishotChance) enchants.put(Enchantments.PIERCING, this.random.nextInt(1, 4));
             else if(rand < piercingMultishotChance * 2) enchants.put(Enchantments.MULTISHOT, 1);
 
-            EnchantmentHelper.setEnchantments(enchants, item);
-            this.setItemSlot(EquipmentSlot.MAINHAND, item);
+            EnchantmentHelper.setEnchantments(enchants, crossbow);
+            this.setItemSlot(EquipmentSlot.MAINHAND, crossbow);
+
+            callbackInfo.cancel();
         }
-    }
-
-    @Inject(at = @At("HEAD"), method = "applyRaidBuffs", cancellable = true)
-    public void applyRaidBuffs(int p_37844_, boolean p_37845_, CallbackInfo callbackInfo)
-    {
-        RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
-
-        if(!raidDifficulty.isDefault()) callbackInfo.cancel();
     }
 }
