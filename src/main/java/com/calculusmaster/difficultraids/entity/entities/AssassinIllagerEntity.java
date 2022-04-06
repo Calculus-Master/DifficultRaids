@@ -83,11 +83,9 @@ public class AssassinIllagerEntity extends AbstractIllager
             if(distance < 3)
             {
                 Vec3 oppositeLook = this.getTarget().getLookAngle().reverse();
-                BlockPos behindPos = this.getTarget().blockPosition().offset(oppositeLook.x, oppositeLook.y, oppositeLook.z);
+                BlockPos behindPos = this.getTarget().blockPosition().offset(oppositeLook.x, this.getTarget().blockPosition().getY() + 1, oppositeLook.z);
 
                 this.moveTo(behindPos, 0.0F, 0.0F);
-
-                //TODO: Check this calculation and see if it's actually working
             }
         }
     }
