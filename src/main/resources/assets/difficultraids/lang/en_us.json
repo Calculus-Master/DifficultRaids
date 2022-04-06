@@ -1,4 +1,11 @@
 {
+    "item.difficultraids.invisibility_totem": "Totem of Invisibility",
+    "item.difficultraids.lightning_totem": "Totem of Lightning",
+    "item.difficultraids.poison_totem": "Totem of Poison",
+    "item.difficultraids.speed_totem": "Totem of Speed",
+    "item.difficultraids.vengeance_totem": "Totem of Vengeance",
+    "item.difficultraids.destiny_totem": "Totem of Destiny",
+
     "entity.difficultraids.warrior_illager": "Warrior Illager",
     "entity.difficultraids.dart_illager": "Dart Illager",
     "entity.difficultraids.electro_illager": "Electro Illager",

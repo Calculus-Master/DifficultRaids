@@ -4,6 +4,7 @@ import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
 import com.calculusmaster.difficultraids.raids.RaidLoot;
 import com.calculusmaster.difficultraids.raids.RaiderSpawnRegistry;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
+import com.calculusmaster.difficultraids.setup.DifficultRaidsItems;
 import com.mojang.logging.LogUtils;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.MinecraftForge;
@@ -28,6 +29,8 @@ public class DifficultRaids
     public DifficultRaids()
     {
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
+        DifficultRaidsItems.register(eventBus);
 
         DifficultRaidsConfig.register();
 

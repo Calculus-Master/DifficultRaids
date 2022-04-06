@@ -1,5 +1,6 @@
 package com.calculusmaster.difficultraids.raids;
 
+import com.calculusmaster.difficultraids.setup.DifficultRaidsItems;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -21,6 +22,9 @@ public class RaidLoot
                 .addLootEntry(Items.EMERALD, 10, 5, 10, 4, -2, 2)
                 .addLootEntry(Items.IRON_INGOT, 15, 8, 32, 4, -4, 8)
                 .addLootEntry(Items.DIAMOND, 5, 1, 2, 1, -1, 1)
+                .addLootEntry(DifficultRaidsItems.TOTEM_OF_SPEED.get(), 4, 1, 2, 1, -1, 1)
+                .addLootEntry(DifficultRaidsItems.TOTEM_OF_POISON.get(), 4, 1, 2, 1, -1, 1)
+                .addLootEntry(DifficultRaidsItems.TOTEM_OF_LEVITATION.get(), 4, 1, 2, 1, -1, 1)
                 .compile();
 
         RaidLootInfo
@@ -31,6 +35,11 @@ public class RaidLoot
                 .addLootEntry(Items.IRON_INGOT, 15, 20, 64, 4, -8, 12)
                 .addLootEntry(Items.DIAMOND, 5, 5, 12, 1, -1, 1)
                 .addLootEntry(Items.GOLDEN_APPLE, 6, 5, 10, 2, -2, 4)
+                .addLootEntry(DifficultRaidsItems.TOTEM_OF_SPEED.get(), 4, 1, 3, 1, -1, 2)
+                .addLootEntry(DifficultRaidsItems.TOTEM_OF_POISON.get(), 4, 1, 3, 1, -1, 2)
+                .addLootEntry(DifficultRaidsItems.TOTEM_OF_LEVITATION.get(), 4, 1, 3, 1, -1, 2)
+                .addLootEntry(DifficultRaidsItems.TOTEM_OF_LIGHTNING.get(), 4, 1, 2, 1, -1, 1)
+                .addLootEntry(DifficultRaidsItems.TOTEM_OF_VENGEANCE.get(), 4, 1, 2, 1, -1, 1)
                 .compile();
 
         RaidLootInfo.forRD(RaidDifficulty.MASTER)
@@ -41,6 +50,13 @@ public class RaidLoot
                 .addLootEntry(Items.DIAMOND, 5, 16, 2, -6, 3)
                 .addLootEntry(Items.GOLDEN_APPLE, 6, 16, 32, 2, -5, 5)
                 .addLootEntry(Items.ANCIENT_DEBRIS, 2, 2, 1, -1, 1)
+                .addLootEntry(DifficultRaidsItems.TOTEM_OF_SPEED.get(), 4, 1, 5, 1, -2, 3)
+                .addLootEntry(DifficultRaidsItems.TOTEM_OF_POISON.get(), 4, 1, 5, 1, -2, 3)
+                .addLootEntry(DifficultRaidsItems.TOTEM_OF_LEVITATION.get(), 4, 1, 5, 1, -2, 3)
+                .addLootEntry(DifficultRaidsItems.TOTEM_OF_LIGHTNING.get(), 4, 1, 3, 1, -1, 2)
+                .addLootEntry(DifficultRaidsItems.TOTEM_OF_VENGEANCE.get(), 4, 1, 3, 1, -1, 2)
+                .addLootEntry(DifficultRaidsItems.TOTEM_OF_DESTINY.get(), 8, 1, 2, 1, 0, 2)
+                .addLootEntry(DifficultRaidsItems.TOTEM_OF_PROTECTION.get(), 8, 1, 2, 1, 0, 2)
                 .compile();
     }
 
