@@ -21,5 +21,7 @@ public class DRClientModEvents
         event.registerEntityRenderer(DifficultRaidsEntityTypes.ELECTRO_ILLAGER.get(), ElectroIllagerRenderer::new);
         event.registerEntityRenderer(DifficultRaidsEntityTypes.NECROMANCER_ILLAGER.get(), NecromancerIllagerRenderer::new);
         event.registerEntityRenderer(DifficultRaidsEntityTypes.SHAMAN_ILLAGER.get(), ShamanIllagerRenderer::new);
+        event.registerEntityRenderer(DifficultRaidsEntityTypes.TANK_ILLAGER.get(), TankIllagerRenderer::new);
+        event.registerEntityRenderer(DifficultRaidsEntityTypes.ASSASSIN_ILLAGER.get(), AssassinIllagerRenderer::new);
     }
 }

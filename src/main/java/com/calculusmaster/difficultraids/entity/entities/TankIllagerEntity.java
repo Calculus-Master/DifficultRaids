@@ -20,7 +20,6 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raider;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -30,12 +29,11 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class WarriorIllagerEntity extends AbstractIllager
+public class TankIllagerEntity extends AbstractIllager
 {
-    public WarriorIllagerEntity(EntityType<? extends AbstractIllager> entityType, Level level)
+    public TankIllagerEntity(EntityType<? extends AbstractIllager> entityType, Level level)
     {
         super(entityType, level);
     }
@@ -43,10 +41,10 @@ public class WarriorIllagerEntity extends AbstractIllager
     public static AttributeSupplier.Builder createAttributes()
     {
         return Monster.createMonsterAttributes()
-                .add(Attributes.MOVEMENT_SPEED, 0.4F)
+                .add(Attributes.MOVEMENT_SPEED, 0.25F)
                 .add(Attributes.FOLLOW_RANGE, 12.0D)
-                .add(Attributes.MAX_HEALTH, 20.0D)
-                .add(Attributes.ATTACK_DAMAGE, 5.0D);
+                .add(Attributes.MAX_HEALTH, 50.0D)
+                .add(Attributes.ATTACK_DAMAGE, 2.0D);
     }
 
     @Override
@@ -55,8 +53,8 @@ public class WarriorIllagerEntity extends AbstractIllager
         super.registerGoals();
 
         this.goalSelector.addGoal(0, new FloatGoal(this));
-        this.goalSelector.addGoal(1, new AbstractIllager.RaiderOpenDoorGoal(this));
-        this.goalSelector.addGoal(2, new Raider.HoldGroundAttackGoal(this, 10.0F));
+        this.goalSelector.addGoal(1, new RaiderOpenDoorGoal(this));
+        this.goalSelector.addGoal(2, new HoldGroundAttackGoal(this, 10.0F));
         this.goalSelector.addGoal(3, new MeleeAttackGoal(this, 1.2D, false));
 
         this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, Raider.class)).setAlertOthers());
@@ -73,92 +71,52 @@ public class WarriorIllagerEntity extends AbstractIllager
     public void applyRaidBuffs(int p_37844_, boolean p_37845_)
     {
         RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
-
         //TODO: DR RaidDifficulty Raids versus Normal Vanilla Raids (RaidDifficulty.DEFAULT)
-        List<Item> swordPool = switch(raidDifficulty) {
-            case HERO -> List.of(Items.STONE_SWORD, Items.IRON_SWORD);
-            case LEGEND -> List.of(Items.IRON_SWORD, Items.DIAMOND_SWORD);
-            case MASTER -> List.of(Items.IRON_SWORD, Items.DIAMOND_SWORD, Items.NETHERITE_SWORD);
-            case APOCALYPSE -> List.of(Items.NETHERITE_SWORD);
-            default -> List.of(Items.GOLDEN_SWORD);
+        this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.STONE_SWORD));
+
+        ItemStack helmet = null, chestplate = null, leggings = null, boots = null;
+
+        if(raidDifficulty.is(RaidDifficulty.DEFAULT)) { helmet = new ItemStack(Items.LEATHER_HELMET); chestplate = new ItemStack(Items.LEATHER_CHESTPLATE); leggings = new ItemStack(Items.LEATHER_LEGGINGS); boots = new ItemStack(Items.LEATHER_BOOTS); }
+        else if(raidDifficulty.is(RaidDifficulty.HERO, RaidDifficulty.LEGEND)) { helmet = new ItemStack(Items.IRON_HELMET); chestplate = new ItemStack(Items.IRON_CHESTPLATE); leggings = new ItemStack(Items.IRON_LEGGINGS); boots = new ItemStack(Items.IRON_BOOTS); }
+        else if(raidDifficulty.is(RaidDifficulty.MASTER)) { helmet = new ItemStack(Items.DIAMOND_HELMET); chestplate = new ItemStack(Items.DIAMOND_CHESTPLATE); leggings = new ItemStack(Items.DIAMOND_LEGGINGS); boots = new ItemStack(Items.DIAMOND_BOOTS); }
+        else if(raidDifficulty.is(RaidDifficulty.APOCALYPSE)) { helmet = new ItemStack(Items.NETHERITE_HELMET); chestplate = new ItemStack(Items.NETHERITE_CHESTPLATE); leggings = new ItemStack(Items.NETHERITE_LEGGINGS); boots = new ItemStack(Items.NETHERITE_BOOTS); }
+
+        final Map<Enchantment, Integer> enchants = new HashMap<>();
+
+        int protectionLevel = switch(raidDifficulty) {
+            case DEFAULT -> 1;
+            case HERO -> 2;
+            case LEGEND -> 3;
+            case MASTER -> 4;
+            case APOCALYPSE -> 5;
         };
 
-        ItemStack sword = new ItemStack(swordPool.get(this.random.nextInt(swordPool.size())));
+        enchants.put(Enchantments.ALL_DAMAGE_PROTECTION, protectionLevel);
 
-        if(!raidDifficulty.isDefault())
+        if(raidDifficulty.is(RaidDifficulty.LEGEND, RaidDifficulty.MASTER, RaidDifficulty.APOCALYPSE))
         {
-            Map<Enchantment, Integer> enchants = new HashMap<>();
-
-            //Sharpness
-            int sharpnessChance = switch(raidDifficulty) {
-                case HERO -> 20;
-                case LEGEND -> 35;
-                case MASTER -> 45;
-                case APOCALYPSE -> 90;
+            int thornsLevel = switch(raidDifficulty) {
                 default -> 0;
+                case LEGEND -> 1;
+                case MASTER -> this.random.nextInt(2);
+                case APOCALYPSE -> 2;
             };
 
-            if(this.random.nextInt(100) < sharpnessChance)
-            {
-                int sharpnessLevel = switch(raidDifficulty) {
-                    case HERO -> this.random.nextInt(1, 4);
-                    case LEGEND -> this.random.nextInt(2, 5);
-                    case MASTER -> this.random.nextInt(3, 6);
-                    case APOCALYPSE -> this.random.nextInt(5, 7);
-                    default -> 0;
-                };
-
-                enchants.put(Enchantments.SHARPNESS, sharpnessLevel);
-            }
-
-            //Fire Aspect
-            int fireAspectChance = switch(raidDifficulty) {
-                case HERO -> 5;
-                case LEGEND -> 10;
-                case MASTER -> 15;
-                case APOCALYPSE -> 50;
-                default -> 0;
-            };
-
-            if(this.random.nextInt(100) < fireAspectChance)
-            {
-                int fireAspectLevel = switch(raidDifficulty) {
-                    case HERO, LEGEND -> 1;
-                    case MASTER -> 2;
-                    case APOCALYPSE -> 3;
-                    default -> 0;
-                };
-
-                enchants.put(Enchantments.FIRE_ASPECT, fireAspectLevel);
-            }
-
-            //Knockback
-            int knockbackChance = switch(raidDifficulty) {
-                case HERO -> 10;
-                case LEGEND -> 15;
-                case MASTER -> 20;
-                case APOCALYPSE -> 90;
-                default -> 0;
-            };
-
-            if(this.random.nextInt(100) < knockbackChance)
-            {
-                int knockbackLevel = switch(raidDifficulty) {
-                    case HERO -> 1;
-                    case LEGEND, MASTER -> 2;
-                    case APOCALYPSE -> 3;
-                    default -> 0;
-                };
-
-                enchants.put(Enchantments.KNOCKBACK, knockbackLevel);
-            }
-
-            if(!sword.is(Items.IRON_SWORD) && !sword.is(Items.STONE_SWORD)) enchants.put(Enchantments.VANISHING_CURSE, 1);
-
-            EnchantmentHelper.setEnchantments(enchants, sword);
+            if(this.random.nextInt(100) < 10) enchants.put(Enchantments.THORNS, thornsLevel);
         }
 
-        this.setItemSlot(EquipmentSlot.MAINHAND, sword);
+        if(helmet != null && chestplate != null && leggings != null && boots != null)
+        {
+            EnchantmentHelper.setEnchantments(Map.copyOf(enchants), helmet);
+            EnchantmentHelper.setEnchantments(Map.copyOf(enchants), chestplate);
+            EnchantmentHelper.setEnchantments(Map.copyOf(enchants), leggings);
+            EnchantmentHelper.setEnchantments(Map.copyOf(enchants), boots);
+
+            this.setItemSlot(EquipmentSlot.HEAD, helmet);
+            this.setItemSlot(EquipmentSlot.CHEST, chestplate);
+            this.setItemSlot(EquipmentSlot.LEGS, leggings);
+            this.setItemSlot(EquipmentSlot.FEET, boots);
+        }
     }
 
     @Override

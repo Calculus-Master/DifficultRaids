@@ -45,6 +45,12 @@ public class DRForgeModEvents
 
             villager.goalSelector.addGoal(1,
                     new AvoidEntityGoal<>(villager, ShamanIllagerEntity.class, defaultMaxDistance - 10.0F, defaultWalkSpeedModifier - 0.3F, defaultSprintSpeedModifier - 0.2F));
+
+            villager.goalSelector.addGoal(1,
+                    new AvoidEntityGoal<>(villager, TankIllagerEntity.class, defaultMaxDistance, defaultWalkSpeedModifier + 0.1F, defaultSprintSpeedModifier));
+
+            villager.goalSelector.addGoal(1,
+                    new AvoidEntityGoal<>(villager, AssassinIllagerEntity.class, 2.0F, defaultWalkSpeedModifier + 0.5F, defaultSprintSpeedModifier + 0.9F));
         }
     }
 }

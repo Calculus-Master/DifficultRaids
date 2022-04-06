@@ -1,5 +1,6 @@
 package com.calculusmaster.difficultraids.mixins;
 
+import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import net.minecraft.nbt.CompoundTag;
@@ -60,7 +61,7 @@ public abstract class AbstractIllagerMixin extends Raider
 
         if(!raidDifficulty.isDefault())
         {
-            if(this.getCurrentRaid() != null && mobSpawnType.equals(MobSpawnType.EVENT))
+            if(this.getCurrentRaid() != null && mobSpawnType.equals(MobSpawnType.EVENT) && !this.getType().equals(DifficultRaidsEntityTypes.TANK_ILLAGER.get()))
             {
                 List<ArmorMaterials> tiers = raidDifficulty.armorMaterials;
                 int armorChance = raidDifficulty.armorChance;

@@ -30,6 +30,12 @@ public class DifficultRaidsEntityTypes
     public static final RegistryObject<EntityType<ShamanIllagerEntity>> SHAMAN_ILLAGER =
             registerIllager("shaman_illager", ShamanIllagerEntity::new);
 
+    public static final RegistryObject<EntityType<TankIllagerEntity>> TANK_ILLAGER =
+            registerIllager("tank_illager", TankIllagerEntity::new);
+
+    public static final RegistryObject<EntityType<AssassinIllagerEntity>> ASSASSIN_ILLAGER =
+            registerIllager("assassin_illager", AssassinIllagerEntity::new);
+
     private static <T extends AbstractIllager> RegistryObject<EntityType<T>> registerIllager(String registryName, EntityType.EntityFactory<T> entityFactory)
     {
         return ENTITY_TYPES.register(registryName,
