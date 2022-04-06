@@ -20,5 +20,6 @@ public class DRModEvents
         event.put(DifficultRaidsEntityTypes.SHAMAN_ILLAGER.get(), ShamanIllagerEntity.createAttributes().build());
         event.put(DifficultRaidsEntityTypes.TANK_ILLAGER.get(), TankIllagerEntity.createAttributes().build());
         event.put(DifficultRaidsEntityTypes.ASSASSIN_ILLAGER.get(), AssassinIllagerEntity.createAttributes().build());
+        event.put(DifficultRaidsEntityTypes.FROST_ILLAGER.get(), FrostIllagerEntity.createAttributes().build());
     }
 }

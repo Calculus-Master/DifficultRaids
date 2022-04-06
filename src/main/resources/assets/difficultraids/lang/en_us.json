@@ -12,5 +12,8 @@
     "entity.difficultraids.necromancer_illager": "Necromancer Illager",
     "entity.difficultraids.shaman_illager": "Shaman Illager",
     "entity.difficultraids.tank_illager": "Tank Illager",
-    "entity.difficultraids.assassin_illager": "Assassin Illager"
+    "entity.difficultraids.assassin_illager": "Assassin Illager",
+    "entity.difficultraids.frost_illager": "Frost Illager",
+
+    "entity.difficultraids.frost_snowball": "Frost Snowball"
 }

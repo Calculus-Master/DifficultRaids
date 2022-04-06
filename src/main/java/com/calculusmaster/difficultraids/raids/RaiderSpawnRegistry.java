@@ -139,6 +139,16 @@ public class RaiderSpawnRegistry
                 .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 2, 0, 3, 0, 5, 5, 5})
                 .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 6, 6, 3, 1, 6, 6, 6})
                 .register();
+
+        Raid.RaiderType.create("FROST_ILLAGER", DifficultRaidsEntityTypes.FROST_ILLAGER.get(), new int[]{0, 0, 1, 0, 1, 0, 0, 1});
+
+        RaiderSpawnRegistry.createFor("FROST_ILLAGER")
+                .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 1, 0, 1, 0, 0, 1})
+                .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 1, 0, 1, 1, 1, 0, 1})
+                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 0, 1, 2, 2, 4, 2, 1})
+                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 2, 1, 3, 2, 1, 3, 3})
+                .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 6, 6, 6, 4, 6, 6, 6})
+                .register();
     }
 
     public static int[] getDefaultSpawns(String raiderType, RaidDifficulty difficulty)

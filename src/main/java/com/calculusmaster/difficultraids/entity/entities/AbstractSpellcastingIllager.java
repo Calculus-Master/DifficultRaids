@@ -129,7 +129,10 @@ public abstract class AbstractSpellcastingIllager extends AbstractIllager
         SHAMAN_ATTACK_BOOST(8, 0.3D, 0.9D, 0.0D),
         SHAMAN_DEFENSE_BOOST(9, 0.0D, 0.9D, 0.3D),
         SHAMAN_DEBUFF(10, 0.1D, 0.1D, 0.1D),
-        SHAMAN_INVISIBILITY(11, 0.2D, 0.3D, 0.4D);
+        SHAMAN_INVISIBILITY(11, 0.2D, 0.3D, 0.4D),
+        FROST_FREEZE(12, 0.5D, 0.5D, 1.0D),
+        FROST_BARRAGE(13, 0.5, 0.6D, 1.0D),
+        FROST_SNOWBALL_BLAST(14, 0.9D, 0.3D, 1.0D);
 
         final int ID;
         final double[] spellColor;

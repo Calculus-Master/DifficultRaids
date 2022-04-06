@@ -51,6 +51,9 @@ public class DRForgeModEvents
 
             villager.goalSelector.addGoal(1,
                     new AvoidEntityGoal<>(villager, AssassinIllagerEntity.class, 2.0F, defaultWalkSpeedModifier + 0.5F, defaultSprintSpeedModifier + 0.9F));
+
+            villager.goalSelector.addGoal(1,
+                    new AvoidEntityGoal<>(villager, FrostIllagerEntity.class, defaultMaxDistance, defaultWalkSpeedModifier - 0.2F, defaultSprintSpeedModifier - 0.1F));
         }
     }
 }
