@@ -8,6 +8,8 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
@@ -35,6 +37,8 @@ import java.util.Map;
 
 public class DartIllagerEntity extends AbstractIllager
 {
+    private static final AttributeModifier LAST_RESORT_MOVEMENT_BOOST = new AttributeModifier("last_resort_movement_boost", 1.5, AttributeModifier.Operation.MULTIPLY_BASE);
+
     public DartIllagerEntity(EntityType<? extends AbstractIllager> p_32105_, Level p_32106_)
     {
         super(p_32105_, p_32106_);
@@ -57,7 +61,7 @@ public class DartIllagerEntity extends AbstractIllager
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new AbstractIllager.RaiderOpenDoorGoal(this));
         this.goalSelector.addGoal(2, new Raider.HoldGroundAttackGoal(this, 10.0F));
-        this.goalSelector.addGoal(3, new MeleeAttackGoal(this, 1.8D, true));
+        this.goalSelector.addGoal(3, new MeleeAttackGoal(this, 1.5D, true));
 
         this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, Raider.class)).setAlertOthers());
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
@@ -78,8 +82,10 @@ public class DartIllagerEntity extends AbstractIllager
     {
         super.aiStep();
 
-        if(this.getHealth() < this.getMaxHealth() / 2 && !this.hasEffect(MobEffects.MOVEMENT_SPEED))
-            this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 20 * 20, 3));
+        AttributeInstance movementSpeed = this.getAttribute(Attributes.MOVEMENT_SPEED);
+
+        if(this.getHealth() < this.getMaxHealth() / 2 && movementSpeed != null && !movementSpeed.hasModifier(LAST_RESORT_MOVEMENT_BOOST))
+            movementSpeed.addPermanentModifier(LAST_RESORT_MOVEMENT_BOOST);
 
         if(!this.hasEffect(MobEffects.GLOWING) && this.isAggressive())
             this.addEffect(new MobEffectInstance(MobEffects.GLOWING, 50 * 20));
