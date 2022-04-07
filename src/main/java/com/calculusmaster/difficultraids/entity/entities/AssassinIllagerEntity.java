@@ -27,7 +27,6 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -82,10 +81,12 @@ public class AssassinIllagerEntity extends AbstractIllager
             double distance = Math.pow(this.blockPosition().distSqr(this.getTarget().blockPosition()), 0.5);
             if(distance < 3)
             {
-                Vec3 oppositeLook = this.getTarget().getLookAngle().reverse();
-                BlockPos behindPos = this.getTarget().blockPosition().offset(oppositeLook.x, this.getTarget().blockPosition().getY() + 1, oppositeLook.z);
+                //TODO: Temporary fix - try to get this working for real
+                //Vec3 oppositeLook = this.getTarget().getLookAngle().reverse();
+                //BlockPos behindPos = this.getTarget().blockPosition().offset(oppositeLook.x, this.getTarget().blockPosition().getY() + 1, oppositeLook.z);
 
-                this.moveTo(behindPos, 0.0F, 0.0F);
+                BlockPos abovePos = this.getTarget().eyeBlockPosition().above(2);
+                this.moveTo(abovePos, 0.0F, 0.0F);
             }
         }
     }

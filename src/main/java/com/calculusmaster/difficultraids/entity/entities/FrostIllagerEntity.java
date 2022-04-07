@@ -132,7 +132,7 @@ public class FrostIllagerEntity extends AbstractSpellcastingIllager
                     });
 
                     //Helps with client lag a little
-                    if(this.random.nextInt(100) < 10) snowball.setInvisible(true);
+                    if(this.random.nextInt(100) < 40) snowball.setInvisible(true);
 
                     double targetY = target.getEyeY() - 1.1D;
                     double targetX = target.getX() - this.getX();
