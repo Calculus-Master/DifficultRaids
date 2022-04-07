@@ -2,7 +2,6 @@ package com.calculusmaster.difficultraids.entity.entities;
 
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
-import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
@@ -79,14 +78,14 @@ public class AssassinIllagerEntity extends AbstractIllager
         if(this.getTarget() != null)
         {
             double distance = Math.pow(this.blockPosition().distSqr(this.getTarget().blockPosition()), 0.5);
-            if(distance < 3)
+            if(distance > 1 && distance < 4)
             {
                 //TODO: Temporary fix - try to get this working for real
                 //Vec3 oppositeLook = this.getTarget().getLookAngle().reverse();
                 //BlockPos behindPos = this.getTarget().blockPosition().offset(oppositeLook.x, this.getTarget().blockPosition().getY() + 1, oppositeLook.z);
 
-                BlockPos abovePos = this.getTarget().eyeBlockPosition().above(2);
-                this.moveTo(abovePos, 0.0F, 0.0F);
+                //BlockPos abovePos = this.getTarget().eyeBlockPosition().above(2);
+                //this.moveTo(abovePos, 0.0F, 0.0F);
             }
         }
     }

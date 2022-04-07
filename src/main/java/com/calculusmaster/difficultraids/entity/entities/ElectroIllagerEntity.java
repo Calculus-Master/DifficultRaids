@@ -123,15 +123,12 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
 
                     int slownessLevel = 2 + (rain ? 1 : 0) + (thunder ? 2 : 0);
                     int miningFatigueLevel = 1 + (rain ? 1 : 0);
-                    int weaknessLevel = 2 + (rain ? 1 : 0) + (thunder ? 1 : 0);
 
-                    MobEffectInstance slowness = new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 200, slownessLevel);
-                    MobEffectInstance miningFatigue = new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 200, miningFatigueLevel);
-                    MobEffectInstance weakness = new MobEffectInstance(MobEffects.WEAKNESS, 200, weaknessLevel);
+                    MobEffectInstance slowness = new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, slownessLevel);
+                    MobEffectInstance miningFatigue = new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 100, miningFatigueLevel);
 
                     target.addEffect(slowness);
                     target.addEffect(miningFatigue);
-                    target.addEffect(weakness);
                 }
             }
         }
