@@ -1,9 +1,8 @@
 package com.calculusmaster.difficultraids.mixins;
 
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
+import com.calculusmaster.difficultraids.raids.RaidEnemyRegistry;
 import com.calculusmaster.difficultraids.raids.RaidLoot;
-import com.calculusmaster.difficultraids.raids.RaidReinforcements;
-import com.calculusmaster.difficultraids.raids.RaiderSpawnRegistry;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
@@ -13,9 +12,9 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -39,7 +38,6 @@ import java.util.*;
 @Mixin(Raid.class)
 public abstract class RaidMixin
 {
-    private RaidReinforcements raidReinforcements;
     private int players;
     private AABB validRaidArea;
 
@@ -52,6 +50,7 @@ public abstract class RaidMixin
     @Shadow public abstract boolean isVictory();
     @Shadow public abstract boolean isLoss();
 
+    @Shadow private int groupsSpawned;
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private static void outputLog(String text)
@@ -72,37 +71,32 @@ public abstract class RaidMixin
         List<Player> participants = this.level.getEntitiesOfClass(Player.class, this.validRaidArea);
         this.players = participants.size();
 
-        Difficulty worldDifficulty = this.level.getDifficulty();
+        Difficulty levelDifficulty = this.level.getDifficulty();
         RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
 
-        if(this.random.nextInt(100) < raidDifficulty.reinforcementChance)
+        //Entity Reinforcements (no Raiders)
+        if(true || this.random.nextInt(100) < raidDifficulty.reinforcementChance)
         {
-            this.raidReinforcements = RaidReinforcements.getRandom();
+            Map<EntityType<?>, Integer> reinforcements = RaidEnemyRegistry.generateReinforcements(this.groupsSpawned, raidDifficulty, levelDifficulty);
+            final String sum = "(" + reinforcements.values().stream().mapToInt(i -> i).sum() + ")";
+            final List<String> messages = List.of("Reinforcements have arrived!", "Additional mobs have joined!", "An extra group of mobs has appeared!", "The Illagers have called in reinforcements!", "The Illagers have called for backup!");
+            participants.forEach(p -> p.sendMessage(new TextComponent(messages.get(this.random.nextInt(messages.size())) + " " + sum), p.getUUID()));
 
-            participants.forEach(p -> p.sendMessage(
-                        new TextComponent("Raid Reinforcements have arrived!"), //TODO: Remove RaidReinforcements#chatName field – Ideas: have different generic messages, give information of what spawns, ??
-                        p.getUUID()));
-        }
-        else this.raidReinforcements = null;
-
-        //Non-Raider Entity Reinforcements
-        if(this.raidReinforcements != null)
-        {
-            //TODO: Either spawn Raid Reinforcements at the village center, or closer to the village, or set aggro to players within the village
-            for(Map.Entry<EntityType<?>, Integer> entityEntry : this.raidReinforcements.getGenericReinforcements(worldDifficulty, raidDifficulty).entrySet())
+            for(Map.Entry<EntityType<?>, Integer> entityEntry : reinforcements.entrySet())
             {
                 for(int i = 0; i < entityEntry.getValue(); i++)
                 {
                     EntityType<?> type = entityEntry.getKey();
-                    Entity spawn = type.create(this.level);
-                    spawn.setPos(pos.getX(), pos.getY(), pos.getZ());
+                    LivingEntity spawn = (LivingEntity)type.create(this.level);
+                    if(spawn == null) continue; //This shouldn't execute, but just in case
+                    spawn.moveTo(pos.getX(), pos.getY(), pos.getZ());
 
                     int creeperInvisChance = DifficultRaidsConfig.RAID_CREEPER_INVIS_CHANCE_MASTER.get() + (raidDifficulty.equals(RaidDifficulty.APOCALYPSE) ? 5 : 0);
                     if(creeperInvisChance != 0 &&
                             type.equals(EntityType.CREEPER) &&
                             List.of(RaidDifficulty.MASTER, RaidDifficulty.APOCALYPSE).contains(raidDifficulty) &&
                             this.random.nextInt(100) < DifficultRaidsConfig.RAID_CREEPER_INVIS_CHANCE_MASTER.get())
-                        ((Monster)spawn).addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 15 * 20));
+                        spawn.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 15 * 20));
 
                     if(DifficultRaidsConfig.RAID_PREVENT_SUNLIGHT_BURNING_HELMETS.get() &&
                             (entityEntry.getKey().equals(EntityType.ZOMBIE) || entityEntry.getKey().equals(EntityType.SKELETON) || entityEntry.getKey().equals(EntityType.STRAY)))
@@ -134,7 +128,7 @@ public abstract class RaidMixin
         //outputLog("Searching for Default Spawns: Raider Type {%s}, Raid Difficulty {%s}".formatted(raiderType.toString(), raidDifficulty.toString()));
 
         //Spawns per wave array
-        int[] spawnsPerWave = RaiderSpawnRegistry.getDefaultSpawns(raiderType.toString(), raidDifficulty);
+        int[] spawnsPerWave = RaidEnemyRegistry.getDefaultSpawns(raiderType.toString(), raidDifficulty);
         //Selected spawns for the current wave
         int baseSpawnCount = spawnBonusGroup ? spawnsPerWave[this.numGroups] : spawnsPerWave[groupsSpawned];
 

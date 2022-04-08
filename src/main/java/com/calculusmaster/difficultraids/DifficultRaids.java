@@ -1,8 +1,8 @@
 package com.calculusmaster.difficultraids;
 
 import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
+import com.calculusmaster.difficultraids.raids.RaidEnemyRegistry;
 import com.calculusmaster.difficultraids.raids.RaidLoot;
-import com.calculusmaster.difficultraids.raids.RaiderSpawnRegistry;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsItems;
 import com.mojang.logging.LogUtils;
@@ -57,8 +57,9 @@ public class DifficultRaids
 
     private void onLoadComplete(final FMLLoadCompleteEvent event)
     {
-        RaiderSpawnRegistry.init();
-        RaiderSpawnRegistry.registerNewRaiders();
+        RaidEnemyRegistry.init();
+        RaidEnemyRegistry.registerNewRaiders();
+        RaidEnemyRegistry.registerReinforcements();
         RaidLoot.register();
     }
 
