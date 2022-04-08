@@ -143,9 +143,7 @@ public abstract class RaidMixin
         {
             switch(worldDifficulty)
             {
-                case PEACEFUL -> baseSpawnCount = 0;
                 case EASY -> baseSpawnCount = this.random.nextInt(baseSpawnCount - 2, baseSpawnCount);
-                case NORMAL -> baseSpawnCount += 0;
                 case HARD -> baseSpawnCount = this.random.nextInt(baseSpawnCount, baseSpawnCount + 2 + 1);
             }
 
@@ -170,24 +168,9 @@ public abstract class RaidMixin
     }
 
     @Inject(at = @At("HEAD"), method = "getPotentialBonusSpawns", cancellable = true)
-    private void difficultraids_getPotentialBonusSpawns(Raid.RaiderType raiderType, Random random,
-            int groupsSpawned, DifficultyInstance difficultyInstance, boolean shouldSpawnBonusGroup, CallbackInfoReturnable<Integer> callbackInfoReturnable)
+    private void difficultraids_getPotentialBonusSpawns(Raid.RaiderType raiderType, Random random, int groupsSpawned, DifficultyInstance difficultyInstance, boolean shouldSpawnBonusGroup, CallbackInfoReturnable<Integer> callbackInfoReturnable)
     {
-        if(this.raidReinforcements != null)
-        {
-            Difficulty worldDifficulty = difficultyInstance.getDifficulty();
-            RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
-
-            int count = this.raidReinforcements.getRaiderReinforcementCount(raiderType, worldDifficulty, raidDifficulty);
-
-            RaidMixin.outputLog(
-                    "Bonus Spawns: Raider Type {%s}, Spawn Count {%s}, Difficulty {World: %s, Raid: %s}"
-                    .formatted(raiderType.toString(), count, worldDifficulty.toString(), raidDifficulty.toString())
-            );
-
-            callbackInfoReturnable.setReturnValue(count);
-        }
-        else RaidMixin.outputLog("BonusRaidSpawnPreset is null! Defaulting to vanilla Minecraft bonus spawn groups...");
+        if(!DifficultRaidsConfig.RAID_DIFFICULTY.get().isDefault()) callbackInfoReturnable.setReturnValue(0);
     }
 
     @Inject(at = @At("HEAD"), method = "stop")
