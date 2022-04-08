@@ -20,8 +20,8 @@ public class RaiderSpawnRegistry
         RaiderSpawnRegistry.createFor("VINDICATOR")
                 .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 2, 0, 1, 4, 2, 5})
                 .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 0, 2, 2, 1, 4, 2, 5})
-                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 0, 4, 2, 2, 4, 4, 9})
-                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 5, 4, 4, 5, 9, 10, 16})
+                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 0, 4, 2, 2, 4, 4, 6})
+                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 2, 4, 4, 2, 6, 5, 10})
                 .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 10, 20, 20, 25, 30, 34, 45})
                 .register();
 
@@ -36,8 +36,8 @@ public class RaiderSpawnRegistry
         RaiderSpawnRegistry.createFor("PILLAGER")
                 .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 4, 3, 3, 4, 4, 4, 2})
                 .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 5, 4, 4, 6, 6, 6, 6})
-                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 5, 5, 5, 7, 8, 8, 10})
-                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 8, 8, 10, 10, 12, 16, 20})
+                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 5, 5, 5, 7, 8, 8, 8})
+                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 5, 3, 6, 7, 7, 12, 13})
                 .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 10, 20, 23, 28, 32, 45, 50})
                 .register();
 
@@ -45,7 +45,7 @@ public class RaiderSpawnRegistry
                 .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 0, 0, 3, 0, 0, 1})
                 .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 0, 0, 1, 3, 0, 1, 3})
                 .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 0, 2, 2, 3, 3, 3, 5})
-                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 0, 4, 4, 10, 2, 2, 6})
+                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 0, 4, 4, 4, 2, 2, 6})
                 .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 5, 7, 10, 30, 20, 23, 30})
                 .register();
 
@@ -76,7 +76,7 @@ public class RaiderSpawnRegistry
                 .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 3, 1, 2, 4, 2, 6})
                 .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 2, 4, 2, 3, 4, 3, 8})
                 .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 1, 3, 3, 3, 4, 3, 7})
-                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 3, 5, 1, 1, 6, 10, 10})
+                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 3, 5, 1, 1, 6, 7, 7})
                 .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 10, 16, 16, 25, 25, 30, 40})
                 .register();
 

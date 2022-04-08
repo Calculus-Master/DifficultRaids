@@ -40,6 +40,15 @@ public abstract class LivingEntityMixin extends Entity
     @Shadow public abstract boolean addEffect(MobEffectInstance pEffectInstance);
     @Shadow public abstract boolean removeEffect(MobEffect pEffect);
 
+    @Inject(at = @At("HEAD"), method = "addEffect(Lnet/minecraft/world/effect/MobEffectInstance;)Z", cancellable = true)
+    private void difficultraids_checkTotemImmunities(MobEffectInstance pEffectInstance, CallbackInfoReturnable<Boolean> callbackInfoReturnable)
+    {
+        final Item totemOfSpeed = DifficultRaidsItems.TOTEM_OF_SPEED.get();
+        if((this.getMainHandItem().is(totemOfSpeed) || this.getOffhandItem().is(totemOfSpeed))
+                && pEffectInstance.getEffect().equals(MobEffects.MOVEMENT_SLOWDOWN))
+            callbackInfoReturnable.setReturnValue(false);
+    }
+
     @Inject(at = @At("HEAD"), method = "checkTotemDeathProtection", cancellable = true)
     private void difficultraids_useCustomTotem(DamageSource damageSource, CallbackInfoReturnable<Boolean> callback)
     {

@@ -23,6 +23,7 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
@@ -107,8 +108,16 @@ public abstract class RaidMixin
                             (entityEntry.getKey().equals(EntityType.ZOMBIE) || entityEntry.getKey().equals(EntityType.SKELETON) || entityEntry.getKey().equals(EntityType.STRAY)))
                         spawn.setItemSlot(EquipmentSlot.HEAD, new ItemStack(raidDifficulty.daylightHelmet));
 
-                    if(spawn instanceof Monster monster && this.random.nextInt(100) < 70) monster.getNavigation().createPath(this.center, 15);
-                    else if(spawn instanceof Animal animal) animal.getNavigation().createPath(this.center, 30);
+                    if(spawn instanceof Monster monster)
+                    {
+                        Path path = monster.getNavigation().createPath(this.center, 10);
+                        monster.getNavigation().moveTo(path, 1.3);
+                    }
+                    else if(spawn instanceof Animal animal)
+                    {
+                        Path path = animal.getNavigation().createPath(this.center, 15);
+                        animal.getNavigation().moveTo(path, 0.5);
+                    }
 
                     this.level.addFreshEntity(spawn);
                 }
@@ -130,17 +139,14 @@ public abstract class RaidMixin
         int baseSpawnCount = spawnBonusGroup ? spawnsPerWave[this.numGroups] : spawnsPerWave[groupsSpawned];
 
         //Modifiers based on Game Difficulty (Default and Apocalypse ignore this)
-        if(!List.of(RaidDifficulty.DEFAULT, RaidDifficulty.APOCALYPSE).contains(raidDifficulty) && baseSpawnCount != 0 && !raiderType.equals(Raid.RaiderType.RAVAGER))
+        if(!raidDifficulty.isDefault() && !raidDifficulty.is(RaidDifficulty.APOCALYPSE) && baseSpawnCount != 0 && !raiderType.equals(Raid.RaiderType.RAVAGER))
         {
             switch(worldDifficulty)
             {
-                case PEACEFUL -> baseSpawnCount = 0; //Don't think this ever executes?
-                //BSC ranges from BSC - 3 to BSC - 1 -- Minimum: 0
-                case EASY -> baseSpawnCount = this.random.nextInt(baseSpawnCount - 3, baseSpawnCount);
-                //BSC ranges from BSC - 2 to BSC + 2 -- Minimum: 0 if no mobs are supposed to spawn this wave, 1 if any are
-                case NORMAL -> baseSpawnCount = this.random.nextInt(baseSpawnCount - 2, baseSpawnCount + 2 + 1);
-                //BSC ranges from BSC to BSC + 5 -- Minimum: 1
-                case HARD -> baseSpawnCount = this.random.nextInt(baseSpawnCount, baseSpawnCount + 3 + 1);
+                case PEACEFUL -> baseSpawnCount = 0;
+                case EASY -> baseSpawnCount = this.random.nextInt(baseSpawnCount - 2, baseSpawnCount);
+                case NORMAL -> baseSpawnCount += 0;
+                case HARD -> baseSpawnCount = this.random.nextInt(baseSpawnCount, baseSpawnCount + 2 + 1);
             }
 
             if(baseSpawnCount < 0) baseSpawnCount = 0;
