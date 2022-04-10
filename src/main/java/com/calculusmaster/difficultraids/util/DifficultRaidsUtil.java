@@ -5,9 +5,16 @@ import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraftforge.fml.ModList;
 
 public class DifficultRaidsUtil
 {
+    //Mod Checks
+    public static boolean isGuardVillagersLoaded()
+    {
+        return ModList.get().isLoaded("guardvillagers");
+    }
+
     //Returns the correct armor piece given a slot and ArmorMaterial. Returns AIR if none are found.
     public static ItemStack getArmorPiece(EquipmentSlot slot, ArmorMaterials material)
     {

@@ -3,6 +3,7 @@ package com.calculusmaster.difficultraids.mixins;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.raids.RaidEnemyRegistry;
 import com.calculusmaster.difficultraids.raids.RaidLoot;
+import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextComponent;
@@ -115,34 +116,45 @@ public abstract class RaidMixin
         RaidDifficulty raidDifficulty = RaidDifficulty.current();
         Difficulty worldDifficulty = this.level.getDifficulty();
 
-        //outputLog("Searching for Default Spawns: Raider Type {%s}, Raid Difficulty {%s}".formatted(raiderType.toString(), raidDifficulty.toString()));
-
-        //Spawns per wave array
-        int[] spawnsPerWave = RaidEnemyRegistry.getDefaultSpawns(raiderType.toString(), raidDifficulty);
-        //Selected spawns for the current wave
-        int baseSpawnCount = spawnBonusGroup ? spawnsPerWave[this.numGroups] : spawnsPerWave[groupsSpawned];
-
-        //Modifiers based on Game Difficulty (Default and Apocalypse ignore this)
-        if(!raidDifficulty.isDefault() && !raidDifficulty.is(RaidDifficulty.APOCALYPSE) && baseSpawnCount != 0 && !raiderType.equals(Raid.RaiderType.RAVAGER))
+        if(!raidDifficulty.isDefault())
         {
-            switch(worldDifficulty)
+            //Guard Villagers also adds Illusioners to Raids - Disable that, so we use our Illusioner wave values
+            if(DifficultRaidsUtil.isGuardVillagersLoaded())
             {
-                case EASY -> baseSpawnCount = this.random.nextInt(baseSpawnCount - 2, baseSpawnCount);
-                case HARD -> baseSpawnCount = this.random.nextInt(baseSpawnCount, baseSpawnCount + 2 + 1);
+                if(raiderType.toString().equalsIgnoreCase("thebluemengroup"))
+                {
+                    callbackInfoReturnable.setReturnValue(0);
+                    return;
+                }
             }
 
-            if(baseSpawnCount < 0) baseSpawnCount = 0;
+            //Spawns per wave array
+            int[] spawnsPerWave = RaidEnemyRegistry.getDefaultSpawns(raiderType.toString(), raidDifficulty);
+            //Selected spawns for the current wave
+            int baseSpawnCount = spawnBonusGroup ? spawnsPerWave[this.numGroups] : spawnsPerWave[groupsSpawned];
+
+            //Modifiers based on Game Difficulty (Default and Apocalypse ignore this)
+            if(!raidDifficulty.isDefault() && !raidDifficulty.is(RaidDifficulty.APOCALYPSE) && baseSpawnCount != 0 && !raiderType.equals(Raid.RaiderType.RAVAGER))
+            {
+                switch(worldDifficulty)
+                {
+                    case EASY -> baseSpawnCount = this.random.nextInt(baseSpawnCount - 2, baseSpawnCount);
+                    case HARD -> baseSpawnCount = this.random.nextInt(baseSpawnCount, baseSpawnCount + 2 + 1);
+                }
+
+                if(baseSpawnCount < 0) baseSpawnCount = 0;
+            }
+
+            //Modifiers based on Player Count
+            baseSpawnCount *= 1 + raidDifficulty.config().playerCountSpawnModifier();
+
+            RaidMixin.outputLog(
+                    "Default Spawns: Raider Type {%s}, Spawns per Wave {%s}, Selected Spawn Count {%s}, Difficulty {World: %s, Raid: %s}"
+                            .formatted(raiderType.toString(), Arrays.toString(spawnsPerWave), baseSpawnCount, worldDifficulty, raidDifficulty)
+            );
+
+            callbackInfoReturnable.setReturnValue(baseSpawnCount);
         }
-
-        //Modifiers based on Player Count
-        baseSpawnCount *= 1 + raidDifficulty.config().playerCountSpawnModifier();
-
-        RaidMixin.outputLog(
-                "Default Spawns: Raider Type {%s}, Spawns per Wave {%s}, Selected Spawn Count {%s}, Difficulty {World: %s, Raid: %s}"
-                .formatted(raiderType.toString(), Arrays.toString(spawnsPerWave), baseSpawnCount, worldDifficulty, raidDifficulty)
-        );
-
-        callbackInfoReturnable.setReturnValue(baseSpawnCount);
     }
 
     @Inject(at = @At("HEAD"), method = "getPotentialBonusSpawns", cancellable = true)
