@@ -326,8 +326,7 @@ public class FrostIllagerEntity extends AbstractSpellcastingIllager
                     case HARD -> 20 * 7;
                 };
 
-                target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, duration, 10));
-                target.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, duration / 4, 10));
+                if(target.canFreeze()) target.setTicksFrozen(target.getTicksFrozen() + duration);
             }
         }
 

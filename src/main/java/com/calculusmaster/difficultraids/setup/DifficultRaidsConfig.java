@@ -240,11 +240,11 @@ public class DifficultRaidsConfig
                         .defineInRange("frostBarrageDuration", default_frost_barrageDuration, 1, Integer.MAX_VALUE);
 
                 int default_frost_freezeDuration = switch(raidDifficulty) {
-                    case HERO -> 20 * 8;
-                    case LEGEND -> 20 * 10;
-                    case MASTER -> 20 * 15;
-                    case APOCALYPSE -> 20 * 30;
-                    default -> 20 * 5;
+                    case HERO -> 20 * 6;
+                    case LEGEND -> 20 * 8;
+                    case MASTER -> 20 * 10;
+                    case APOCALYPSE -> 20 * 15;
+                    default -> 20 * 4;
                 };
 
                 config.frostConfig.freezeDuration = SERVER
