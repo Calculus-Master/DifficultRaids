@@ -1,7 +1,6 @@
 package com.calculusmaster.difficultraids.mixins;
 
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
-import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
@@ -36,7 +35,7 @@ public abstract class VindicatorMixin extends AbstractIllager
     @Inject(at = @At("TAIL"), method = "applyRaidBuffs")
     private void difficultraids_applyRaidBuffs(int p_34079_, boolean p_34080_, CallbackInfo callbackInfo)
     {
-        RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
+        RaidDifficulty raidDifficulty = RaidDifficulty.current();
 
         if(!raidDifficulty.isDefault())
         {

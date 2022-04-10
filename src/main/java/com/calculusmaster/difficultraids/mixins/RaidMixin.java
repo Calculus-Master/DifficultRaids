@@ -3,15 +3,12 @@ package com.calculusmaster.difficultraids.mixins;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.raids.RaidEnemyRegistry;
 import com.calculusmaster.difficultraids.raids.RaidLoot;
-import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -22,6 +19,7 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import org.slf4j.Logger;
@@ -42,6 +40,7 @@ public abstract class RaidMixin
     private AABB validRaidArea;
 
     @Shadow @Final private int numGroups;
+    @Shadow private int groupsSpawned;
     @Shadow @Final private ServerLevel level;
     @Shadow @Final private Random random;
     @Shadow private BlockPos center;
@@ -50,12 +49,11 @@ public abstract class RaidMixin
     @Shadow public abstract boolean isVictory();
     @Shadow public abstract boolean isLoss();
 
-    @Shadow private int groupsSpawned;
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private static void outputLog(String text)
     {
-        LOGGER.info("Difficult Raids - Log Info - [[ " + text + " ]]");
+        LOGGER.info("DR Log - [[ " + text + " ]]");
     }
 
     @Inject(at = @At("TAIL"), method = "absorbBadOmen")
@@ -72,10 +70,10 @@ public abstract class RaidMixin
         this.players = participants.size();
 
         Difficulty levelDifficulty = this.level.getDifficulty();
-        RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
+        RaidDifficulty raidDifficulty = RaidDifficulty.current();
 
         //Entity Reinforcements (no Raiders)
-        if(true || this.random.nextInt(100) < raidDifficulty.reinforcementChance)
+        if(this.random.nextInt(100) < raidDifficulty.config().reinforcementChance())
         {
             Map<EntityType<?>, Integer> reinforcements = RaidEnemyRegistry.generateReinforcements(this.groupsSpawned, raidDifficulty, levelDifficulty);
             final String sum = "(" + reinforcements.values().stream().mapToInt(i -> i).sum() + ")";
@@ -91,16 +89,8 @@ public abstract class RaidMixin
                     if(spawn == null) continue; //This shouldn't execute, but just in case
                     spawn.moveTo(pos.getX(), pos.getY(), pos.getZ());
 
-                    int creeperInvisChance = DifficultRaidsConfig.RAID_CREEPER_INVIS_CHANCE_MASTER.get() + (raidDifficulty.equals(RaidDifficulty.APOCALYPSE) ? 5 : 0);
-                    if(creeperInvisChance != 0 &&
-                            type.equals(EntityType.CREEPER) &&
-                            List.of(RaidDifficulty.MASTER, RaidDifficulty.APOCALYPSE).contains(raidDifficulty) &&
-                            this.random.nextInt(100) < DifficultRaidsConfig.RAID_CREEPER_INVIS_CHANCE_MASTER.get())
-                        spawn.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 15 * 20));
-
-                    if(DifficultRaidsConfig.RAID_PREVENT_SUNLIGHT_BURNING_HELMETS.get() &&
-                            (entityEntry.getKey().equals(EntityType.ZOMBIE) || entityEntry.getKey().equals(EntityType.SKELETON) || entityEntry.getKey().equals(EntityType.STRAY)))
-                        spawn.setItemSlot(EquipmentSlot.HEAD, new ItemStack(raidDifficulty.daylightHelmet));
+                    if(List.of(EntityType.ZOMBIE, EntityType.SKELETON, EntityType.STRAY).contains(entityEntry.getKey()))
+                        spawn.setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.LEATHER_HELMET));
 
                     if(spawn instanceof Monster monster)
                     {
@@ -122,7 +112,7 @@ public abstract class RaidMixin
     @Inject(at = @At("HEAD"), method = "getDefaultNumSpawns", cancellable = true)
     private void difficultraids_getDefaultNumSpawns(Raid.RaiderType raiderType, int groupsSpawned, boolean spawnBonusGroup, CallbackInfoReturnable<Integer> callbackInfoReturnable)
     {
-        RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
+        RaidDifficulty raidDifficulty = RaidDifficulty.current();
         Difficulty worldDifficulty = this.level.getDifficulty();
 
         //outputLog("Searching for Default Spawns: Raider Type {%s}, Raid Difficulty {%s}".formatted(raiderType.toString(), raidDifficulty.toString()));
@@ -145,13 +135,7 @@ public abstract class RaidMixin
         }
 
         //Modifiers based on Player Count
-        baseSpawnCount *= 1 + this.players * switch(raidDifficulty) {
-            case HERO -> 0.05;
-            case LEGEND -> 0.1;
-            case MASTER -> 0.15;
-            case APOCALYPSE -> 0.2;
-            default -> 0.0;
-        };
+        baseSpawnCount *= 1 + raidDifficulty.config().playerCountSpawnModifier();
 
         RaidMixin.outputLog(
                 "Default Spawns: Raider Type {%s}, Spawns per Wave {%s}, Selected Spawn Count {%s}, Difficulty {World: %s, Raid: %s}"
@@ -164,13 +148,13 @@ public abstract class RaidMixin
     @Inject(at = @At("HEAD"), method = "getPotentialBonusSpawns", cancellable = true)
     private void difficultraids_getPotentialBonusSpawns(Raid.RaiderType raiderType, Random random, int groupsSpawned, DifficultyInstance difficultyInstance, boolean shouldSpawnBonusGroup, CallbackInfoReturnable<Integer> callbackInfoReturnable)
     {
-        if(!DifficultRaidsConfig.RAID_DIFFICULTY.get().isDefault()) callbackInfoReturnable.setReturnValue(0);
+        if(!RaidDifficulty.current().isDefault()) callbackInfoReturnable.setReturnValue(0);
     }
 
     @Inject(at = @At("HEAD"), method = "stop")
     public void difficultraids_grantRewards(CallbackInfo callbackInfo)
     {
-        RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
+        RaidDifficulty raidDifficulty = RaidDifficulty.current();
 
         if(this.isVictory() && !raidDifficulty.isDefault())
         {
@@ -206,7 +190,7 @@ public abstract class RaidMixin
                 );
             });
         }
-        else if(this.isLoss() && raidDifficulty.equals(RaidDifficulty.APOCALYPSE) && DifficultRaidsConfig.RAID_LOSS_APOCALYPSE_SHOULD_WITHER_SPAWN.get())
+        else if(this.isLoss() && raidDifficulty.is(RaidDifficulty.APOCALYPSE))
         {
             WitherBoss wither = EntityType.WITHER.create(this.level);
 
@@ -228,7 +212,7 @@ public abstract class RaidMixin
     //@Overwrite
     public int getNumGroups(Difficulty p_37725_)
     {
-        RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
+        RaidDifficulty raidDifficulty = RaidDifficulty.current();
 
         if(raidDifficulty.isDefault())
         {
@@ -253,9 +237,9 @@ public abstract class RaidMixin
         //Waves Modifier (from World Difficulty)
         waves += switch(p_37725_) {
             case PEACEFUL -> -waves;
-            case EASY -> -2;
+            case EASY -> -1;
             case NORMAL -> 0;
-            case HARD -> +2;
+            case HARD -> +1;
         };
 
         return waves;

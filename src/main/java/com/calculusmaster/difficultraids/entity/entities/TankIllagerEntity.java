@@ -1,7 +1,6 @@
 package com.calculusmaster.difficultraids.entity.entities;
 
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
-import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
@@ -70,7 +69,7 @@ public class TankIllagerEntity extends AbstractIllager
     @Override
     public void applyRaidBuffs(int p_37844_, boolean p_37845_)
     {
-        RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
+        RaidDifficulty raidDifficulty = RaidDifficulty.current();
         //TODO: DR RaidDifficulty Raids versus Normal Vanilla Raids (RaidDifficulty.DEFAULT)
         this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.STONE_SWORD));
 
@@ -83,27 +82,8 @@ public class TankIllagerEntity extends AbstractIllager
 
         final Map<Enchantment, Integer> enchants = new HashMap<>();
 
-        int protectionLevel = switch(raidDifficulty) {
-            case DEFAULT -> 1;
-            case HERO -> 2;
-            case LEGEND -> 3;
-            case MASTER -> 4;
-            case APOCALYPSE -> 5;
-        };
-
-        enchants.put(Enchantments.ALL_DAMAGE_PROTECTION, protectionLevel);
-
-        if(raidDifficulty.is(RaidDifficulty.LEGEND, RaidDifficulty.MASTER, RaidDifficulty.APOCALYPSE))
-        {
-            int thornsLevel = switch(raidDifficulty) {
-                default -> 0;
-                case LEGEND -> 1;
-                case MASTER -> this.random.nextInt(2);
-                case APOCALYPSE -> 2;
-            };
-
-            if(this.random.nextInt(100) < 10) enchants.put(Enchantments.THORNS, thornsLevel);
-        }
+        enchants.put(Enchantments.ALL_DAMAGE_PROTECTION, raidDifficulty.config().tank().protectionLevel());
+        if(this.random.nextInt(100) < 10 && raidDifficulty.config().tank().thornsLevel() > 0) enchants.put(Enchantments.THORNS, raidDifficulty.config().tank().thornsLevel());
 
         if(helmet != null && chestplate != null && leggings != null && boots != null)
         {

@@ -1,7 +1,6 @@
 package com.calculusmaster.difficultraids.mixins;
 
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
-import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.monster.AbstractIllager;
@@ -32,7 +31,7 @@ public abstract class PillagerMixin extends AbstractIllager
     @Inject(at = @At("TAIL"), method = "applyRaidBuffs", cancellable = true)
     public void applyRaidBuffs(int p_37844_, boolean p_37845_, CallbackInfo callbackInfo)
     {
-        RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
+        RaidDifficulty raidDifficulty = RaidDifficulty.current();
 
         if(!raidDifficulty.isDefault() && this.getItemBySlot(EquipmentSlot.MAINHAND).is(Items.CROSSBOW))
         {

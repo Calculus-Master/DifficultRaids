@@ -2,7 +2,7 @@ package com.calculusmaster.difficultraids.entity.entities;
 
 import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
 import com.calculusmaster.difficultraids.entity.entities.component.FrostSnowballEntity;
-import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
+import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -183,13 +183,7 @@ public class FrostIllagerEntity extends AbstractSpellcastingIllager
 
             if(target != null)
             {
-                float damage = FrostIllagerEntity.this.getCurrentRaid() != null ? switch(DifficultRaidsConfig.RAID_DIFFICULTY.get()) {
-                    case DEFAULT -> 1.5F;
-                    case HERO -> 2.5F;
-                    case LEGEND -> 3.5F;
-                    case MASTER -> 5.0F;
-                    case APOCALYPSE -> 8.0F;
-                } + switch(FrostIllagerEntity.this.level.getDifficulty()) {
+                float damage = FrostIllagerEntity.this.getCurrentRaid() != null ? RaidDifficulty.current().config().frost().snowballBlastDamage() + switch(FrostIllagerEntity.this.level.getDifficulty()) {
                     case PEACEFUL, NORMAL -> 0.0F;
                     case EASY -> -0.5F;
                     case HARD -> 0.5F;
@@ -264,19 +258,14 @@ public class FrostIllagerEntity extends AbstractSpellcastingIllager
         @Override
         protected void castSpell()
         {
-            boolean raid = FrostIllagerEntity.this.getCurrentRaid() != null;
-            FrostIllagerEntity.this.barrageTicks = raid ? switch(DifficultRaidsConfig.RAID_DIFFICULTY.get()) {
-                case DEFAULT -> 20 * 3;
-                case HERO -> 20 * 7;
-                case LEGEND -> 20 * 12;
-                case MASTER -> 20 * 15;
-                case APOCALYPSE -> 20 * 20;
-            } : switch(FrostIllagerEntity.this.level.getDifficulty()) {
-                case PEACEFUL -> 0;
-                case EASY -> 20 * 2;
-                case NORMAL -> 20 * 5;
-                case HARD -> 20 * 9;
-            };
+            FrostIllagerEntity.this.barrageTicks = FrostIllagerEntity.this.getCurrentRaid() != null
+                    ? RaidDifficulty.current().config().frost().barrageDuration()
+                    : switch(FrostIllagerEntity.this.level.getDifficulty()) {
+                        case PEACEFUL -> 0;
+                        case EASY -> 20 * 2;
+                        case NORMAL -> 20 * 5;
+                        case HARD -> 20 * 9;
+                    };
         }
 
         @Override
@@ -330,13 +319,7 @@ public class FrostIllagerEntity extends AbstractSpellcastingIllager
 
             if(target != null)
             {
-                int duration = raid ? switch(DifficultRaidsConfig.RAID_DIFFICULTY.get()) {
-                    case DEFAULT -> 20 * 5;
-                    case HERO -> 20 * 8;
-                    case LEGEND -> 20 * 10;
-                    case MASTER -> 20 * 15;
-                    case APOCALYPSE -> 20 * 30;
-                } : switch(level.getDifficulty()) {
+                int duration = raid ? RaidDifficulty.current().config().frost().freezeDuration() : switch(level.getDifficulty()) {
                     case PEACEFUL -> 0;
                     case EASY -> 20 * 3;
                     case NORMAL -> 20 * 5;

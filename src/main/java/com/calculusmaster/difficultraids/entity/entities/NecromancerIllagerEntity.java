@@ -1,7 +1,6 @@
 package com.calculusmaster.difficultraids.entity.entities;
 
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
-import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -201,15 +200,9 @@ public class NecromancerIllagerEntity extends AbstractSpellcastingIllager
 
                 if(raid)
                 {
-                    RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
+                    RaidDifficulty raidDifficulty = RaidDifficulty.current();
 
-                    summons += switch(raidDifficulty) {
-                        case HERO -> 2;
-                        case LEGEND -> 3;
-                        case MASTER -> 5;
-                        case APOCALYPSE -> 10;
-                        default -> 0;
-                    };
+                    summons += raidDifficulty.config().necromancer().minionSummonCount();
 
                     switch(raidDifficulty)
                     {
@@ -233,13 +226,7 @@ public class NecromancerIllagerEntity extends AbstractSpellcastingIllager
                     };
 
                     int protectionLevel = 0;
-                    if(raid) protectionLevel = switch(DifficultRaidsConfig.RAID_DIFFICULTY.get()) {
-                        case HERO -> 1;
-                        case LEGEND -> 2;
-                        case MASTER -> 3;
-                        case APOCALYPSE -> 4;
-                        default -> 0;
-                    };
+                    if(raid) protectionLevel = RaidDifficulty.current().config().necromancer().minionProtectionLevel();
 
                     List<EquipmentSlot> slots = List.of(EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET);
                     for(Item item : armor)
@@ -323,16 +310,8 @@ public class NecromancerIllagerEntity extends AbstractSpellcastingIllager
 
                 if(raid)
                 {
-                    size = switch(DifficultRaidsConfig.RAID_DIFFICULTY.get()) {
-                        case HERO -> 10;
-                        case LEGEND -> 15;
-                        case MASTER -> 20;
-                        case APOCALYPSE -> 30;
-                        default -> 5;
-                    };
-
-                    size += switch(level.getDifficulty()) {
-                        case PEACEFUL -> -size;
+                    size = RaidDifficulty.current().config().necromancer().hordeSize() + switch(level.getDifficulty()) {
+                        case PEACEFUL -> -RaidDifficulty.current().config().necromancer().hordeSize();
                         case EASY -> -5;
                         case NORMAL -> 0;
                         case HARD -> 5;
@@ -365,13 +344,7 @@ public class NecromancerIllagerEntity extends AbstractSpellcastingIllager
                     NecromancerIllagerEntity.this.activeHorde.add(hordeMember);
                 }
 
-                NecromancerIllagerEntity.this.hordeLifetimeTicks = raid ? switch(DifficultRaidsConfig.RAID_DIFFICULTY.get()) {
-                    case HERO -> 20 * 30;
-                    case LEGEND -> 20 * 60;
-                    case MASTER -> 20 * 90;
-                    case APOCALYPSE -> 20 * 180;
-                    default -> 20 * 15;
-                } : switch(level.getDifficulty()) {
+                NecromancerIllagerEntity.this.hordeLifetimeTicks = raid ? RaidDifficulty.current().config().necromancer().hordeLifetime() : switch(level.getDifficulty()) {
                     case PEACEFUL -> 1;
                     case EASY -> 20 * 15;
                     case NORMAL -> 20 * 30;
@@ -435,48 +408,13 @@ public class NecromancerIllagerEntity extends AbstractSpellcastingIllager
             LivingEntity target = NecromancerIllagerEntity.this.getTarget();
             ServerLevel level = (ServerLevel)NecromancerIllagerEntity.this.getLevel();
             boolean raid = NecromancerIllagerEntity.this.getCurrentRaid() != null;
-            RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
+            RaidDifficulty raidDifficulty = RaidDifficulty.current();
             Random random = new Random();
 
             if(target != null)
             {
-                int slownessLevel = switch(level.getDifficulty()) {
-                    case PEACEFUL -> 0;
-                    case EASY -> 1;
-                    case NORMAL -> 2;
-                    case HARD -> 3;
-                };
-
-                int slownessDuration;
-                if(raid)
-                {
-                    slownessDuration = switch(raidDifficulty) {
-                        case HERO -> 20 * 5;
-                        case LEGEND -> 20 * 7;
-                        case MASTER -> 20 * 10;
-                        case APOCALYPSE -> 20 * 15;
-                        default -> 0;
-                    };
-
-                    slownessDuration += switch(level.getDifficulty()) {
-                        case PEACEFUL -> -slownessDuration;
-                        case EASY -> -20 * 2;
-                        case NORMAL -> 20 * (-1 + random.nextInt(3));
-                        case HARD -> 20 * 2;
-                    };
-                }
-                else slownessDuration = switch(level.getDifficulty()) {
-                    case PEACEFUL -> 0;
-                    case EASY -> 20 * 5;
-                    case NORMAL -> 20 * 6;
-                    case HARD -> 20 * 7;
-                };
-
-                //Slowness and Blindness
-                target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, slownessDuration, slownessLevel));
-
-                if(raid && raidDifficulty.is(RaidDifficulty.MASTER, RaidDifficulty.APOCALYPSE))
-                    target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 100, 1));
+                //Blindness
+                if(raid) target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 100, 1));
 
                 //Bury Logic
                 target.playSound(SoundEvents.DROWNED_AMBIENT_WATER, 5.0F, 0.75F);

@@ -1,7 +1,6 @@
 package com.calculusmaster.difficultraids.entity.entities;
 
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
-import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -166,19 +165,12 @@ public class ShamanIllagerEntity extends AbstractSpellcastingIllager
             boolean raid = ShamanIllagerEntity.this.getCurrentRaid() != null;
             Random random = new Random();
 
-            List<MobEffect> debuffPool = List.of(MobEffects.BLINDNESS, MobEffects.CONFUSION, MobEffects.MOVEMENT_SLOWDOWN, MobEffects.DIG_SLOWDOWN, MobEffects.POISON, MobEffects.LEVITATION, MobEffects.WEAKNESS);
+            List<MobEffect> debuffPool = List.of(MobEffects.CONFUSION, MobEffects.MOVEMENT_SLOWDOWN, MobEffects.DIG_SLOWDOWN, MobEffects.POISON, MobEffects.LEVITATION, MobEffects.WEAKNESS);
 
             if(raid && target != null)
             {
-                RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
-
-                int debuffCount = switch(raidDifficulty) {
-                    case HERO -> 2;
-                    case LEGEND -> 3;
-                    case MASTER -> 4;
-                    case APOCALYPSE -> 5;
-                    default -> 1;
-                };
+                RaidDifficulty raidDifficulty = RaidDifficulty.current();
+                int debuffCount = raidDifficulty.config().shaman().debuffAmount();
 
                 Set<MobEffect> apply = new HashSet<>();
                 for(int i = 0; i < debuffCount; i++) apply.add(debuffPool.get(random.nextInt(debuffPool.size())));
@@ -187,127 +179,35 @@ public class ShamanIllagerEntity extends AbstractSpellcastingIllager
                     int duration = 0;
                     int amplifier = 0;
 
-                    if(effect.equals(MobEffects.BLINDNESS))
+                    if(effect.equals(MobEffects.CONFUSION))
                     {
-                        duration = switch(raidDifficulty) {
-                            case HERO -> 60;
-                            case LEGEND -> 80;
-                            case MASTER -> 100;
-                            case APOCALYPSE -> 160;
-                            default -> 40;
-                        };
-                        amplifier = 1;
-                    }
-                    else if(effect.equals(MobEffects.CONFUSION))
-                    {
-                        duration = switch(raidDifficulty) {
-                            case HERO -> 40;
-                            case LEGEND -> 60;
-                            case MASTER -> 80;
-                            case APOCALYPSE -> 160;
-                            default -> 20;
-                        };
+                        duration = raidDifficulty.config().shaman().nauseaDuration();
                         amplifier = 1;
                     }
                     else if(effect.equals(MobEffects.MOVEMENT_SLOWDOWN))
                     {
-                        switch(raidDifficulty)
-                        {
-                            case HERO -> {
-                                duration = 100;
-                                amplifier = 1;
-                            }
-                            case LEGEND -> {
-                                duration = 100;
-                                amplifier = 2;
-                            }
-                            case MASTER -> {
-                                duration = 160;
-                                amplifier = 2;
-                            }
-                            case APOCALYPSE -> {
-                                duration = 240;
-                                amplifier = 3;
-                            }
-                            default -> {
-                                duration = 60;
-                                amplifier = 1;
-                            }
-                        }
+                        duration = raidDifficulty.config().shaman().slownessDuration();
+                        amplifier = raidDifficulty.config().shaman().slownessAmplifier();
                     }
                     else if(effect.equals(MobEffects.DIG_SLOWDOWN))
                     {
-                        switch(raidDifficulty)
-                        {
-                            case HERO -> {
-                                duration = 100;
-                                amplifier = 1;
-                            }
-                            case LEGEND -> {
-                                duration = 160;
-                                amplifier = 1;
-                            }
-                            case MASTER -> {
-                                duration = 160;
-                                amplifier = 2;
-                            }
-                            case APOCALYPSE -> {
-                                duration = 280;
-                                amplifier = 3;
-                            }
-                            default -> {
-                                duration = 40;
-                                amplifier = 1;
-                            }
-                        }
+                        duration = raidDifficulty.config().shaman().miningFatigueDuration();
+                        amplifier = raidDifficulty.config().shaman().miningFatigueAmplifier();
                     }
                     else if(effect.equals(MobEffects.POISON))
                     {
                         duration = 60;
-                        amplifier = switch(raidDifficulty) {
-                            case HERO -> 2;
-                            case LEGEND -> 3;
-                            case MASTER -> 4;
-                            case APOCALYPSE -> 5;
-                            default -> 1;
-                        };
+                        amplifier = raidDifficulty.config().shaman().poisonAmplifier();
                     }
                     else if(effect.equals(MobEffects.LEVITATION))
                     {
-                        duration = switch(raidDifficulty) {
-                            case HERO -> 40;
-                            case LEGEND -> 80;
-                            case MASTER -> 100;
-                            case APOCALYPSE -> 160;
-                            default -> 20;
-                        };
+                        duration = raidDifficulty.config().shaman().levitationDuration();
                         amplifier = 1;
                     }
                     else if(effect.equals(MobEffects.WEAKNESS))
                     {
-                        switch(raidDifficulty)
-                        {
-                            case HERO -> {
-                                duration = 60;
-                                amplifier = 2;
-                            }
-                            case LEGEND -> {
-                                duration = 100;
-                                amplifier = 2;
-                            }
-                            case MASTER -> {
-                                duration = 120;
-                                amplifier = 3;
-                            }
-                            case APOCALYPSE -> {
-                                duration = 200;
-                                amplifier = 4;
-                            }
-                            default -> {
-                                duration = 20;
-                                amplifier = 1;
-                            }
-                        }
+                        duration = raidDifficulty.config().shaman().weaknessDuration();
+                        amplifier = raidDifficulty.config().shaman().weaknessAmplifier();
                     }
 
                     //General Difficulty Changes
@@ -367,42 +267,27 @@ public class ShamanIllagerEntity extends AbstractSpellcastingIllager
             //In a Raid, Shaman will boost others. If not, it'll boost itself (but the Shaman is a Raid-only mob at the moment)
             if(raid)
             {
-                RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
+                RaidDifficulty raidDifficulty = RaidDifficulty.current();
 
-                double buffRadius = switch(raidDifficulty) {
-                    case HERO -> 5.0;
-                    case LEGEND -> 8.0;
-                    case MASTER -> 12.0;
-                    case APOCALYPSE -> 20.0;
-                    default -> 3.0;
-                };
-
-                AABB buffAABB = new AABB(ShamanIllagerEntity.this.blockPosition()).inflate(buffRadius);
+                AABB buffAABB = new AABB(ShamanIllagerEntity.this.blockPosition()).inflate(raidDifficulty.config().shaman().buffRadius());
                 Predicate<AbstractIllager> canReceiveBuff = illager -> !illager.is(ShamanIllagerEntity.this) && !illager.hasEffect(MobEffects.DAMAGE_RESISTANCE);
                 List<AbstractIllager> raiders = level.getEntitiesOfClass(AbstractIllager.class, buffAABB, canReceiveBuff);
 
-                //0: Duration, 1: Amplifier
-                int[] resistanceData = switch(raidDifficulty) {
-                    case HERO -> new int[]{80, 1};
-                    case LEGEND -> new int[]{160, 1};
-                    case MASTER -> new int[]{160, 2};
-                    case APOCALYPSE -> new int[]{360, 3};
-                    default -> new int[]{40, 1};
-                };
-
-                resistanceData[0] += switch(level.getDifficulty()) {
-                    case PEACEFUL -> -resistanceData[0];
-                    case EASY -> -20;
+                int duration = raidDifficulty.config().shaman().allyResistanceDuration() + switch(level.getDifficulty()) {
+                    case PEACEFUL -> 0;
+                    case EASY -> -40;
                     case NORMAL -> -20 + random.nextInt(41);
-                    case HARD -> +20;
+                    case HARD -> +40;
                 };
+                int amplifier = raidDifficulty.config().shaman().allyResistanceAmplifier();
 
                 raiders.forEach(r -> {
                     r.addEffect(new MobEffectInstance(
                             MobEffects.DAMAGE_RESISTANCE,
-                            random.nextInt(resistanceData[0] - 20, resistanceData[0] + 21),
-                            resistanceData[1]));
+                            random.nextInt(duration - 20, duration + 21),
+                            amplifier));
                     r.playSound(SoundEvents.BREWING_STAND_BREW, 0.5F, 1.0F);
+                    System.out.println("Shaman Buffed a " + r.getType().toShortString());
                 });
 
                 ShamanIllagerEntity.this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 60, 2));
@@ -471,46 +356,30 @@ public class ShamanIllagerEntity extends AbstractSpellcastingIllager
             //In a Raid, Shaman will boost others. If not, it'll boost itself (but the Shaman is a Raid-only mob at the moment)
             if(raid)
             {
-                RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
+                RaidDifficulty raidDifficulty = RaidDifficulty.current();
 
-                double buffRadius = switch(raidDifficulty) {
-                    case HERO -> 5.0;
-                    case LEGEND -> 8.0;
-                    case MASTER -> 12.0;
-                    case APOCALYPSE -> 20.0;
-                    default -> 3.0;
-                };
-
-                AABB buffAABB = new AABB(ShamanIllagerEntity.this.blockPosition()).inflate(buffRadius);
+                AABB buffAABB = new AABB(ShamanIllagerEntity.this.blockPosition()).inflate(raidDifficulty.config().shaman().buffRadius());
                 Predicate<AbstractIllager> canReceiveBuff = illager -> !illager.is(ShamanIllagerEntity.this) && !illager.hasEffect(MobEffects.DAMAGE_BOOST);
                 List<AbstractIllager> raiders = level.getEntitiesOfClass(AbstractIllager.class, buffAABB, canReceiveBuff);
 
-                //0: Duration, 1: Amplifier
-                int[] strengthData = switch(raidDifficulty) {
-                    case HERO -> new int[]{200, 1};
-                    case LEGEND -> new int[]{480, 1};
-                    case MASTER -> new int[]{240, 2};
-                    case APOCALYPSE -> new int[]{480, 3};
-                    default -> new int[]{120, 1};
-                };
-
-                strengthData[0] += switch(level.getDifficulty()) {
-                    case PEACEFUL -> -strengthData[0];
+                int duration = raidDifficulty.config().shaman().allyStrengthDuration() + switch(level.getDifficulty()) {
+                    case PEACEFUL -> 0;
                     case EASY -> -40;
                     case NORMAL -> -20 + random.nextInt(41);
                     case HARD -> +40;
                 };
+                int amplifier = raidDifficulty.config().shaman().allyStrengthAmplifier();
 
                 raiders.forEach(r -> {
                     r.addEffect(new MobEffectInstance(
                             MobEffects.DAMAGE_BOOST,
-                            random.nextInt(strengthData[0] - 20, strengthData[0] + 21),
-                            strengthData[1]));
+                            random.nextInt(duration - 20, duration + 21),
+                            amplifier));
                     r.playSound(SoundEvents.BREWING_STAND_BREW, 0.5F, 1.0F);
                     System.out.println("Shaman Buffed a " + r.getType().toShortString());
                 });
 
-                ShamanIllagerEntity.this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 60, 2));
+                ShamanIllagerEntity.this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 60, 2));
             }
             else if(!ShamanIllagerEntity.this.hasEffect(MobEffects.DAMAGE_BOOST))
             {

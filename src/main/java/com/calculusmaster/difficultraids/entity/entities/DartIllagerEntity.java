@@ -1,7 +1,6 @@
 package com.calculusmaster.difficultraids.entity.entities;
 
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
-import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
@@ -96,7 +95,7 @@ public class DartIllagerEntity extends AbstractIllager
     @Override
     public void applyRaidBuffs(int p_37844_, boolean p_37845_)
     {
-        RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
+        RaidDifficulty raidDifficulty = RaidDifficulty.current();
 
         ItemStack sword = new ItemStack(Items.GOLDEN_SWORD);
 
@@ -104,15 +103,8 @@ public class DartIllagerEntity extends AbstractIllager
         {
             Map<Enchantment, Integer> enchants = new HashMap<>();
 
-            int sharpnessLevel = switch(raidDifficulty) {
-                case HERO -> 2;
-                case LEGEND -> 3;
-                case MASTER -> 4;
-                case APOCALYPSE -> 5;
-                default -> 0;
-            };
-
-            enchants.put(Enchantments.SHARPNESS, sharpnessLevel);
+            enchants.put(Enchantments.SHARPNESS, raidDifficulty.config().dart().sharpnessLevel());
+            enchants.put(Enchantments.VANISHING_CURSE, 1);
 
             EnchantmentHelper.setEnchantments(enchants, sword);
         }

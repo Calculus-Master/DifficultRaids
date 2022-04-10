@@ -1,7 +1,6 @@
 package com.calculusmaster.difficultraids.entity.entities;
 
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
-import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -73,6 +72,7 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
     @Override
     public boolean hurt(DamageSource pSource, float pAmount)
     {
+        //TODO: Again, use custom Lightning Bolt entity
         if(pSource.equals(DamageSource.LIGHTNING_BOLT)) pAmount = 0;
         return super.hurt(pSource, pAmount);
     }
@@ -184,6 +184,7 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
         {
             LivingEntity target = ElectroIllagerEntity.this.getTarget();
             ServerLevel level = (ServerLevel)ElectroIllagerEntity.this.getLevel();
+            boolean raid = ElectroIllagerEntity.this.getCurrentRaid() != null;
             boolean rain = level.isRainingAt(ElectroIllagerEntity.this.blockPosition());
             boolean thunder = level.isThundering();
 
@@ -193,21 +194,9 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
 
                 LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level);
 
-                float damage;
-
-                if(ElectroIllagerEntity.this.getCurrentRaid() != null)
-                {
-                    RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
-
-                    damage = switch(raidDifficulty) {
-                        case HERO -> 19.0F;
-                        case LEGEND -> 20.0F;
-                        case MASTER -> 24.0F;
-                        case APOCALYPSE -> 30.0F;
-                        case DEFAULT -> 18.0F;
-                    };
-                }
-                else damage = 18.0F;
+                float damage = raid
+                        ? RaidDifficulty.current().config().electro().concentratedBoltDamage()
+                        : RaidDifficulty.DEFAULT.config().electro().concentratedBoltDamage();
 
                 damage += switch(level.getDifficulty()) {
                     case PEACEFUL -> -damage;
@@ -228,7 +217,6 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
                 lightning.setDamage(damage);
                 lightning.moveTo(targetPos, 0.0F, 0.0F);
                 level.addFreshEntity(lightning);
-                //System.out.println("Spell Cast! Summon Concentrated Lightning");
             }
         }
 
@@ -279,6 +267,7 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
         {
             LivingEntity target = ElectroIllagerEntity.this.getTarget();
             ServerLevel level = (ServerLevel)ElectroIllagerEntity.this.getLevel();
+            boolean raid = ElectroIllagerEntity.this.getCurrentRaid() != null;
             boolean rain = level.isRainingAt(ElectroIllagerEntity.this.blockPosition());
             boolean thunder = level.isThundering();
 
@@ -287,21 +276,9 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
                 BlockPos targetPos = target.blockPosition();
                 Random random = new Random();
 
-                int strikes;
-
-                if(ElectroIllagerEntity.this.getCurrentRaid() != null)
-                {
-                    RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
-
-                    strikes = switch(raidDifficulty) {
-                        case DEFAULT -> 3;
-                        case HERO -> 4;
-                        case LEGEND -> 6;
-                        case MASTER -> 8;
-                        case APOCALYPSE -> 10;
-                    };
-                }
-                else strikes = 3;
+                int strikes = raid
+                    ? RaidDifficulty.current().config().electro().genericLightningStrikeCount()
+                    : RaidDifficulty.DEFAULT.config().electro().genericLightningStrikeCount();
 
                 strikes += switch(level.getDifficulty()) {
                     case PEACEFUL -> -strikes;
@@ -329,7 +306,6 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
                     lightning.setDamage(damage);
                     lightning.moveTo(offsetPos, 0.0F, 0.0F);
 
-                    //System.out.println("Spell Cast! Summon Lightning Standard");
                     level.addFreshEntity(lightning);
                 }
             }
@@ -398,9 +374,9 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
                 if(ElectroIllagerEntity.this.getCurrentRaid() != null)
                 {
                     List<BlockPos> extraOffsets = new ArrayList<>();
-                    RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
+                    RaidDifficulty raidDifficulty = RaidDifficulty.current();
 
-                    if(raidDifficulty.equals(RaidDifficulty.MASTER)) offsets.forEach(pos -> {
+                    if(raidDifficulty.config().electro().extraRingBolts()) offsets.forEach(pos -> {
                         BlockPos farPos = new BlockPos(pos);
                         if(pos.getX() != 0) farPos = pos.offset(pos.getX(), 0, 0);
                         if(pos.getZ() != 0) farPos = pos.offset(0, 0, pos.getZ());
@@ -417,7 +393,6 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
 
                     level.addFreshEntity(bolt);
                 });
-                //System.out.println("Spell Cast! Ring Lightning");
             }
         }
 

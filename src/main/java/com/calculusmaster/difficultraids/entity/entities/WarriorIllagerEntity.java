@@ -1,9 +1,10 @@
 package com.calculusmaster.difficultraids.entity.entities;
 
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
-import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
+import com.mojang.logging.LogUtils;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -72,17 +73,10 @@ public class WarriorIllagerEntity extends AbstractIllager
     @Override
     public void applyRaidBuffs(int p_37844_, boolean p_37845_)
     {
-        RaidDifficulty raidDifficulty = DifficultRaidsConfig.RAID_DIFFICULTY.get();
+        RaidDifficulty raidDifficulty = RaidDifficulty.current();
 
         //TODO: DR RaidDifficulty Raids versus Normal Vanilla Raids (RaidDifficulty.DEFAULT)
-        List<Item> swordPool = switch(raidDifficulty) {
-            case HERO -> List.of(Items.STONE_SWORD, Items.IRON_SWORD);
-            case LEGEND -> List.of(Items.IRON_SWORD, Items.DIAMOND_SWORD);
-            case MASTER -> List.of(Items.IRON_SWORD, Items.DIAMOND_SWORD, Items.NETHERITE_SWORD);
-            case APOCALYPSE -> List.of(Items.NETHERITE_SWORD);
-            default -> List.of(Items.GOLDEN_SWORD);
-        };
-
+        List<Item> swordPool = raidDifficulty.config().warrior().possibleSwords();
         ItemStack sword = new ItemStack(swordPool.get(this.random.nextInt(swordPool.size())));
 
         if(!raidDifficulty.isDefault())
@@ -90,68 +84,29 @@ public class WarriorIllagerEntity extends AbstractIllager
             Map<Enchantment, Integer> enchants = new HashMap<>();
 
             //Sharpness
-            int sharpnessChance = switch(raidDifficulty) {
-                case HERO -> 20;
-                case LEGEND -> 35;
-                case MASTER -> 45;
-                case APOCALYPSE -> 90;
-                default -> 0;
-            };
-
-            if(this.random.nextInt(100) < sharpnessChance)
+            if(this.random.nextInt(100) < raidDifficulty.config().warrior().sharpnessChance())
             {
-                int sharpnessLevel = switch(raidDifficulty) {
-                    case HERO -> this.random.nextInt(1, 4);
-                    case LEGEND -> this.random.nextInt(2, 5);
-                    case MASTER -> this.random.nextInt(3, 6);
-                    case APOCALYPSE -> this.random.nextInt(5, 7);
-                    default -> 0;
-                };
+                Tuple<Integer, Integer> minMaxLevel = raidDifficulty.config().warrior().sharpnessLevel();
+
+                if(minMaxLevel.getB() > minMaxLevel.getA())
+                {
+                    minMaxLevel.setA(1);
+                    minMaxLevel.setB(1);
+                    LogUtils.getLogger().warn("Invalid config option for Warrior Illager Sharpness Level! Minimum is greater than the maximum! Defaulting to a Sharpness Level of 1.");
+                }
+
+                int sharpnessLevel = minMaxLevel.getA().equals(minMaxLevel.getB()) ? minMaxLevel.getA() : this.random.nextInt(minMaxLevel.getA(), minMaxLevel.getB() + 1);
 
                 enchants.put(Enchantments.SHARPNESS, sharpnessLevel);
             }
 
             //Fire Aspect
-            int fireAspectChance = switch(raidDifficulty) {
-                case HERO -> 5;
-                case LEGEND -> 10;
-                case MASTER -> 15;
-                case APOCALYPSE -> 50;
-                default -> 0;
-            };
-
-            if(this.random.nextInt(100) < fireAspectChance)
-            {
-                int fireAspectLevel = switch(raidDifficulty) {
-                    case HERO, LEGEND -> 1;
-                    case MASTER -> 2;
-                    case APOCALYPSE -> 3;
-                    default -> 0;
-                };
-
-                enchants.put(Enchantments.FIRE_ASPECT, fireAspectLevel);
-            }
+            if(this.random.nextInt(100) < raidDifficulty.config().warrior().fireAspectChance())
+                enchants.put(Enchantments.FIRE_ASPECT, raidDifficulty.config().warrior().fireAspectLevel());
 
             //Knockback
-            int knockbackChance = switch(raidDifficulty) {
-                case HERO -> 10;
-                case LEGEND -> 15;
-                case MASTER -> 20;
-                case APOCALYPSE -> 90;
-                default -> 0;
-            };
-
-            if(this.random.nextInt(100) < knockbackChance)
-            {
-                int knockbackLevel = switch(raidDifficulty) {
-                    case HERO -> 1;
-                    case LEGEND, MASTER -> 2;
-                    case APOCALYPSE -> 3;
-                    default -> 0;
-                };
-
-                enchants.put(Enchantments.KNOCKBACK, knockbackLevel);
-            }
+            if(this.random.nextInt(100) < raidDifficulty.config().warrior().knockbackChance())
+                enchants.put(Enchantments.KNOCKBACK, raidDifficulty.config().warrior().knockbackLevel());
 
             if(!sword.is(Items.IRON_SWORD) && !sword.is(Items.STONE_SWORD)) enchants.put(Enchantments.VANISHING_CURSE, 1);
 

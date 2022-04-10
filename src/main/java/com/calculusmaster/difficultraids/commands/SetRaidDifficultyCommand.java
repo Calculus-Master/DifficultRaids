@@ -19,7 +19,7 @@ public class SetRaidDifficultyCommand
 
         //Get Raid Difficulty Command
         literalArgumentBuilder.executes(css -> {
-            css.getSource().sendSuccess(new TextComponent("Raid Difficulty is currently set to " + DifficultRaidsConfig.RAID_DIFFICULTY.get().getFormattedName() + "!"), false);
+            css.getSource().sendSuccess(new TextComponent("Raid Difficulty is currently set to " + RaidDifficulty.current().getFormattedName() + "!"), false);
             return 1;
         });
 
