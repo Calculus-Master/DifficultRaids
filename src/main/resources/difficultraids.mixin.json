@@ -10,6 +10,7 @@
     "PillagerMixin",
     "RaidMixin",
     "VexMixin",
+    "VillagerMixin",
     "VindicatorMixin",
     "compat.GuardMixin",
     "illusioner.IllusionerBlindnessSpellGoalMixin",
