@@ -11,6 +11,7 @@
     "RaidMixin",
     "VexMixin",
     "VindicatorMixin",
+    "compat.GuardMixin",
     "illusioner.IllusionerBlindnessSpellGoalMixin",
     "illusioner.IllusionerMirrorSpellGoalMixin"
   ],
