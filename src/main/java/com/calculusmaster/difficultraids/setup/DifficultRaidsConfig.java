@@ -37,8 +37,6 @@ public class DifficultRaidsConfig
                         """)
                 .defineEnum("raidDifficulty", RaidDifficulty.HERO, EnumGetMethod.NAME_IGNORECASE);
 
-        DEFAULT_CONFIG = new RaidDifficultyConfig();
-
         for(RaidDifficulty raidDifficulty : RaidDifficulty.values())
         {
             RaidDifficultyConfig config = new RaidDifficultyConfig();
@@ -606,6 +604,7 @@ public class DifficultRaidsConfig
             //Assign the relevant objects
             switch(raidDifficulty)
             {
+                case DEFAULT -> DEFAULT_CONFIG = config;
                 case HERO -> HERO_CONFIG = config;
                 case LEGEND -> LEGEND_CONFIG = config;
                 case MASTER -> MASTER_CONFIG = config;

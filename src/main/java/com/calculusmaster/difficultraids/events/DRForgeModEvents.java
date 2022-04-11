@@ -4,10 +4,15 @@ import com.calculusmaster.difficultraids.DifficultRaids;
 import com.calculusmaster.difficultraids.commands.PrintRaidersCommand;
 import com.calculusmaster.difficultraids.commands.SetRaidDifficultyCommand;
 import com.calculusmaster.difficultraids.entity.entities.*;
+import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
+import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.npc.AbstractVillager;
+import net.minecraft.world.entity.raid.Raider;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -54,6 +59,17 @@ public class DRForgeModEvents
 
             villager.goalSelector.addGoal(1,
                     new AvoidEntityGoal<>(villager, FrostIllagerEntity.class, defaultMaxDistance, defaultWalkSpeedModifier - 0.2F, defaultSprintSpeedModifier - 0.1F));
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void onEntityHitByLightning(EntityStruckByLightningEvent event)
+    {
+        LightningBolt lightning = event.getLightning();
+
+        if(lightning.getCustomName() != null && lightning.getCustomName().getString().equals(DifficultRaidsUtil.ELECTRO_ILLAGER_CUSTOM_BOLT_TAG))
+        {
+            if(event.getEntity() instanceof Raider) event.setCanceled(true);
         }
     }
 }

@@ -7,7 +7,6 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.MobSpawnType;
@@ -36,21 +35,6 @@ public abstract class AbstractIllagerMixin extends Raider
     protected AbstractIllagerMixin(EntityType<? extends Raider> p_37839_, Level p_37840_)
     {
         super(p_37839_, p_37840_);
-    }
-
-    @Override
-    public boolean hurt(DamageSource pSource, float pAmount)
-    {
-        //TODO: Custom Lightning Bolt entity
-        if(pSource.equals(DamageSource.LIGHTNING_BOLT)) pAmount = 0.0F;
-
-        return super.hurt(pSource, pAmount);
-    }
-
-    @Override
-    public boolean fireImmune()
-    {
-        return true;
     }
 
     @Override

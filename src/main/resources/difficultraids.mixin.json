@@ -5,6 +5,7 @@
   "refmap": "difficultraids.refmap.json",
   "mixins": [
     "AbstractIllagerMixin",
+    "LightningBoltMixin",
     "LivingEntityMixin",
     "PillagerMixin",
     "RaidMixin",

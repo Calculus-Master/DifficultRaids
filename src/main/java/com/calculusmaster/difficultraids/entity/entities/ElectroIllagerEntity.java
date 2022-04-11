@@ -1,7 +1,9 @@
 package com.calculusmaster.difficultraids.entity.entities;
 
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
+import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -110,6 +112,7 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
                 BlockPos targetPos = target.blockPosition();
 
                 LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level);
+                lightning.setCustomName(new TextComponent(DifficultRaidsUtil.ELECTRO_ILLAGER_CUSTOM_BOLT_TAG));
                 lightning.setDamage(2.0F);
                 lightning.moveTo(targetPos, 0.0F, 0.0F);
 
@@ -193,6 +196,7 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
                 BlockPos targetPos = target.blockPosition();
 
                 LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level);
+                lightning.setCustomName(new TextComponent(DifficultRaidsUtil.ELECTRO_ILLAGER_CUSTOM_BOLT_TAG));
 
                 float damage = raid
                         ? RaidDifficulty.current().config().electro().concentratedBoltDamage()
@@ -295,6 +299,7 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
                     BlockPos offsetPos = targetPos.offset(-2 + random.nextInt(5), 0, -2 + random.nextInt(5));
 
                     LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level);
+                    lightning.setCustomName(new TextComponent(DifficultRaidsUtil.ELECTRO_ILLAGER_CUSTOM_BOLT_TAG));
 
                     float damage = switch(level.getDifficulty()) {
                         case PEACEFUL -> 0.0F;
@@ -387,11 +392,12 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
                 }
 
                 offsets.forEach(pos -> {
-                    LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(level);
-                    bolt.moveTo(pos, 0, 0);
-                    bolt.setDamage(thunder ? 3.0F : 1.0F);
+                    LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level);
+                    lightning.setCustomName(new TextComponent(DifficultRaidsUtil.ELECTRO_ILLAGER_CUSTOM_BOLT_TAG));
+                    lightning.moveTo(pos, 0, 0);
+                    lightning.setDamage(thunder ? 3.0F : 1.0F);
 
-                    level.addFreshEntity(bolt);
+                    level.addFreshEntity(lightning);
                 });
             }
         }
