@@ -408,7 +408,6 @@ public class NecromancerIllagerEntity extends AbstractSpellcastingIllager
             LivingEntity target = NecromancerIllagerEntity.this.getTarget();
             ServerLevel level = (ServerLevel)NecromancerIllagerEntity.this.getLevel();
             boolean raid = NecromancerIllagerEntity.this.getCurrentRaid() != null;
-            RaidDifficulty raidDifficulty = RaidDifficulty.current();
             Random random = new Random();
 
             if(target != null)

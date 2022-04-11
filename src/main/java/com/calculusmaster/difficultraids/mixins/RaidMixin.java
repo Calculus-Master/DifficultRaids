@@ -13,6 +13,7 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -89,6 +90,8 @@ public abstract class RaidMixin
                     LivingEntity spawn = (LivingEntity)type.create(this.level);
                     if(spawn == null) continue; //This shouldn't execute, but just in case
                     spawn.moveTo(pos.getX(), pos.getY(), pos.getZ());
+                    if(spawn instanceof Monster mob) mob.finalizeSpawn(this.level, this.level.getCurrentDifficultyAt(mob.blockPosition()), MobSpawnType.REINFORCEMENT, null, null);
+                    spawn.setOnGround(true);
 
                     if(List.of(EntityType.ZOMBIE, EntityType.SKELETON, EntityType.STRAY).contains(entityEntry.getKey()))
                         spawn.setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.LEATHER_HELMET));
