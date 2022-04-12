@@ -10,8 +10,6 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -34,8 +32,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import tallestegg.guardvillagers.GuardEntityType;
-import tallestegg.guardvillagers.entities.Guard;
 
 import java.util.*;
 
@@ -113,30 +109,6 @@ public abstract class RaidMixin
 
                     this.level.addFreshEntity(spawn);
                 }
-            }
-        }
-
-        //Spawn Extra Guards
-        if(DifficultRaidsUtil.isGuardVillagersLoaded() && !raidDifficulty.isDefault())
-        {
-            int amount = switch(raidDifficulty) {
-                case HERO -> 2;
-                case LEGEND -> 3;
-                case MASTER -> 4;
-                case APOCALYPSE -> 7;
-                default -> 0;
-            };
-
-            BlockPos adjustedSpawnPos = this.center.above(2);
-            for(int i = 0; i < amount; i++)
-            {
-                Guard guard = GuardEntityType.GUARD.get().create(this.level);
-                guard.moveTo(adjustedSpawnPos, 1.0F, 1.0F);
-                guard.setGuardVariant(Guard.getRandomTypeForBiome(this.level, adjustedSpawnPos));
-                guard.setPersistenceRequired();
-
-                guard.addEffect(new MobEffectInstance(MobEffects.GLOWING, 40, 1));
-                this.level.addFreshEntity(guard);
             }
         }
     }
