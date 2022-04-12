@@ -9,8 +9,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.TextComponent;
 
-import java.util.Arrays;
-
 public class SetRaidDifficultyCommand
 {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
@@ -24,7 +22,7 @@ public class SetRaidDifficultyCommand
         });
 
         //Change Raid Difficulty Command
-        for(RaidDifficulty d : Arrays.copyOfRange(RaidDifficulty.values(), 0, RaidDifficulty.values().length - 1))
+        for(RaidDifficulty d : RaidDifficulty.values())
         {
             literalArgumentBuilder.then(Commands.literal(d.toString().toLowerCase()).requires(css -> {
                 try
