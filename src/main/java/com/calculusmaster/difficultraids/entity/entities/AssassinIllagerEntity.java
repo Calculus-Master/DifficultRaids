@@ -1,9 +1,12 @@
 package com.calculusmaster.difficultraids.entity.entities;
 
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
+import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -74,17 +77,16 @@ public class AssassinIllagerEntity extends AbstractIllager
     {
         super.aiStep();
 
-        if(this.getTarget() != null)
-        {
-            double distance = Math.pow(this.blockPosition().distSqr(this.getTarget().blockPosition()), 0.5);
-            if(distance > 1 && distance < 4)
-            {
-                //TODO: Temporary fix - try to get this working for real
-                //Vec3 oppositeLook = this.getTarget().getLookAngle().reverse();
-                //BlockPos behindPos = this.getTarget().blockPosition().offset(oppositeLook.x, this.getTarget().blockPosition().getY() + 1, oppositeLook.z);
+        LivingEntity target = this.getTarget();
 
-                //BlockPos abovePos = this.getTarget().eyeBlockPosition().above(2);
-                //this.moveTo(abovePos, 0.0F, 0.0F);
+        if(target != null)
+        {
+            if(this.distanceTo(target) > 5 && this.random.nextInt(100) < 25)
+            {
+                target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 40, 1));
+
+                BlockPos targetPos = target.eyeBlockPosition();
+                this.randomTeleport(targetPos.getX(), targetPos.getY(), targetPos.getZ(), true);
             }
         }
     }
