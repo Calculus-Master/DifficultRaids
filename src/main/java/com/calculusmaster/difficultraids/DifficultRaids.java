@@ -57,9 +57,10 @@ public class DifficultRaids
 
     private void onLoadComplete(final FMLLoadCompleteEvent event)
     {
-        RaidEnemyRegistry.init();
-        RaidEnemyRegistry.registerNewRaiders();
+        RaidEnemyRegistry.registerRaiders();
+        RaidEnemyRegistry.registerWaves();
         RaidEnemyRegistry.registerReinforcements();
+
         RaidLoot.register();
     }
 

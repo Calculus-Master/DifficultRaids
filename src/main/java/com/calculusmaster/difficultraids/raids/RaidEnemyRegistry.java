@@ -5,152 +5,140 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.raid.Raid;
+import net.minecraft.world.entity.raid.Raider;
 
 import java.util.*;
 
 public class RaidEnemyRegistry
 {
     public static final Map<String, RaidWaveEnemies> SPAWNS = new HashMap<>();
+    public static final Map<RaidDifficulty, RaidEnemies> WAVES = new HashMap<>();
     public static final Map<RaidDifficulty, RaidReinforcements> REINFORCEMENTS = new HashMap<>();
 
-    //TODO: Move this to DifficultRaidsConfig
-    public static void init()
+    private static final String VINDICATOR = "VINDICATOR";
+    private static final String EVOKER = "EVOKER";
+    private static final String PILLAGER = "PILLAGER";
+    private static final String WITCH = "WITCH";
+    private static final String RAVAGER = "RAVAGER";
+    private static final String ILLUSIONER = "ILLUSIONER";
+    private static final String WARRIOR = "WARRIOR_ILLAGER";
+    private static final String DART = "DART_ILLAGER";
+    private static final String CONDUCTOR = "ELECTRO_ILLAGER";
+    private static final String NECROMANCER = "NECROMANCER_ILLAGER";
+    private static final String SHAMAN = "SHAMAN_ILLAGER";
+    private static final String TANK = "TANK_ILLAGER";
+    private static final String ASSASSIN = "ASSASSIN_ILLAGER";
+    private static final String FROSTMAGE = "FROST_ILLAGER";
+
+    private static final int[] BLANK = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
+
+    public static void registerRaiders()
     {
-        //TODO: Look into using Reflection instead
-        //ObfuscationReflectionHelper.findField(Raid.RaiderType.class, "f_37815_").set(Raid.RaiderType.VINDICATOR, new int[]{0, 0, 2, 0, 1, 4, 2, 5});
-
-        RaidEnemyRegistry.createWavesFor("VINDICATOR")
-                .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 2, 0, 1, 4, 2, 5})
-                .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 0, 2, 2, 1, 4, 2, 5})
-                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 0, 4, 2, 2, 4, 4, 6})
-                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 2, 4, 4, 2, 6, 5, 10})
-                .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 10, 20, 20, 25, 30, 34, 45})
-                .register();
-
-        RaidEnemyRegistry.createWavesFor("EVOKER")
-                .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 0, 0, 0, 1, 1, 2})
-                .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 0, 0, 0, 1, 1, 1, 3})
-                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 0, 0, 2, 2, 2, 3, 4})
-                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 1, 2, 4, 4, 5, 5, 8})
-                .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 6, 8, 10, 12, 16, 20, 25})
-                .register();
-
-        RaidEnemyRegistry.createWavesFor("PILLAGER")
-                .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 4, 3, 3, 4, 4, 4, 2})
-                .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 5, 4, 4, 6, 6, 6, 6})
-                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 5, 5, 5, 7, 8, 8, 8})
-                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 5, 3, 6, 7, 7, 12, 13})
-                .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 10, 20, 23, 28, 32, 45, 50})
-                .register();
-
-        RaidEnemyRegistry.createWavesFor("WITCH")
-                .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 0, 0, 3, 0, 0, 1})
-                .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 0, 0, 1, 3, 0, 1, 3})
-                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 0, 2, 2, 3, 3, 3, 5})
-                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 0, 4, 4, 4, 2, 2, 6})
-                .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 5, 7, 10, 30, 20, 23, 30})
-                .register();
-
-        RaidEnemyRegistry.createWavesFor("RAVAGER")
-                .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 0, 1, 0, 1, 0, 2})
-                .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 0, 1, 1, 0, 2, 0, 2})
-                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 0, 1, 0, 0, 1, 0, 3})
-                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 0, 2, 0, 1, 3, 0, 3})
-                .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 5, 5, 8, 8, 10, 10, 20})
-                .register();
+        RaidEnemyRegistry.createRaiderType(ILLUSIONER, EntityType.ILLUSIONER);
+        RaidEnemyRegistry.createRaiderType(WARRIOR, DifficultRaidsEntityTypes.WARRIOR_ILLAGER.get());
+        RaidEnemyRegistry.createRaiderType(DART, DifficultRaidsEntityTypes.DART_ILLAGER.get());
+        RaidEnemyRegistry.createRaiderType(CONDUCTOR, DifficultRaidsEntityTypes.ELECTRO_ILLAGER.get());
+        RaidEnemyRegistry.createRaiderType(NECROMANCER, DifficultRaidsEntityTypes.NECROMANCER_ILLAGER.get());
+        RaidEnemyRegistry.createRaiderType(SHAMAN, DifficultRaidsEntityTypes.SHAMAN_ILLAGER.get());
+        RaidEnemyRegistry.createRaiderType(TANK, DifficultRaidsEntityTypes.TANK_ILLAGER.get());
+        RaidEnemyRegistry.createRaiderType(ASSASSIN, DifficultRaidsEntityTypes.ASSASSIN_ILLAGER.get());
+        RaidEnemyRegistry.createRaiderType(FROSTMAGE, DifficultRaidsEntityTypes.FROST_ILLAGER.get());
     }
 
-    public static void registerNewRaiders()
+    private static void createRaiderType(String typeName, EntityType<? extends Raider> type)
     {
-        Raid.RaiderType.create("ILLUSIONER", EntityType.ILLUSIONER, new int[]{0, 0, 0, 0, 0, 0, 0, 0});
+        Raid.RaiderType.create(typeName, type, BLANK);
+    }
 
-        RaidEnemyRegistry.createWavesFor("ILLUSIONER")
-                .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 0, 0, 0, 0, 0, 0})
-                .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 0, 1, 1, 2, 0, 1, 2})
-                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 1, 1, 2, 2, 3, 2, 3})
-                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 2, 1, 2, 2, 4, 3, 5})
-                .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 5, 8, 10, 11, 15, 18, 22})
+    public static void registerWaves()
+    {
+        RaidEnemyRegistry.createWavesFor(RaidDifficulty.DEFAULT)
+                .withRaider(PILLAGER,           new int[]{0, 4, 3, 3, 4, 4, 4, 2})
+                .withRaider(VINDICATOR,         new int[]{0, 0, 2, 0, 1, 4, 2, 5})
+                .withRaider(WARRIOR,            new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(TANK,               new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(DART,               new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(WITCH,              new int[]{0, 0, 0, 0, 3, 0, 0, 1})
+                .withRaider(RAVAGER,            new int[]{0, 0, 0, 1, 0, 1, 0, 2})
+                .withRaider(ILLUSIONER,         new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(ASSASSIN,           new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(EVOKER,             new int[]{0, 0, 0, 0, 0, 1, 1, 2})
+                .withRaider(CONDUCTOR,          new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(NECROMANCER,        new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(FROSTMAGE,          new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(SHAMAN,             new int[]{0, 0, 0, 0, 0, 0, 0, 0})
                 .register();
 
-        Raid.RaiderType.create("WARRIOR_ILLAGER", DifficultRaidsEntityTypes.WARRIOR_ILLAGER.get(), new int[]{0, 0, 0, 0, 0, 0, 0, 0});
-
-        RaidEnemyRegistry.createWavesFor("WARRIOR_ILLAGER")
-                .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 0, 0, 0, 0, 0, 0})
-                .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 2, 4, 2, 3, 4, 3, 8})
-                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 1, 3, 3, 3, 4, 3, 7})
-                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 3, 5, 1, 1, 6, 7, 7})
-                .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 10, 16, 16, 25, 25, 30, 40})
+        RaidEnemyRegistry.createWavesFor(RaidDifficulty.HERO)
+                .withRaider(PILLAGER,           new int[]{0, 5, 4, 4, 5, 5, 5, 3})
+                .withRaider(VINDICATOR,         new int[]{0, 2, 3, 1, 2, 3, 3, 4})
+                .withRaider(WARRIOR,            new int[]{0, 2, 3, 1, 2, 2, 3, 4})
+                .withRaider(TANK,               new int[]{0, 0, 2, 0, 2, 0, 2, 1})
+                .withRaider(DART,               new int[]{0, 0, 0, 1, 1, 1, 0, 0})
+                .withRaider(WITCH,              new int[]{0, 0, 1, 0, 3, 1, 0, 2})
+                .withRaider(RAVAGER,            new int[]{0, 0, 0, 1, 0, 2, 1, 2})
+                .withRaider(ILLUSIONER,         new int[]{0, 0, 1, 0, 0, 0, 1, 0})
+                .withRaider(ASSASSIN,           new int[]{0, 0, 0, 0, 0, 1, 0, 0})
+                .withRaider(EVOKER,             new int[]{0, 0, 0, 0, 1, 0, 2, 2})
+                .withRaider(CONDUCTOR,          new int[]{0, 0, 0, 1, 0, 0, 0, 0})
+                .withRaider(NECROMANCER,        new int[]{0, 0, 0, 0, 1, 0, 0, 0})
+                .withRaider(FROSTMAGE,          new int[]{0, 0, 0, 0, 0, 1, 0, 0})
+                .withRaider(SHAMAN,             new int[]{0, 0, 0, 0, 0, 1, 1, 1})
                 .register();
 
-        Raid.RaiderType.create("DART_ILLAGER", DifficultRaidsEntityTypes.DART_ILLAGER.get(), new int[]{0, 0, 0, 0, 0, 0, 0, 0});
-
-        RaidEnemyRegistry.createWavesFor("DART_ILLAGER")
-                .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 0, 0, 0, 0, 0, 0})
-                .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 0, 1, 0, 1, 2, 2, 3})
-                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 1, 3, 1, 1, 3, 4, 5})
-                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 3, 2, 1, 6, 6, 4, 8})
-                .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 8, 8, 10, 12, 16, 20, 30})
+        RaidEnemyRegistry.createWavesFor(RaidDifficulty.LEGEND)
+                .withRaider(PILLAGER,           new int[]{0, 6, 5, 5, 5, 5, 5, 4})
+                .withRaider(VINDICATOR,         new int[]{0, 2, 3, 2, 3, 3, 3, 5})
+                .withRaider(WARRIOR,            new int[]{0, 2, 4, 2, 3, 2, 4, 4})
+                .withRaider(TANK,               new int[]{0, 0, 2, 1, 2, 1, 2, 1})
+                .withRaider(DART,               new int[]{0, 0, 2, 1, 2, 1, 3, 0})
+                .withRaider(WITCH,              new int[]{0, 1, 1, 2, 3, 1, 2, 2})
+                .withRaider(RAVAGER,            new int[]{0, 0, 1, 1, 0, 2, 1, 2})
+                .withRaider(ILLUSIONER,         new int[]{0, 0, 1, 1, 1, 0, 1, 0})
+                .withRaider(ASSASSIN,           new int[]{0, 1, 1, 1, 1, 1, 1, 1})
+                .withRaider(EVOKER,             new int[]{0, 0, 2, 2, 1, 2, 2, 2})
+                .withRaider(CONDUCTOR,          new int[]{0, 0, 2, 0, 0, 0, 1, 1})
+                .withRaider(NECROMANCER,        new int[]{0, 0, 0, 2, 0, 1, 2, 1})
+                .withRaider(FROSTMAGE,          new int[]{0, 0, 0, 0, 2, 2, 0, 1})
+                .withRaider(SHAMAN,             new int[]{0, 0, 1, 1, 1, 2, 2, 3})
                 .register();
 
-        Raid.RaiderType.create("ELECTRO_ILLAGER", DifficultRaidsEntityTypes.ELECTRO_ILLAGER.get(), new int[]{0, 0, 0, 0, 0, 0, 0, 0});
-
-        RaidEnemyRegistry.createWavesFor("ELECTRO_ILLAGER")
-                .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 0, 0, 0, 0, 0, 0})
-                .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 0, 1, 0, 1, 1, 1, 2})
-                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 0, 2, 1, 1, 1, 2, 3})
-                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 1, 0, 3, 1, 5, 2, 6})
-                .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 5, 6, 7, 8, 9, 10, 11})
+        RaidEnemyRegistry.createWavesFor(RaidDifficulty.MASTER)
+                .withRaider(PILLAGER,           new int[]{0, 7, 6, 6, 6, 6, 5, 5})
+                .withRaider(VINDICATOR,         new int[]{0, 3, 2, 3, 3, 2, 3, 4})
+                .withRaider(WARRIOR,            new int[]{0, 3, 1, 3, 3, 2, 4, 4})
+                .withRaider(TANK,               new int[]{0, 2, 2, 2, 3, 3, 3, 3})
+                .withRaider(DART,               new int[]{0, 0, 2, 2, 2, 2, 3, 4})
+                .withRaider(WITCH,              new int[]{0, 1, 3, 7, 5, 5, 3, 3})
+                .withRaider(RAVAGER,            new int[]{0, 1, 1, 1, 0, 3, 1, 3})
+                .withRaider(ILLUSIONER,         new int[]{0, 0, 1, 2, 1, 0, 2, 0})
+                .withRaider(ASSASSIN,           new int[]{0, 2, 2, 2, 2, 2, 2, 2})
+                .withRaider(EVOKER,             new int[]{0, 1, 2, 3, 4, 1, 1, 3})
+                .withRaider(CONDUCTOR,          new int[]{0, 1, 3, 0, 1, 2, 2, 3})
+                .withRaider(NECROMANCER,        new int[]{0, 1, 0, 3, 1, 2, 0, 3})
+                .withRaider(FROSTMAGE,          new int[]{0, 1, 0, 0, 1, 2, 4, 3})
+                .withRaider(SHAMAN,             new int[]{0, 2, 2, 2, 2, 3, 3, 3})
                 .register();
 
-        Raid.RaiderType.create("NECROMANCER_ILLAGER", DifficultRaidsEntityTypes.NECROMANCER_ILLAGER.get(), new int[]{0, 0, 0, 0, 0, 0, 0, 0});
-
-        RaidEnemyRegistry.createWavesFor("NECROMANCER_ILLAGER")
-                .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 0, 0, 0, 0, 0, 0})
-                .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 0, 1, 0, 1, 0, 1, 1})
-                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 0, 1, 1, 1, 1, 0, 2})
-                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 1, 1, 2, 0, 1, 1, 3})
-                .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 2, 2, 3, 5, 2, 4, 8})
+        RaidEnemyRegistry.createWavesFor(RaidDifficulty.APOCALYPSE)
+                .withRaider(PILLAGER,           new int[]{0, 10, 13, 16, 19, 23, 25, 30})
+                .withRaider(VINDICATOR,         new int[]{0, 5, 7, 9, 11, 13, 15, 17})
+                .withRaider(WARRIOR,            new int[]{0, 5, 7, 9, 11, 13, 15, 17})
+                .withRaider(TANK,               new int[]{0, 2, 4, 6, 8, 10, 12, 14})
+                .withRaider(DART,               new int[]{0, 5, 5, 5, 5, 5, 5, 5})
+                .withRaider(WITCH,              new int[]{0, 10, 10, 10, 10, 10, 10, 10})
+                .withRaider(RAVAGER,            new int[]{0, 3, 3, 4, 4, 5, 5, 7})
+                .withRaider(ILLUSIONER,         new int[]{0, 5, 5, 5, 5, 5, 5, 5})
+                .withRaider(ASSASSIN,           new int[]{0, 6, 6, 6, 6, 6, 6, 6})
+                .withRaider(EVOKER,             new int[]{0, 5, 5, 5, 5, 5, 5, 5})
+                .withRaider(CONDUCTOR,          new int[]{0, 5, 5, 5, 5, 5, 5, 5})
+                .withRaider(NECROMANCER,        new int[]{0, 5, 5, 5, 5, 5, 5, 5})
+                .withRaider(FROSTMAGE,          new int[]{0, 5, 5, 5, 5, 5, 5, 5})
+                .withRaider(SHAMAN,             new int[]{0, 8, 8, 8, 8, 8, 8, 8})
                 .register();
 
-        Raid.RaiderType.create("SHAMAN_ILLAGER", DifficultRaidsEntityTypes.SHAMAN_ILLAGER.get(), new int[]{0, 0, 0, 0, 0, 0, 0, 0});
-
-        RaidEnemyRegistry.createWavesFor("SHAMAN_ILLAGER")
-                .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 0, 0, 0, 0, 0, 0})
-                .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 1, 1, 1, 1, 1, 0, 1})
-                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 2, 1, 1, 3, 0, 3, 1})
-                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 2, 2, 4, 2, 0, 4, 2})
-                .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 4, 4, 3, 1, 6, 6, 6})
-                .register();
-
-        Raid.RaiderType.create("TANK_ILLAGER", DifficultRaidsEntityTypes.TANK_ILLAGER.get(), new int[]{0, 0, 2, 1, 2, 4, 2, 1});
-
-        RaidEnemyRegistry.createWavesFor("TANK_ILLAGER")
-                .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 0, 0, 0, 0, 0, 0})
-                .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 2, 3, 2, 1, 1, 3, 2})
-                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 1, 3, 3, 3, 4, 3, 4})
-                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 3, 2, 1, 1, 3, 4, 6})
-                .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 10, 16, 16, 25, 25, 30, 40})
-                .register();
-
-        Raid.RaiderType.create("ASSASSIN_ILLAGER", DifficultRaidsEntityTypes.ASSASSIN_ILLAGER.get(), new int[]{0, 0, 0, 0, 0, 0, 0, 0});
-
-        RaidEnemyRegistry.createWavesFor("ASSASSIN_ILLAGER")
-                .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 0, 0, 0, 0, 0, 0})
-                .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 1, 1, 1, 1, 1, 1, 1})
-                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 2, 2, 0, 0, 0, 3, 3})
-                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 2, 0, 3, 0, 5, 5, 5})
-                .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 6, 6, 3, 1, 6, 6, 6})
-                .register();
-
-        Raid.RaiderType.create("FROST_ILLAGER", DifficultRaidsEntityTypes.FROST_ILLAGER.get(), new int[]{0, 0, 0, 0, 0, 0, 0, 0});
-
-        RaidEnemyRegistry.createWavesFor("FROST_ILLAGER")
-                .withDifficulty(RaidDifficulty.DEFAULT,     new int[]{0, 0, 0, 0, 0, 0, 0, 0})
-                .withDifficulty(RaidDifficulty.HERO,        new int[]{0, 1, 0, 1, 1, 1, 0, 1})
-                .withDifficulty(RaidDifficulty.LEGEND,      new int[]{0, 0, 1, 2, 2, 4, 2, 1})
-                .withDifficulty(RaidDifficulty.MASTER,      new int[]{0, 2, 1, 3, 2, 1, 3, 3})
-                .withDifficulty(RaidDifficulty.APOCALYPSE,  new int[]{0, 6, 6, 6, 4, 6, 6, 6})
-                .register();
+        //TODO: Look into using Reflection instead
+        //ObfuscationReflectionHelper.findField(Raid.RaiderType.class, "f_37815_").set(Raid.RaiderType.VINDICATOR, new int[]{0, 0, 2, 0, 1, 4, 2, 5});
     }
 
     public static void registerReinforcements()
@@ -206,18 +194,15 @@ public class RaidEnemyRegistry
                 .register();
     }
 
-    public static int[] getDefaultSpawns(String raiderType, RaidDifficulty difficulty)
+
+    //Primary Accessors
+
+    public static int[] getWaves(RaidDifficulty raidDifficulty, String raiderType)
     {
-        return SPAWNS
-                .entrySet()
-                .stream()
-                .filter(e -> e.getKey().equalsIgnoreCase(raiderType))
-                .findFirst().orElseThrow(() -> new IllegalStateException("Missing RaidWaveEnemies entry for RaiderType " + raiderType)).getValue()
-                .defaults
-                .get(difficulty);
+        return WAVES.get(raidDifficulty).waves.getOrDefault(raiderType.toUpperCase(), BLANK);
     }
 
-    public static Map<EntityType<?>, Integer> generateReinforcements(int waves, RaidDifficulty raidDifficulty, Difficulty levelDifficulty)
+    public static Map<EntityType<?>, Integer> getReinforcements(int waves, RaidDifficulty raidDifficulty, Difficulty levelDifficulty)
     {
         final Random random = new Random();
 
@@ -261,6 +246,60 @@ public class RaidEnemyRegistry
         return spawns;
     }
 
+    //Waves
+
+    public static RaidEnemies createWavesFor(RaidDifficulty raidDifficulty)
+    {
+        RaidEnemies waves = new RaidEnemies();
+        waves.raidDifficulty = raidDifficulty;
+        waves.waves = new HashMap<>();
+        return waves;
+    }
+
+    public static RaidWaveEnemies createWavesFor(String raider)
+    {
+        RaidWaveEnemies spawns = new RaidWaveEnemies();
+        spawns.raiderType = raider;
+        spawns.defaults = new HashMap<>();
+        return spawns;
+    }
+
+    public static class RaidEnemies
+    {
+        private RaidDifficulty raidDifficulty;
+        private Map<String, int[]> waves;
+
+        public RaidEnemies withRaider(String raider, int[] waves)
+        {
+            this.waves.put(raider, waves);
+            return this;
+        }
+
+        public void register()
+        {
+            WAVES.put(this.raidDifficulty, this);
+        }
+    }
+
+    public static class RaidWaveEnemies
+    {
+        private String raiderType;
+        private Map<RaidDifficulty, int[]> defaults;
+
+        public RaidWaveEnemies withDifficulty(RaidDifficulty difficulty, int[] defaults)
+        {
+            if(defaults.length != 8) throw new IllegalArgumentException("Raider Default Spawn Count Array must be of length 8!");
+
+            this.defaults.put(difficulty, defaults);
+            return this;
+        }
+
+        public void register()
+        {
+            SPAWNS.put(this.raiderType, this);
+        }
+    }
+
     //Reinforcements
 
     public static RaidReinforcements createReinforcementsFor(RaidDifficulty raidDifficulty)
@@ -301,32 +340,4 @@ public class RaidEnemyRegistry
 
     public record ReinforcementEntry(EntityType<?> entityType, int maxGroups, int minWave, int minSpawnCount, int maxSpawnCount, int easySpawnCountModifier, int hardSpawnCountModifier) {}
 
-    //Waves
-
-    public static RaidWaveEnemies createWavesFor(String raider)
-    {
-        RaidWaveEnemies spawns = new RaidWaveEnemies();
-        spawns.raiderType = raider;
-        spawns.defaults = new HashMap<>();
-        return spawns;
-    }
-
-    public static class RaidWaveEnemies
-    {
-        private String raiderType;
-        private Map<RaidDifficulty, int[]> defaults;
-
-        public RaidWaveEnemies withDifficulty(RaidDifficulty difficulty, int[] defaults)
-        {
-            if(defaults.length != 8) throw new IllegalArgumentException("Raider Default Spawn Count Array must be of length 8!");
-
-            this.defaults.put(difficulty, defaults);
-            return this;
-        }
-
-        public void register()
-        {
-            SPAWNS.put(this.raiderType, this);
-        }
-    }
 }

@@ -77,7 +77,7 @@ public abstract class RaidMixin
         //Entity Reinforcements (no Raiders)
         if(this.random.nextInt(100) < raidDifficulty.config().reinforcementChance())
         {
-            Map<EntityType<?>, Integer> reinforcements = RaidEnemyRegistry.generateReinforcements(this.groupsSpawned, raidDifficulty, levelDifficulty);
+            Map<EntityType<?>, Integer> reinforcements = RaidEnemyRegistry.getReinforcements(this.groupsSpawned, raidDifficulty, levelDifficulty);
             final String sum = "(" + reinforcements.values().stream().mapToInt(i -> i).sum() + ")";
             final List<String> messages = List.of("Reinforcements have arrived!", "Additional mobs have joined!", "An extra group of mobs has appeared!", "The Illagers have called in reinforcements!", "The Illagers have called for backup!");
             participants.forEach(p -> p.sendMessage(new TextComponent(messages.get(this.random.nextInt(messages.size())) + " " + sum), p.getUUID()));
@@ -132,17 +132,17 @@ public abstract class RaidMixin
             }
 
             //Spawns per wave array
-            int[] spawnsPerWave = RaidEnemyRegistry.getDefaultSpawns(raiderType.toString(), raidDifficulty);
+            int[] spawnsPerWave = RaidEnemyRegistry.getWaves(raidDifficulty, raiderType.toString());
             //Selected spawns for the current wave
             int baseSpawnCount = spawnBonusGroup ? spawnsPerWave[this.numGroups] : spawnsPerWave[groupsSpawned];
 
             //Modifiers based on Game Difficulty (Default and Apocalypse ignore this)
-            if(!raidDifficulty.isDefault() && !raidDifficulty.is(RaidDifficulty.APOCALYPSE) && baseSpawnCount != 0 && !raiderType.equals(Raid.RaiderType.RAVAGER))
+            if(!raidDifficulty.is(RaidDifficulty.APOCALYPSE) && baseSpawnCount != 0 && !raiderType.equals(Raid.RaiderType.RAVAGER))
             {
                 switch(worldDifficulty)
                 {
-                    case EASY -> baseSpawnCount = this.random.nextInt(baseSpawnCount - 2, baseSpawnCount);
-                    case HARD -> baseSpawnCount = this.random.nextInt(baseSpawnCount, baseSpawnCount + 2 + 1);
+                    case EASY -> baseSpawnCount -= this.random.nextInt(2);
+                    case HARD -> baseSpawnCount += this.random.nextInt(2);
                 }
 
                 if(baseSpawnCount < 0) baseSpawnCount = 0;

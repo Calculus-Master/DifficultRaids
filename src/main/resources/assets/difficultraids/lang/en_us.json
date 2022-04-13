@@ -8,14 +8,14 @@
     "item.difficultraids.levitation_totem": "Totem of Levitation",
     "item.difficultraids.protection_totem": "Totem of Protection",
 
-    "entity.difficultraids.warrior_illager": "Warrior Illager",
-    "entity.difficultraids.dart_illager": "Dart Illager",
-    "entity.difficultraids.electro_illager": "Electro Illager",
-    "entity.difficultraids.necromancer_illager": "Necromancer Illager",
-    "entity.difficultraids.shaman_illager": "Shaman Illager",
-    "entity.difficultraids.tank_illager": "Tank Illager",
-    "entity.difficultraids.assassin_illager": "Assassin Illager",
-    "entity.difficultraids.frost_illager": "Frost Illager",
+    "entity.difficultraids.warrior_illager": "Warrior",
+    "entity.difficultraids.dart_illager": "Dart",
+    "entity.difficultraids.electro_illager": "Conductor",
+    "entity.difficultraids.necromancer_illager": "Necromancer",
+    "entity.difficultraids.shaman_illager": "Shaman",
+    "entity.difficultraids.tank_illager": "Tank",
+    "entity.difficultraids.assassin_illager": "Assassin",
+    "entity.difficultraids.frost_illager": "Frostmage",
 
     "entity.difficultraids.frost_snowball": "Frost Snowball"
 }
