@@ -7,6 +7,10 @@
     "item.difficultraids.destiny_totem": "Totem of Destiny",
     "item.difficultraids.levitation_totem": "Totem of Levitation",
     "item.difficultraids.protection_totem": "Totem of Protection",
+    "item.difficultraids.freezing_totem": "Totem of Freezing",
+    "item.difficultraids.persistence_totem": "Totem of Persistence",
+    "item.difficultraids.teleportation_totem": "Totem of Teleportation",
+    "item.difficultraids.fireball_totem": "Totem of Fireballs",
 
     "entity.difficultraids.warrior_illager": "Warrior",
     "entity.difficultraids.dart_illager": "Dart",

@@ -7,8 +7,8 @@ buildscript {
     }
     dependencies {
         classpath (group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true) { exclude group: 'org.apache.logging.log4j' }
-        classpath 'org.apache.logging.log4j:log4j-api:2.11.2'
-        classpath 'org.apache.logging.log4j:log4j-core:2.11.2'
+        //classpath 'org.apache.logging.log4j:log4j-api:2.11.2'
+        //classpath 'org.apache.logging.log4j:log4j-core:2.11.2'
 
         classpath 'org.parchmentmc:librarian:1.+'
 
@@ -29,7 +29,7 @@ apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
 
 
-version = '1.0-beta'
+version = '1.0.1-beta'
 group = 'com.calculusmaster.difficultraids'
 archivesBaseName = 'difficultraids'
 

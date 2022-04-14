@@ -41,6 +41,18 @@ public class DifficultRaidsItems
     public static final RegistryObject<Item> TOTEM_OF_PROTECTION =
             ITEMS.register("protection_totem", () -> new Item(DEFAULT_TOTEM_PROPERTIES.get().rarity(Rarity.RARE)));
 
+    public static final RegistryObject<Item> TOTEM_OF_FREEZING =
+            ITEMS.register("freezing_totem", () -> new Item(DEFAULT_TOTEM_PROPERTIES.get()));
+
+    public static final RegistryObject<Item> TOTEM_OF_PERSISTENCE =
+            ITEMS.register("persistence_totem", () -> new Item(DEFAULT_TOTEM_PROPERTIES.get().rarity(Rarity.RARE)));
+
+    public static final RegistryObject<Item> TOTEM_OF_TELEPORTATION =
+            ITEMS.register("teleportation_totem", () -> new Item(DEFAULT_TOTEM_PROPERTIES.get()));
+
+    public static final RegistryObject<Item> TOTEM_OF_FIREBALLS =
+            ITEMS.register("fireball_totem", () -> new Item(DEFAULT_TOTEM_PROPERTIES.get()));
+
     public static void register(IEventBus eventBus)
     {
         ITEMS.register(eventBus);
