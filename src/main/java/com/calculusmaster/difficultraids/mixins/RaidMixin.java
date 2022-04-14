@@ -53,11 +53,6 @@ public abstract class RaidMixin
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static void outputLog(String text)
-    {
-        LOGGER.info("DR Log - [[ " + text + " ]]");
-    }
-
     @Inject(at = @At("TAIL"), method = "absorbBadOmen")
     private void difficultraids_raidStart(Player p_37729_, CallbackInfo callbackInfo)
     {
@@ -137,24 +132,14 @@ public abstract class RaidMixin
             int baseSpawnCount = spawnBonusGroup ? spawnsPerWave[this.numGroups] : spawnsPerWave[groupsSpawned];
 
             //Modifiers based on Game Difficulty (Default and Apocalypse ignore this)
-            if(!raidDifficulty.is(RaidDifficulty.APOCALYPSE) && baseSpawnCount != 0 && !raiderType.equals(Raid.RaiderType.RAVAGER))
+            if(!raidDifficulty.is(RaidDifficulty.APOCALYPSE) && baseSpawnCount != 0)
             {
-                switch(worldDifficulty)
-                {
-                    case EASY -> baseSpawnCount -= this.random.nextInt(2);
-                    case HARD -> baseSpawnCount += this.random.nextInt(2);
-                }
-
-                if(baseSpawnCount < 0) baseSpawnCount = 0;
+                if(worldDifficulty.equals(Difficulty.EASY)) baseSpawnCount--;
+                else if(worldDifficulty.equals(Difficulty.HARD)) baseSpawnCount++;
             }
 
             //Modifiers based on Player Count
             baseSpawnCount *= 1 + raidDifficulty.config().playerCountSpawnModifier();
-
-            RaidMixin.outputLog(
-                    "Default Spawns: Raider Type {%s}, Spawns per Wave {%s}, Selected Spawn Count {%s}, Difficulty {World: %s, Raid: %s}"
-                            .formatted(raiderType.toString(), Arrays.toString(spawnsPerWave), baseSpawnCount, worldDifficulty, raidDifficulty)
-            );
 
             callbackInfoReturnable.setReturnValue(baseSpawnCount);
         }
@@ -196,8 +181,6 @@ public abstract class RaidMixin
             });
             //TODO: Chest with loot instead of dropping on ground
 
-            RaidMixin.outputLog("Raid Rewards Generated at X: %s Y: %s Z: %s, Rewards List: %s".formatted(rewardPos.getX(), rewardPos.getY(), rewardPos.getZ(), rewards.stream().map(stack -> stack.getItem().getRegistryName() + " (x" + stack.getCount() + ")")));
-
             this.heroesOfTheVillage.stream().map(uuid -> this.level.getPlayerByUUID(uuid)).filter(Objects::nonNull).forEach(p -> {
                 p.sendMessage(
                         new TextComponent("Raid Rewards have spawned at X: %s Y: %s Z: %s!".formatted(rewardPos.getX(), rewardPos.getY(), rewardPos.getZ())),
@@ -211,8 +194,6 @@ public abstract class RaidMixin
 
             wither.setCustomName(new TextComponent("The Apocalypse"));
             wither.setPos(this.center.getX(), this.center.getY() + 10, this.center.getZ());
-
-            RaidMixin.outputLog("Wither Boss spawned at X: %s Y: %s Z: %s!".formatted(this.center.getX(), this.center.getY() + 10, this.center.getZ()));
 
             this.level.addFreshEntity(wither);
         }

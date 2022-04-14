@@ -299,7 +299,6 @@ public class ShamanIllagerEntity extends AbstractSpellcastingIllager
                             random.nextInt(duration - 20, duration + 21),
                             amplifier));
                     r.playSound(SoundEvents.BREWING_STAND_BREW, 0.5F, 1.0F);
-                    System.out.println("Shaman Buffed a " + r.getType().toShortString());
                 });
 
                 ShamanIllagerEntity.this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 60, 2));
@@ -388,7 +387,6 @@ public class ShamanIllagerEntity extends AbstractSpellcastingIllager
                             random.nextInt(duration - 20, duration + 21),
                             amplifier));
                     r.playSound(SoundEvents.BREWING_STAND_BREW, 0.5F, 1.0F);
-                    System.out.println("Shaman Buffed a " + r.getType().toShortString());
                 });
 
                 ShamanIllagerEntity.this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 60, 2));

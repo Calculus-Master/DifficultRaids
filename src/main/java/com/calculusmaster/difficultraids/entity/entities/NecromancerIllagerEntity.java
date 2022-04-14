@@ -433,10 +433,7 @@ public class NecromancerIllagerEntity extends AbstractSpellcastingIllager
                 target.moveTo(target.getBlockX(), target.getBlockY() - buryDistance, target.getBlockZ());
 
                 if(!level.getBlockState(target.eyeBlockPosition()).isAir() && target instanceof AbstractVillager villager)
-                {
                     villager.addEffect(new MobEffectInstance(MobEffects.GLOWING, 200, 1));
-                    System.out.println("A villager is being buried by a Necromancer!");
-                }
             }
         }
 
