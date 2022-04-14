@@ -40,7 +40,7 @@ public class RaidLoot
                 .addLootEntry(DifficultRaidsItems.TOTEM_OF_LEVITATION.get(), 4, 1, 3, 1, -1, 2)
                 .addLootEntry(DifficultRaidsItems.TOTEM_OF_LIGHTNING.get(), 4, 1, 2, 1, -1, 1)
                 .addLootEntry(DifficultRaidsItems.TOTEM_OF_TELEPORTATION.get(), 4, 1, 2, 1, -1, 1)
-                .addLootEntry(DifficultRaidsItems.TOTEM_OF_TELEPORTATION.get(), 4, 1, 2, 1, -1, 1)
+                .addLootEntry(DifficultRaidsItems.TOTEM_OF_FIREBALLS.get(), 4, 1, 2, 1, -1, 1)
                 .addLootEntry(DifficultRaidsItems.TOTEM_OF_FREEZING.get(), 4, 1, 2, 1, -1, 1)
                 .addLootEntry(DifficultRaidsItems.TOTEM_OF_VENGEANCE.get(), 4, 1, 2, 1, -1, 1)
                 .addLootEntry(DifficultRaidsItems.TOTEM_OF_PERSISTENCE.get(), 1, 1, 1, 0, 0)
