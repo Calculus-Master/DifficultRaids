@@ -3,6 +3,7 @@ package com.calculusmaster.difficultraids.entity;
 import com.calculusmaster.difficultraids.DifficultRaids;
 import com.calculusmaster.difficultraids.entity.entities.*;
 import com.calculusmaster.difficultraids.entity.entities.component.FrostSnowballEntity;
+import com.calculusmaster.difficultraids.entity.entities.component.ShamanDebuffBulletEntity;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -45,6 +46,11 @@ public class DifficultRaidsEntityTypes
             () -> EntityType.Builder.of(FrostSnowballEntity::new, MobCategory.MISC)
                     .sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10)
                     .build(new ResourceLocation(DifficultRaids.MODID, "frost_snowball").toString()));
+
+    public static final RegistryObject<EntityType<ShamanDebuffBulletEntity>> SHAMAN_DEBUFF_BULLET = ENTITY_TYPES.register("shaman_debuff_bullet",
+            () -> EntityType.Builder.of(ShamanDebuffBulletEntity::new, MobCategory.MISC)
+                    .sized(0.3125F, 0.3125F).clientTrackingRange(8)
+                    .build(new ResourceLocation(DifficultRaids.MODID, "shaman_debuff_bullet").toString()));
 
     private static <T extends AbstractIllager> RegistryObject<EntityType<T>> registerIllager(String registryName, EntityType.EntityFactory<T> entityFactory)
     {

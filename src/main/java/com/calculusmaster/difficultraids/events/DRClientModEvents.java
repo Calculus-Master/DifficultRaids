@@ -3,6 +3,7 @@ package com.calculusmaster.difficultraids.events;
 import com.calculusmaster.difficultraids.DifficultRaids;
 import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
 import com.calculusmaster.difficultraids.entity.renderer.*;
+import net.minecraft.client.renderer.entity.ShulkerBulletRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -26,5 +27,6 @@ public class DRClientModEvents
         event.registerEntityRenderer(DifficultRaidsEntityTypes.ASSASSIN_ILLAGER.get(), AssassinIllagerRenderer::new);
         event.registerEntityRenderer(DifficultRaidsEntityTypes.FROST_ILLAGER.get(), FrostIllagerRenderer::new);
         event.registerEntityRenderer(DifficultRaidsEntityTypes.FROST_SNOWBALL.get(), ThrownItemRenderer::new);
+        event.registerEntityRenderer(DifficultRaidsEntityTypes.SHAMAN_DEBUFF_BULLET.get(), ShulkerBulletRenderer::new);
     }
 }

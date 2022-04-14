@@ -1,5 +1,6 @@
 package com.calculusmaster.difficultraids.entity.entities;
 
+import com.calculusmaster.difficultraids.entity.entities.component.ShamanDebuffBulletEntity;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -173,7 +174,14 @@ public class ShamanIllagerEntity extends AbstractSpellcastingIllager
                 int debuffCount = raidDifficulty.config().shaman().debuffAmount();
 
                 Set<MobEffect> apply = new HashSet<>();
-                for(int i = 0; i < debuffCount; i++) apply.add(debuffPool.get(random.nextInt(debuffPool.size())));
+                for(int i = 0; i < debuffCount; i++)
+                {
+                    MobEffect effect = debuffPool.get(random.nextInt(debuffPool.size()));
+                    if(apply.contains(effect) && random.nextFloat() < 0.75) i--;
+                    else apply.add(debuffPool.get(random.nextInt(debuffPool.size())));
+                }
+
+                ShamanDebuffBulletEntity projectile = ShamanDebuffBulletEntity.create(level, ShamanIllagerEntity.this, target, ShamanIllagerEntity.this.getDirection().getAxis());
 
                 apply.forEach(effect -> {
                     int duration = 0;
@@ -196,7 +204,7 @@ public class ShamanIllagerEntity extends AbstractSpellcastingIllager
                     }
                     else if(effect.equals(MobEffects.POISON))
                     {
-                        duration = 60;
+                        duration = raidDifficulty.config().shaman().poisonDuration();
                         amplifier = raidDifficulty.config().shaman().poisonAmplifier();
                     }
                     else if(effect.equals(MobEffects.LEVITATION))
@@ -215,24 +223,28 @@ public class ShamanIllagerEntity extends AbstractSpellcastingIllager
                         case PEACEFUL -> -duration;
                         case EASY -> -40;
                         case NORMAL -> 0;
-                        case HARD -> 40;
+                        case HARD -> 60;
                     };
 
-                    target.addEffect(new MobEffectInstance(effect, duration, amplifier));
+                    projectile.loadDebuff(new MobEffectInstance(effect, duration, amplifier));
                 });
+
+                projectile.moveTo(ShamanIllagerEntity.this.eyeBlockPosition().offset(0.0, ShamanIllagerEntity.this.getEyeHeight() + 1, 0.0), 0.0F, 0.0F);
+                level.addFreshEntity(projectile);
+                ShamanIllagerEntity.this.playSound(SoundEvents.SHULKER_SHOOT, 2.0F, 1.0F);
             }
         }
 
         @Override
         protected int getCastingTime()
         {
-            return 30;
+            return 10;
         }
 
         @Override
         protected int getCastingInterval()
         {
-            return 320;
+            return 120;
         }
 
         @Override

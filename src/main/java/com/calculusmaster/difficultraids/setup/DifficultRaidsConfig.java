@@ -375,6 +375,16 @@ public class DifficultRaidsConfig
                         .comment("Amplifier of the Mining Fatigue Effect inflicted by the Shaman, in ticks (20 ticks = 1 second).")
                         .defineInRange("shamanMiningFatigueAmplifier", default_shaman_miningFatigueAmplifier, 0, Integer.MAX_VALUE);
 
+                int default_shaman_poisonDuration = switch(raidDifficulty) {
+                    case HERO, LEGEND, MASTER -> 100;
+                    case APOCALYPSE -> 200;
+                    default -> 50;
+                };
+
+                config.shamanConfig.poisonDuration = SERVER
+                        .comment("Duration of the Poison Effect inflicted by the Shaman, in ticks (20 ticks = 1 second).")
+                        .defineInRange("shamanPoisonDuration", default_shaman_poisonDuration, 0, Integer.MAX_VALUE);
+
                 int default_shaman_poisonAmplifier = switch(raidDifficulty) {
                     case HERO -> 2;
                     case LEGEND -> 3;
@@ -816,6 +826,12 @@ public class DifficultRaidsConfig
         public int miningFatigueAmplifier()
         {
             return this.miningFatigueAmplifier.get();
+        }
+
+        private ForgeConfigSpec.IntValue poisonDuration;
+        public int poisonDuration()
+        {
+            return this.poisonDuration.get();
         }
 
         private ForgeConfigSpec.IntValue poisonAmplifier;
