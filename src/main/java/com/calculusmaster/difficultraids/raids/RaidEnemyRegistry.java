@@ -12,7 +12,6 @@ import java.util.*;
 
 public class RaidEnemyRegistry
 {
-    public static final Map<String, RaidWaveEnemies> SPAWNS = new HashMap<>();
     public static final Map<RaidDifficulty, RaidEnemies> WAVES = new HashMap<>();
     public static final Map<RaidDifficulty, RaidReinforcements> REINFORCEMENTS = new HashMap<>();
 
@@ -35,8 +34,6 @@ public class RaidEnemyRegistry
 
     public static boolean isEnabled(String raiderType)
     {
-        System.out.println("DIFFICULT_RAIDS: Check if RaiderType `" + raiderType + "` is enabled!");
-        System.out.println("Here's the keyset of the map: " + DifficultRaidsConfig.ENABLED_RAIDERS.keySet().toString());
         return DifficultRaidsConfig.ENABLED_RAIDERS.get(raiderType.toUpperCase()).get();
     }
 
@@ -264,14 +261,6 @@ public class RaidEnemyRegistry
         return waves;
     }
 
-    public static RaidWaveEnemies createWavesFor(String raider)
-    {
-        RaidWaveEnemies spawns = new RaidWaveEnemies();
-        spawns.raiderType = raider;
-        spawns.defaults = new HashMap<>();
-        return spawns;
-    }
-
     public static class RaidEnemies
     {
         private RaidDifficulty raidDifficulty;
@@ -286,25 +275,6 @@ public class RaidEnemyRegistry
         public void register()
         {
             WAVES.put(this.raidDifficulty, this);
-        }
-    }
-
-    public static class RaidWaveEnemies
-    {
-        private String raiderType;
-        private Map<RaidDifficulty, int[]> defaults;
-
-        public RaidWaveEnemies withDifficulty(RaidDifficulty difficulty, int[] defaults)
-        {
-            if(defaults.length != 8) throw new IllegalArgumentException("Raider Default Spawn Count Array must be of length 8!");
-
-            this.defaults.put(difficulty, defaults);
-            return this;
-        }
-
-        public void register()
-        {
-            SPAWNS.put(this.raiderType, this);
         }
     }
 
