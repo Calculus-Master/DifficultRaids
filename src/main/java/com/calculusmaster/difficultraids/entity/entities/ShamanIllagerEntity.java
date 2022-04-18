@@ -14,26 +14,22 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
-import net.minecraft.world.entity.ai.goal.FloatGoal;
-import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
+import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.monster.AbstractIllager;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 
 public class ShamanIllagerEntity extends AbstractSpellcastingIllager
@@ -59,6 +55,7 @@ public class ShamanIllagerEntity extends AbstractSpellcastingIllager
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new ShamanCastSpellGoal());
         this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Player.class, 8.0F, 0.6D, 1.0D));
+        this.goalSelector.addGoal(3, new ShamanMoveToRaidersGoal());
         this.goalSelector.addGoal(4, new ShamanAttackBoostSpellGoal());
         this.goalSelector.addGoal(4, new ShamanDefenseBoostSpellGoal());
         this.goalSelector.addGoal(5, new ShamanDebuffSpellGoal());
@@ -73,10 +70,62 @@ public class ShamanIllagerEntity extends AbstractSpellcastingIllager
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, false));
     }
 
+    private List<Raider> getNearbyRaiders(double distance)
+    {
+        return this.level.getNearbyEntities(
+                Raider.class,
+                TargetingConditions.forNonCombat().range(distance),
+                this,
+                new AABB(this.blockPosition()).inflate(distance)
+        );
+    }
+
+    private Raider getNearestRaider()
+    {
+        return this.getCurrentRaid() == null ? null : this.level.getNearestEntity(
+                Raider.class,
+                TargetingConditions.forNonCombat().ignoreLineOfSight(),
+                this,
+                this.blockPosition().getX(), this.blockPosition().getY(), this.blockPosition().getZ(),
+                new AABB(this.blockPosition()).inflate(Math.sqrt(Raid.VALID_RAID_RADIUS_SQR)));
+    }
+
     @Override
     public void applyRaidBuffs(int p_37844_, boolean p_37845_)
     {
 
+    }
+
+    private class ShamanMoveToRaidersGoal extends Goal
+    {
+        private Raider target;
+
+        private ShamanMoveToRaidersGoal() { this.setFlags(EnumSet.of(Flag.MOVE)); }
+
+        @Override
+        public boolean canUse()
+        {
+            this.target = ShamanIllagerEntity.this.getNearestRaider();
+            return ShamanIllagerEntity.this.getNearbyRaiders(5.0D).isEmpty() && this.target != null;
+        }
+
+        @Override
+        public boolean canContinueToUse()
+        {
+            return super.canContinueToUse() && this.target.isAlive();
+        }
+
+        @Override
+        public void start()
+        {
+            ShamanIllagerEntity.this.getNavigation().moveTo(this.target, 1.3D);
+        }
+
+        @Override
+        public void stop()
+        {
+            ShamanIllagerEntity.this.getNavigation().stop();
+        }
     }
 
     private class ShamanCastSpellGoal extends SpellcastingIllagerCastSpellGoal
@@ -270,6 +319,12 @@ public class ShamanIllagerEntity extends AbstractSpellcastingIllager
     private class ShamanDefenseBoostSpellGoal extends SpellcastingIllagerUseSpellGoal
     {
         @Override
+        public boolean canUse()
+        {
+            return super.canUse() && !ShamanIllagerEntity.this.getNearbyRaiders(RaidDifficulty.current().config().shaman().buffRadius()).isEmpty();
+        }
+
+        @Override
         protected void castSpell()
         {
             ServerLevel level = (ServerLevel)ShamanIllagerEntity.this.getLevel();
@@ -357,6 +412,12 @@ public class ShamanIllagerEntity extends AbstractSpellcastingIllager
 
     private class ShamanAttackBoostSpellGoal extends SpellcastingIllagerUseSpellGoal
     {
+        @Override
+        public boolean canUse()
+        {
+            return super.canUse() && !ShamanIllagerEntity.this.getNearbyRaiders(RaidDifficulty.current().config().shaman().buffRadius()).isEmpty();
+        }
+
         @Override
         protected void castSpell()
         {

@@ -1,6 +1,7 @@
 package com.calculusmaster.difficultraids.setup;
 
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
+import com.calculusmaster.difficultraids.raids.RaidEnemyRegistry;
 import com.electronwill.nightconfig.core.EnumGetMethod;
 import com.mojang.logging.LogUtils;
 import net.minecraft.util.Tuple;
@@ -12,7 +13,9 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
 import org.slf4j.Logger;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class DifficultRaidsConfig
@@ -20,6 +23,8 @@ public class DifficultRaidsConfig
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static ForgeConfigSpec.EnumValue<RaidDifficulty> RAID_DIFFICULTY;
+
+    public static Map<String, ForgeConfigSpec.BooleanValue> ENABLED_RAIDERS;
 
     public static RaidDifficultyConfig DEFAULT_CONFIG, HERO_CONFIG, LEGEND_CONFIG, MASTER_CONFIG, APOCALYPSE_CONFIG;
 
@@ -36,6 +41,30 @@ public class DifficultRaidsConfig
                         WARNING: APOCALYPSE difficulty spawns massive amounts of mobs, potentially generating vast amounts of lag. Choose at your own risk!
                         """)
                 .defineEnum("raidDifficulty", RaidDifficulty.HERO, EnumGetMethod.NAME_IGNORECASE);
+
+        //Disable mobs
+
+        SERVER.push("Illagers");
+        ENABLED_RAIDERS = new HashMap<>();
+
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.VINDICATOR, SERVER.comment("Determines if Vindicators will show up in Raids.").define("enableVindicators", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.EVOKER, SERVER.comment("Determines if Evokers will show up in Raids.").define("enableEvokers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.PILLAGER, SERVER.comment("Determines if Pillagers will show up in Raids.").define("enablePillagers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.WITCH, SERVER.comment("Determines if Witches will show up in Raids.").define("enableWitches", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.RAVAGER, SERVER.comment("Determines if Ravagers will show up in Raids.").define("enableRavagers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.ILLUSIONER, SERVER.comment("Determines if Illusioners will show up in Raids.").define("enableIllusioners", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.WARRIOR, SERVER.comment("Determines if Warriors will show up in Raids.").define("enableWarriors", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.DART, SERVER.comment("Determines if Darts will show up in Raids.").define("enableDarts", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.CONDUCTOR, SERVER.comment("Determines if Conductors will show up in Raids.").define("enableConductors", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.NECROMANCER, SERVER.comment("Determines if Necromancers will show up in Raids.").define("enableNecromancers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.SHAMAN, SERVER.comment("Determines if Shamans will show up in Raids.").define("enableShamans", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.TANK, SERVER.comment("Determines if Tanks will show up in Raids.").define("enableTanks", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.ASSASSIN, SERVER.comment("Determines if Assassins will show up in Raids.").define("enableAssassins", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.FROSTMAGE, SERVER.comment("Determines if Frostmages will show up in Raids.").define("enableFrostmages", true));
+
+        SERVER.pop();
+
+        //Raid Difficulty specific
 
         for(RaidDifficulty raidDifficulty : RaidDifficulty.values())
         {

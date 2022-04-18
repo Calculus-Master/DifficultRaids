@@ -1,6 +1,7 @@
 package com.calculusmaster.difficultraids.raids;
 
 import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
+import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -15,22 +16,29 @@ public class RaidEnemyRegistry
     public static final Map<RaidDifficulty, RaidEnemies> WAVES = new HashMap<>();
     public static final Map<RaidDifficulty, RaidReinforcements> REINFORCEMENTS = new HashMap<>();
 
-    private static final String VINDICATOR = "VINDICATOR";
-    private static final String EVOKER = "EVOKER";
-    private static final String PILLAGER = "PILLAGER";
-    private static final String WITCH = "WITCH";
-    private static final String RAVAGER = "RAVAGER";
-    private static final String ILLUSIONER = "ILLUSIONER";
-    private static final String WARRIOR = "WARRIOR_ILLAGER";
-    private static final String DART = "DART_ILLAGER";
-    private static final String CONDUCTOR = "ELECTRO_ILLAGER";
-    private static final String NECROMANCER = "NECROMANCER_ILLAGER";
-    private static final String SHAMAN = "SHAMAN_ILLAGER";
-    private static final String TANK = "TANK_ILLAGER";
-    private static final String ASSASSIN = "ASSASSIN_ILLAGER";
-    private static final String FROSTMAGE = "FROST_ILLAGER";
+    public static final String VINDICATOR = "VINDICATOR";
+    public static final String EVOKER = "EVOKER";
+    public static final String PILLAGER = "PILLAGER";
+    public static final String WITCH = "WITCH";
+    public static final String RAVAGER = "RAVAGER";
+    public static final String ILLUSIONER = "ILLUSIONER";
+    public static final String WARRIOR = "WARRIOR_ILLAGER";
+    public static final String DART = "DART_ILLAGER";
+    public static final String CONDUCTOR = "ELECTRO_ILLAGER";
+    public static final String NECROMANCER = "NECROMANCER_ILLAGER";
+    public static final String SHAMAN = "SHAMAN_ILLAGER";
+    public static final String TANK = "TANK_ILLAGER";
+    public static final String ASSASSIN = "ASSASSIN_ILLAGER";
+    public static final String FROSTMAGE = "FROST_ILLAGER";
 
     private static final int[] BLANK = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
+
+    public static boolean isEnabled(String raiderType)
+    {
+        System.out.println("DIFFICULT_RAIDS: Check if RaiderType `" + raiderType + "` is enabled!");
+        System.out.println("Here's the keyset of the map: " + DifficultRaidsConfig.ENABLED_RAIDERS.keySet().toString());
+        return DifficultRaidsConfig.ENABLED_RAIDERS.get(raiderType.toUpperCase()).get();
+    }
 
     public static void registerRaiders()
     {

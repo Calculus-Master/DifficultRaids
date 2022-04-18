@@ -126,6 +126,13 @@ public abstract class RaidMixin
                 }
             }
 
+            //Check if the Raider Type is enabled
+            if(!RaidEnemyRegistry.isEnabled(raiderType.toString()))
+            {
+                callbackInfoReturnable.setReturnValue(0);
+                return;
+            }
+
             //Spawns per wave array
             int[] spawnsPerWave = RaidEnemyRegistry.getWaves(raidDifficulty, raiderType.toString());
             //Selected spawns for the current wave
