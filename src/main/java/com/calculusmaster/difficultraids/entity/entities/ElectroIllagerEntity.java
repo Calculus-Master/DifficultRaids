@@ -7,7 +7,6 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
@@ -69,14 +68,6 @@ public class ElectroIllagerEntity extends AbstractSpellcastingIllager
         this.targetSelector.addGoal(2, (new NearestAttackableTargetGoal<>(this, Player.class, false)).setUnseenMemoryTicks(300));
         this.targetSelector.addGoal(3, (new NearestAttackableTargetGoal<>(this, AbstractVillager.class, false)).setUnseenMemoryTicks(300));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, false));
-    }
-
-    @Override
-    public boolean hurt(DamageSource pSource, float pAmount)
-    {
-        //TODO: Again, use custom Lightning Bolt entity
-        if(pSource.equals(DamageSource.LIGHTNING_BOLT)) pAmount = 0;
-        return super.hurt(pSource, pAmount);
     }
 
     @Override

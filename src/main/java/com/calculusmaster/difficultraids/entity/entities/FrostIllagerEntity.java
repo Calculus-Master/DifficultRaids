@@ -126,7 +126,7 @@ public class FrostIllagerEntity extends AbstractSpellcastingIllager
 
             if(target != null)
             {
-                int size = this.random.nextInt(20, 41);
+                int size = this.random.nextInt(15, 31);
 
                 for(int i = 0; i < size; i++)
                 {
@@ -154,6 +154,8 @@ public class FrostIllagerEntity extends AbstractSpellcastingIllager
                 }
 
                 this.playSound(SoundEvents.SNOW_GOLEM_SHOOT, 1.0F, 0.4F / (this.random.nextFloat() * 0.4F + 0.8F));
+
+                if(target.isDeadOrDying()) this.barrageTicks = 0;
             }
             else this.barrageTicks = 0;
         }
