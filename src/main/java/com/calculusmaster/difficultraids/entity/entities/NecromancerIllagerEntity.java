@@ -83,6 +83,13 @@ public class NecromancerIllagerEntity extends AbstractSpellcastingIllager
     }
 
     @Override
+    public IllagerArmPose getArmPose()
+    {
+        if(this.isCastingSpell()) return IllagerArmPose.SPELLCASTING;
+        else return this.isCelebrating() ? IllagerArmPose.CELEBRATING : IllagerArmPose.NEUTRAL;
+    }
+
+    @Override
     public void addAdditionalSaveData(CompoundTag pCompound)
     {
         super.addAdditionalSaveData(pCompound);

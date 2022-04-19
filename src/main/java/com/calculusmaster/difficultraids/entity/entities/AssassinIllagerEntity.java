@@ -132,31 +132,31 @@ public class AssassinIllagerEntity extends AbstractIllager
     @Override
     public IllagerArmPose getArmPose()
     {
-        return this.isAggressive() ? IllagerArmPose.ATTACKING : (this.isCelebrating() ? IllagerArmPose.CELEBRATING : IllagerArmPose.CROSSED);
+        return this.isAggressive() ? IllagerArmPose.ATTACKING : IllagerArmPose.NEUTRAL;
     }
 
     @Override
     public SoundEvent getCelebrateSound()
     {
-        return SoundEvents.VINDICATOR_CELEBRATE;
+        return SoundEvents.PILLAGER_CELEBRATE;
     }
 
     @Nullable
     @Override
     protected SoundEvent getAmbientSound()
     {
-        return SoundEvents.VINDICATOR_AMBIENT;
+        return SoundEvents.PILLAGER_AMBIENT;
     }
 
     @Override
     protected SoundEvent getDeathSound()
     {
-        return SoundEvents.VINDICATOR_DEATH;
+        return SoundEvents.PILLAGER_DEATH;
     }
 
     @Override
     protected SoundEvent getHurtSound(DamageSource p_33034_)
     {
-        return SoundEvents.VINDICATOR_HURT;
+        return SoundEvents.PILLAGER_HURT;
     }
 }

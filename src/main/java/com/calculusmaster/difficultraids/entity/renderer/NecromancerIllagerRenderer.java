@@ -1,5 +1,6 @@
 package com.calculusmaster.difficultraids.entity.renderer;
 
+import com.calculusmaster.difficultraids.DifficultRaids;
 import com.calculusmaster.difficultraids.entity.entities.NecromancerIllagerEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.IllagerModel;
@@ -15,7 +16,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class NecromancerIllagerRenderer extends IllagerRenderer<NecromancerIllagerEntity>
 {
-    private static final ResourceLocation NECROMANCER_ILLAGER = new ResourceLocation("textures/entity/illager/evoker.png");
+    private static final ResourceLocation NECROMANCER_ILLAGER = new ResourceLocation(DifficultRaids.MODID, "textures/entity/necromancer_illager.png");
 
     public NecromancerIllagerRenderer(EntityRendererProvider.Context entityRenderProvider)
     {

@@ -1,5 +1,6 @@
 package com.calculusmaster.difficultraids.entity.renderer;
 
+import com.calculusmaster.difficultraids.DifficultRaids;
 import com.calculusmaster.difficultraids.entity.entities.AssassinIllagerEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.IllagerModel;
@@ -15,11 +16,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class AssassinIllagerRenderer extends IllagerRenderer<AssassinIllagerEntity>
 {
-    private static final ResourceLocation ASSASSIN_ILLAGER = new ResourceLocation("textures/entity/illager/vindicator.png");
+    private static final ResourceLocation ASSASSIN_ILLAGER = new ResourceLocation(DifficultRaids.MODID, "textures/entity/assassin_illager.png");
 
     public AssassinIllagerRenderer(EntityRendererProvider.Context entityRenderProvider)
     {
-        super(entityRenderProvider, new IllagerModel<>(entityRenderProvider.bakeLayer(ModelLayers.VINDICATOR)), 0.5F);
+        super(entityRenderProvider, new IllagerModel<>(entityRenderProvider.bakeLayer(ModelLayers.PILLAGER)), 0.5F);
         this.addLayer(new ItemInHandLayer<>(this)
         {
             @Override
