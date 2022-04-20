@@ -1,6 +1,7 @@
 package com.calculusmaster.difficultraids.entity.entities;
 
 import com.calculusmaster.difficultraids.entity.entities.component.ShamanDebuffBulletEntity;
+import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -32,9 +33,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
 
-public class ShamanIllagerEntity extends AbstractSpellcastingIllager
+public class ShamanIllagerEntity extends AbstractEvokerVariant
 {
-    public ShamanIllagerEntity(EntityType<? extends AbstractSpellcastingIllager> p_33724_, Level p_33725_)
+    public ShamanIllagerEntity(EntityType<? extends AbstractEvokerVariant> p_33724_, Level p_33725_)
     {
         super(p_33724_, p_33725_);
     }

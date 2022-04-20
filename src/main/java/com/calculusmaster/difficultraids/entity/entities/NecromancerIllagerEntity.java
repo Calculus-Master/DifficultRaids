@@ -1,5 +1,6 @@
 package com.calculusmaster.difficultraids.entity.entities;
 
+import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -36,13 +37,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class NecromancerIllagerEntity extends AbstractSpellcastingIllager
+public class NecromancerIllagerEntity extends AbstractEvokerVariant
 {
     private List<Monster> activeHorde = new ArrayList<>();
     private int hordeLifetimeTicks = 0;
     private List<Monster> activeMinions = new ArrayList<>();
 
-    public NecromancerIllagerEntity(EntityType<? extends AbstractSpellcastingIllager> p_33724_, Level p_33725_)
+    public NecromancerIllagerEntity(EntityType<? extends AbstractEvokerVariant> p_33724_, Level p_33725_)
     {
         super(p_33724_, p_33725_);
     }
@@ -86,7 +87,7 @@ public class NecromancerIllagerEntity extends AbstractSpellcastingIllager
     public IllagerArmPose getArmPose()
     {
         if(this.isCastingSpell()) return IllagerArmPose.SPELLCASTING;
-        else return this.isCelebrating() ? IllagerArmPose.CELEBRATING : IllagerArmPose.NEUTRAL;
+        else return this.isCelebrating() ? IllagerArmPose.CELEBRATING : IllagerArmPose.CROSSED;
     }
 
     @Override

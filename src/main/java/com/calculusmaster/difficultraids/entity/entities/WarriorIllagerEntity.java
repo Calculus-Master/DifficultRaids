@@ -1,12 +1,12 @@
 package com.calculusmaster.difficultraids.entity.entities;
 
+import com.calculusmaster.difficultraids.entity.entities.core.AbstractVindicatorVariant;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.mojang.logging.LogUtils;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Tuple;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
@@ -28,13 +28,12 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class WarriorIllagerEntity extends AbstractIllager
+public class WarriorIllagerEntity extends AbstractVindicatorVariant
 {
     public WarriorIllagerEntity(EntityType<? extends AbstractIllager> entityType, Level level)
     {
@@ -44,7 +43,7 @@ public class WarriorIllagerEntity extends AbstractIllager
     public static AttributeSupplier.Builder createAttributes()
     {
         return Monster.createMonsterAttributes()
-                .add(Attributes.MOVEMENT_SPEED, 0.4F)
+                .add(Attributes.MOVEMENT_SPEED, 0.35F)
                 .add(Attributes.FOLLOW_RANGE, 12.0D)
                 .add(Attributes.MAX_HEALTH, 20.0D)
                 .add(Attributes.ATTACK_DAMAGE, 5.0D);
@@ -114,54 +113,5 @@ public class WarriorIllagerEntity extends AbstractIllager
         }
 
         this.setItemSlot(EquipmentSlot.MAINHAND, sword);
-    }
-
-    @Override
-    public boolean isAlliedTo(Entity pEntity)
-    {
-        //Default Raider isAlliedTo
-        if(super.isAlliedTo(pEntity))
-        {
-            return true;
-        }
-        else if(pEntity instanceof LivingEntity && ((LivingEntity)pEntity).getMobType() == MobType.ILLAGER)
-        {
-            return this.getTeam() == null && pEntity.getTeam() == null;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    @Override
-    public IllagerArmPose getArmPose()
-    {
-        return this.isAggressive() ? IllagerArmPose.ATTACKING : (this.isCelebrating() ? IllagerArmPose.CELEBRATING : IllagerArmPose.CROSSED);
-    }
-
-    @Override
-    public SoundEvent getCelebrateSound()
-    {
-        return SoundEvents.VINDICATOR_CELEBRATE;
-    }
-
-    @Nullable
-    @Override
-    protected SoundEvent getAmbientSound()
-    {
-        return SoundEvents.VINDICATOR_AMBIENT;
-    }
-
-    @Override
-    protected SoundEvent getDeathSound()
-    {
-        return SoundEvents.VINDICATOR_DEATH;
-    }
-
-    @Override
-    protected SoundEvent getHurtSound(DamageSource p_33034_)
-    {
-        return SoundEvents.VINDICATOR_HURT;
     }
 }

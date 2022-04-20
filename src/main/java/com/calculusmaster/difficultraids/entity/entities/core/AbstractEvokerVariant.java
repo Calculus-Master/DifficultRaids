@@ -1,4 +1,4 @@
-package com.calculusmaster.difficultraids.entity.entities;
+package com.calculusmaster.difficultraids.entity.entities.core;
 
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -9,10 +9,8 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.monster.AbstractIllager;
 import net.minecraft.world.level.Level;
@@ -22,13 +20,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import javax.annotation.Nullable;
 import java.util.EnumSet;
 
-public abstract class AbstractSpellcastingIllager extends AbstractIllager
+public abstract class AbstractEvokerVariant extends AbstractIllagerVariant
 {
-    private static final EntityDataAccessor<Byte> SPELL_DATA = SynchedEntityData.defineId(AbstractSpellcastingIllager.class, EntityDataSerializers.BYTE);
+    private static final EntityDataAccessor<Byte> SPELL_DATA = SynchedEntityData.defineId(AbstractEvokerVariant.class, EntityDataSerializers.BYTE);
     protected int spellTicks;
     private SpellType activeSpell = SpellType.NONE;
 
-    protected AbstractSpellcastingIllager(EntityType<? extends AbstractSpellcastingIllager> p_33724_, Level p_33725_)
+    protected AbstractEvokerVariant(EntityType<? extends AbstractEvokerVariant> p_33724_, Level p_33725_)
     {
         super(p_33724_, p_33725_);
     }
@@ -160,29 +158,29 @@ public abstract class AbstractSpellcastingIllager extends AbstractIllager
         @Override
         public boolean canUse()
         {
-            return AbstractSpellcastingIllager.this.getSpellTicks() > 0;
+            return AbstractEvokerVariant.this.getSpellTicks() > 0;
         }
 
         @Override
         public void start()
         {
             super.start();
-            AbstractSpellcastingIllager.this.navigation.stop();
+            AbstractEvokerVariant.this.navigation.stop();
         }
 
         @Override
         public void stop()
         {
             super.stop();
-            AbstractSpellcastingIllager.this.setSpellType(SpellType.NONE);
+            AbstractEvokerVariant.this.setSpellType(SpellType.NONE);
         }
 
         @Override
         public void tick()
         {
             super.tick();
-            if(AbstractSpellcastingIllager.this.getTarget() != null)
-                AbstractSpellcastingIllager.this.getLookControl().setLookAt(AbstractSpellcastingIllager.this.getTarget(), (float)AbstractSpellcastingIllager.this.getMaxHeadYRot(), (float)AbstractSpellcastingIllager.this.getMaxHeadXRot());
+            if(AbstractEvokerVariant.this.getTarget() != null)
+                AbstractEvokerVariant.this.getLookControl().setLookAt(AbstractEvokerVariant.this.getTarget(), (float) AbstractEvokerVariant.this.getMaxHeadYRot(), (float) AbstractEvokerVariant.this.getMaxHeadXRot());
         }
     }
 
@@ -194,12 +192,12 @@ public abstract class AbstractSpellcastingIllager extends AbstractIllager
         @Override
         public boolean canUse()
         {
-            LivingEntity entity = AbstractSpellcastingIllager.this.getTarget();
+            LivingEntity entity = AbstractEvokerVariant.this.getTarget();
 
             if(entity != null && entity.isAlive())
             {
-                if(AbstractSpellcastingIllager.this.isCastingSpell()) return false;
-                else return AbstractSpellcastingIllager.this.tickCount >= this.spellCooldown;
+                if(AbstractEvokerVariant.this.isCastingSpell()) return false;
+                else return AbstractEvokerVariant.this.tickCount >= this.spellCooldown;
             }
             else return false;
         }
@@ -207,7 +205,7 @@ public abstract class AbstractSpellcastingIllager extends AbstractIllager
         @Override
         public boolean canContinueToUse()
         {
-            LivingEntity entity = AbstractSpellcastingIllager.this.getTarget();
+            LivingEntity entity = AbstractEvokerVariant.this.getTarget();
             return entity != null && entity.isAlive() && this.spellWarmup > 0;
         }
 
@@ -215,13 +213,13 @@ public abstract class AbstractSpellcastingIllager extends AbstractIllager
         public void start()
         {
             this.spellWarmup = this.getCastWarmupTime();
-            AbstractSpellcastingIllager.this.spellTicks = this.getCastingTime();
-            this.spellCooldown = AbstractSpellcastingIllager.this.tickCount + this.getCastingInterval();
+            AbstractEvokerVariant.this.spellTicks = this.getCastingTime();
+            this.spellCooldown = AbstractEvokerVariant.this.tickCount + this.getCastingInterval();
 
             SoundEvent soundEvent = this.getSpellPrepareSound();
-            if(soundEvent != null) AbstractSpellcastingIllager.this.playSound(soundEvent, 1.0F, 1.0F);
+            if(soundEvent != null) AbstractEvokerVariant.this.playSound(soundEvent, 1.0F, 1.0F);
 
-            AbstractSpellcastingIllager.this.setSpellType(this.getSpellType());
+            AbstractEvokerVariant.this.setSpellType(this.getSpellType());
         }
 
         @Override
@@ -232,7 +230,7 @@ public abstract class AbstractSpellcastingIllager extends AbstractIllager
             if(this.spellWarmup == 0)
             {
                 this.castSpell();
-                AbstractSpellcastingIllager.this.playSound(AbstractSpellcastingIllager.this.getSpellSound(), 1.0F, 1.0F);
+                AbstractEvokerVariant.this.playSound(AbstractEvokerVariant.this.getSpellSound(), 1.0F, 1.0F);
             }
         }
 
@@ -248,25 +246,6 @@ public abstract class AbstractSpellcastingIllager extends AbstractIllager
         protected abstract SoundEvent getSpellPrepareSound();
 
         protected abstract SpellType getSpellType();
-    }
-
-    //Default isAlliedTo for Raiders
-    @Override
-    public boolean isAlliedTo(Entity pEntity)
-    {
-        //Default Raider isAlliedTo
-        if(super.isAlliedTo(pEntity))
-        {
-            return true;
-        }
-        else if(pEntity instanceof LivingEntity && ((LivingEntity)pEntity).getMobType() == MobType.ILLAGER)
-        {
-            return this.getTeam() == null && pEntity.getTeam() == null;
-        }
-        else
-        {
-            return false;
-        }
     }
 
     //Default Evoker Sounds

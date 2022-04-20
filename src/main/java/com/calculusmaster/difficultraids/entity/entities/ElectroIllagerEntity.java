@@ -1,5 +1,6 @@
 package com.calculusmaster.difficultraids.entity.entities;
 
+import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import net.minecraft.core.BlockPos;
@@ -33,9 +34,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class ElectroIllagerEntity extends AbstractSpellcastingIllager
+public class ElectroIllagerEntity extends AbstractEvokerVariant
 {
-    public ElectroIllagerEntity(EntityType<? extends AbstractSpellcastingIllager> p_32105_, Level p_32106_)
+    public ElectroIllagerEntity(EntityType<? extends AbstractEvokerVariant> p_32105_, Level p_32106_)
     {
         super(p_32105_, p_32106_);
     }

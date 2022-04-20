@@ -1,13 +1,16 @@
 package com.calculusmaster.difficultraids.entity.entities;
 
+import com.calculusmaster.difficultraids.entity.entities.core.AbstractPillagerVariant;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
+import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
@@ -28,12 +31,12 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
+import tallestegg.guardvillagers.entities.Guard;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class AssassinIllagerEntity extends AbstractIllager
+public class AssassinIllagerEntity extends AbstractPillagerVariant
 {
     public AssassinIllagerEntity(EntityType<? extends AbstractIllager> p_32105_, Level p_32106_)
     {
@@ -73,6 +76,15 @@ public class AssassinIllagerEntity extends AbstractIllager
     }
 
     @Override
+    public boolean hurt(DamageSource pSource, float pAmount)
+    {
+        if(pSource.getDirectEntity() instanceof IronGolem) pAmount *= 0.1;
+        else if(DifficultRaidsUtil.isGuardVillagersLoaded() && pSource.getEntity() instanceof Guard) pAmount *= 0.25;
+
+        return super.hurt(pSource, pAmount);
+    }
+
+    @Override
     public void aiStep()
     {
         super.aiStep();
@@ -109,54 +121,5 @@ public class AssassinIllagerEntity extends AbstractIllager
         }
 
         this.setItemSlot(EquipmentSlot.MAINHAND, sword);
-    }
-
-    @Override
-    public boolean isAlliedTo(Entity pEntity)
-    {
-        //Default Raider isAlliedTo
-        if(super.isAlliedTo(pEntity))
-        {
-            return true;
-        }
-        else if(pEntity instanceof LivingEntity && ((LivingEntity)pEntity).getMobType() == MobType.ILLAGER)
-        {
-            return this.getTeam() == null && pEntity.getTeam() == null;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    @Override
-    public IllagerArmPose getArmPose()
-    {
-        return this.isAggressive() ? IllagerArmPose.ATTACKING : IllagerArmPose.NEUTRAL;
-    }
-
-    @Override
-    public SoundEvent getCelebrateSound()
-    {
-        return SoundEvents.PILLAGER_CELEBRATE;
-    }
-
-    @Nullable
-    @Override
-    protected SoundEvent getAmbientSound()
-    {
-        return SoundEvents.PILLAGER_AMBIENT;
-    }
-
-    @Override
-    protected SoundEvent getDeathSound()
-    {
-        return SoundEvents.PILLAGER_DEATH;
-    }
-
-    @Override
-    protected SoundEvent getHurtSound(DamageSource p_33034_)
-    {
-        return SoundEvents.PILLAGER_HURT;
     }
 }

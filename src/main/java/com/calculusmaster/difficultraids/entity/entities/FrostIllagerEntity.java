@@ -2,6 +2,7 @@ package com.calculusmaster.difficultraids.entity.entities;
 
 import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
 import com.calculusmaster.difficultraids.entity.entities.component.FrostSnowballEntity;
+import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -33,11 +34,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class FrostIllagerEntity extends AbstractSpellcastingIllager
+public class FrostIllagerEntity extends AbstractEvokerVariant
 {
     private int barrageTicks = 0;
 
-    public FrostIllagerEntity(EntityType<? extends AbstractSpellcastingIllager> p_33724_, Level p_33725_)
+    public FrostIllagerEntity(EntityType<? extends AbstractEvokerVariant> p_33724_, Level p_33725_)
     {
         super(p_33724_, p_33725_);
     }
