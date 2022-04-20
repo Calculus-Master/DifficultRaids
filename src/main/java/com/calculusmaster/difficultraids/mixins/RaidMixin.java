@@ -114,25 +114,18 @@ public abstract class RaidMixin
         RaidDifficulty raidDifficulty = RaidDifficulty.current();
         Difficulty worldDifficulty = this.level.getDifficulty();
 
-        if(!raidDifficulty.isDefault())
+        boolean isDefault = raidDifficulty.isDefault();
+        boolean isRegistered = RaidEnemyRegistry.isRaiderTypeRegistered(raiderType.toString());
+        boolean isEnabled = RaidEnemyRegistry.isRaiderTypeEnabled(raiderType.toString());
+
+        //Disable GuardVillagers Illusioner spawns
+        if(!isDefault && DifficultRaidsUtil.isGuardVillagersLoaded() && raiderType.toString().equalsIgnoreCase("thebluemengroup"))
+            callbackInfoReturnable.setReturnValue(0);
+        //Check if the Raider Type is enabled
+        else if(isRegistered && !isEnabled) callbackInfoReturnable.setReturnValue(0);
+        //Add default compatibility with other mods, so if a new raider type isn't in the registry the game won't crash
+        else if(!isDefault && isRegistered)
         {
-            //Guard Villagers also adds Illusioners to Raids - Disable that, so we use our Illusioner wave values
-            if(DifficultRaidsUtil.isGuardVillagersLoaded())
-            {
-                if(raiderType.toString().equalsIgnoreCase("thebluemengroup"))
-                {
-                    callbackInfoReturnable.setReturnValue(0);
-                    return;
-                }
-            }
-
-            //Check if the Raider Type is enabled
-            if(!RaidEnemyRegistry.isEnabled(raiderType.toString()))
-            {
-                callbackInfoReturnable.setReturnValue(0);
-                return;
-            }
-
             //Spawns per wave array
             int[] spawnsPerWave = RaidEnemyRegistry.getWaves(raidDifficulty, raiderType.toString());
             //Selected spawns for the current wave
@@ -146,7 +139,7 @@ public abstract class RaidMixin
             }
 
             //Modifiers based on Player Count
-            baseSpawnCount *= 1 + raidDifficulty.config().playerCountSpawnModifier();
+            baseSpawnCount *= 1 + (this.players * raidDifficulty.config().playerCountSpawnModifier());
 
             callbackInfoReturnable.setReturnValue(baseSpawnCount);
         }

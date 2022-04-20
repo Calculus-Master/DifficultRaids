@@ -35,9 +35,14 @@ public class RaidEnemyRegistry
 
     private static final int[] BLANK = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
 
-    public static boolean isEnabled(String raiderType)
+    public static boolean isRaiderTypeEnabled(String raiderType)
     {
         return !DifficultRaidsConfig.ENABLED_RAIDERS.containsKey(raiderType.toUpperCase()) || DifficultRaidsConfig.ENABLED_RAIDERS.get(raiderType.toUpperCase()).get();
+    }
+
+    public static boolean isRaiderTypeRegistered(String raiderType)
+    {
+        return WAVES.values().stream().anyMatch(re -> re.waves.keySet().stream().anyMatch(raiderType::equalsIgnoreCase));
     }
 
     public static void registerRaiders()
