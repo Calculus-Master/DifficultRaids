@@ -30,11 +30,14 @@ public class RaidEnemyRegistry
     public static final String ASSASSIN = "ASSASSIN_ILLAGER";
     public static final String FROSTMAGE = "FROST_ILLAGER";
 
+    //Mod Compatibility
+    public static final String HUNTER = "HUNTERILLAGER";
+
     private static final int[] BLANK = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
 
     public static boolean isEnabled(String raiderType)
     {
-        return DifficultRaidsConfig.ENABLED_RAIDERS.get(raiderType.toUpperCase()).get();
+        return !DifficultRaidsConfig.ENABLED_RAIDERS.containsKey(raiderType.toUpperCase()) || DifficultRaidsConfig.ENABLED_RAIDERS.get(raiderType.toUpperCase()).get();
     }
 
     public static void registerRaiders()
@@ -63,6 +66,7 @@ public class RaidEnemyRegistry
                 .withRaider(WARRIOR,            new int[]{0, 0, 0, 0, 0, 0, 0, 0})
                 .withRaider(TANK,               new int[]{0, 0, 0, 0, 0, 0, 0, 0})
                 .withRaider(DART,               new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(HUNTER,             new int[]{0, 0, 1, 2, 2, 1, 2, 3})
                 .withRaider(WITCH,              new int[]{0, 0, 0, 0, 3, 0, 0, 1})
                 .withRaider(RAVAGER,            new int[]{0, 0, 0, 1, 0, 1, 0, 2})
                 .withRaider(ILLUSIONER,         new int[]{0, 0, 0, 0, 0, 0, 0, 0})
@@ -80,6 +84,7 @@ public class RaidEnemyRegistry
                 .withRaider(WARRIOR,            new int[]{0, 2, 3, 1, 2, 2, 3, 4})
                 .withRaider(TANK,               new int[]{0, 0, 2, 0, 2, 0, 2, 1})
                 .withRaider(DART,               new int[]{0, 0, 0, 1, 1, 1, 0, 0})
+                .withRaider(HUNTER,             new int[]{0, 1, 2, 2, 2, 2, 2, 3})
                 .withRaider(WITCH,              new int[]{0, 0, 1, 0, 3, 1, 0, 2})
                 .withRaider(RAVAGER,            new int[]{0, 0, 0, 1, 0, 2, 1, 2})
                 .withRaider(ILLUSIONER,         new int[]{0, 0, 1, 0, 0, 0, 1, 0})
@@ -97,6 +102,7 @@ public class RaidEnemyRegistry
                 .withRaider(WARRIOR,            new int[]{0, 2, 4, 2, 3, 2, 4, 4})
                 .withRaider(TANK,               new int[]{0, 0, 2, 1, 2, 1, 2, 1})
                 .withRaider(DART,               new int[]{0, 0, 2, 1, 2, 1, 3, 0})
+                .withRaider(HUNTER,             new int[]{0, 1, 3, 2, 3, 2, 3, 4})
                 .withRaider(WITCH,              new int[]{0, 1, 1, 2, 3, 1, 2, 2})
                 .withRaider(RAVAGER,            new int[]{0, 0, 1, 1, 0, 2, 1, 2})
                 .withRaider(ILLUSIONER,         new int[]{0, 0, 1, 1, 1, 0, 1, 0})
@@ -114,6 +120,7 @@ public class RaidEnemyRegistry
                 .withRaider(WARRIOR,            new int[]{0, 3, 1, 3, 3, 2, 4, 4})
                 .withRaider(TANK,               new int[]{0, 2, 2, 2, 3, 3, 3, 3})
                 .withRaider(DART,               new int[]{0, 0, 2, 2, 2, 2, 3, 4})
+                .withRaider(HUNTER,             new int[]{0, 3, 4, 4, 4, 5, 3, 4})
                 .withRaider(WITCH,              new int[]{0, 1, 3, 5, 4, 5, 3, 3})
                 .withRaider(RAVAGER,            new int[]{0, 1, 1, 1, 0, 3, 1, 3})
                 .withRaider(ILLUSIONER,         new int[]{0, 0, 1, 2, 1, 0, 2, 0})
@@ -131,6 +138,7 @@ public class RaidEnemyRegistry
                 .withRaider(WARRIOR,            new int[]{0, 5, 7, 9, 11, 13, 15, 17})
                 .withRaider(TANK,               new int[]{0, 2, 4, 6, 8, 10, 12, 14})
                 .withRaider(DART,               new int[]{0, 5, 5, 5, 5, 5, 5, 5})
+                .withRaider(HUNTER,             new int[]{0, 5, 8, 10, 8, 12, 8, 16})
                 .withRaider(WITCH,              new int[]{0, 10, 10, 10, 10, 10, 10, 10})
                 .withRaider(RAVAGER,            new int[]{0, 3, 3, 4, 4, 5, 5, 7})
                 .withRaider(ILLUSIONER,         new int[]{0, 5, 5, 5, 5, 5, 5, 5})

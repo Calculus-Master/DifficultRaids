@@ -29,7 +29,7 @@ apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
 
 
-version = '1.1-beta-hotfix-1'
+version = '1.1.1-beta'
 group = 'com.calculusmaster.difficultraids'
 archivesBaseName = 'difficultraids'
 
@@ -164,6 +164,9 @@ dependencies {
 
     //Guard Villagers 1.18.2 1.4.1
     implementation fg.deobf("curse.maven:guardvillagers-360203:3694899")
+
+    //Hunter Illager 1.18.2 4.0.1
+    implementation fg.deobf("curse.maven:hunterillager-318857:3752127")
 }
 
 mixin {

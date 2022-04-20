@@ -15,7 +15,7 @@ import tallestegg.guardvillagers.entities.Guard;
 @Mixin(Guard.class)
 public abstract class GuardMixin extends PathfinderMob
 {
-    protected GuardMixin(EntityType<? extends PathfinderMob> p_21683_, Level p_21684_)
+    private GuardMixin(EntityType<? extends PathfinderMob> p_21683_, Level p_21684_)
     {
         super(p_21683_, p_21684_);
     }

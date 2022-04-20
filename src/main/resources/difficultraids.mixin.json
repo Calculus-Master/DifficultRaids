@@ -13,6 +13,7 @@
     "VillagerMixin",
     "VindicatorMixin",
     "compat.GuardMixin",
+    "compat.HunterIllagerMixin",
     "illusioner.IllusionerBlindnessSpellGoalMixin",
     "illusioner.IllusionerMirrorSpellGoalMixin"
   ],
