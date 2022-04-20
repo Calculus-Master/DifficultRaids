@@ -145,7 +145,7 @@ repositories {
 
 dependencies {
     //Minecraft
-    minecraft 'net.minecraftforge:forge:1.18.2-40.0.24'
+    minecraft 'net.minecraftforge:forge:1.18.2-40.1.0'
 
     // Apply Mixin AP
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
@@ -168,8 +168,8 @@ dependencies {
     //Hunter Illager 1.18.2 4.0.1
     implementation fg.deobf("curse.maven:hunterillager-318857:3752127")
 
-    //Enchant with Mob 1.18.2 4.0.3 TODO: UPDATE FORGE VERSION
-    //runtimeOnly fg.deobf("curse.maven:enchantwithmob-391187:3760042")
+    //Enchant with Mob 1.18.2 4.0.3
+    implementation fg.deobf("curse.maven:enchantwithmob-391187:3760042")
 }
 
 mixin {

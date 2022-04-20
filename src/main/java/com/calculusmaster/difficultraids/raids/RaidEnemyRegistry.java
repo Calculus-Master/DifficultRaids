@@ -32,6 +32,7 @@ public class RaidEnemyRegistry
 
     //Mod Compatibility
     public static final String HUNTER = "HUNTERILLAGER";
+    public static final String ENCHANTER = "ENCHANTER";
 
     private static final int[] BLANK = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -81,6 +82,7 @@ public class RaidEnemyRegistry
                 .withRaider(NECROMANCER,        new int[]{0, 0, 0, 0, 0, 0, 0, 0})
                 .withRaider(FROSTMAGE,          new int[]{0, 0, 0, 0, 0, 0, 0, 0})
                 .withRaider(SHAMAN,             new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(ENCHANTER,          new int[]{0, 0, 1, 0, 1, 1, 2, 1})
                 .register();
 
         RaidEnemyRegistry.createWavesFor(RaidDifficulty.HERO)
@@ -99,6 +101,7 @@ public class RaidEnemyRegistry
                 .withRaider(NECROMANCER,        new int[]{0, 0, 0, 0, 1, 0, 0, 0})
                 .withRaider(FROSTMAGE,          new int[]{0, 0, 0, 0, 0, 1, 0, 0})
                 .withRaider(SHAMAN,             new int[]{0, 0, 0, 0, 0, 1, 1, 1})
+                .withRaider(ENCHANTER,          new int[]{0, 0, 1, 1, 1, 1, 0, 1})
                 .register();
 
         RaidEnemyRegistry.createWavesFor(RaidDifficulty.LEGEND)
@@ -117,6 +120,7 @@ public class RaidEnemyRegistry
                 .withRaider(NECROMANCER,        new int[]{0, 0, 0, 2, 0, 1, 2, 1})
                 .withRaider(FROSTMAGE,          new int[]{0, 0, 0, 0, 2, 2, 0, 1})
                 .withRaider(SHAMAN,             new int[]{0, 0, 1, 1, 1, 2, 2, 3})
+                .withRaider(ENCHANTER,          new int[]{0, 1, 2, 0, 0, 2, 0, 2})
                 .register();
 
         RaidEnemyRegistry.createWavesFor(RaidDifficulty.MASTER)
@@ -135,6 +139,7 @@ public class RaidEnemyRegistry
                 .withRaider(NECROMANCER,        new int[]{0, 1, 0, 3, 1, 2, 0, 3})
                 .withRaider(FROSTMAGE,          new int[]{0, 1, 0, 0, 1, 2, 4, 3})
                 .withRaider(SHAMAN,             new int[]{0, 2, 2, 2, 2, 3, 3, 3})
+                .withRaider(ENCHANTER,          new int[]{0, 1, 1, 1, 1, 1, 1, 3})
                 .register();
 
         RaidEnemyRegistry.createWavesFor(RaidDifficulty.APOCALYPSE)
@@ -153,6 +158,7 @@ public class RaidEnemyRegistry
                 .withRaider(NECROMANCER,        new int[]{0, 5, 5, 5, 5, 5, 5, 5})
                 .withRaider(FROSTMAGE,          new int[]{0, 5, 5, 5, 5, 5, 5, 5})
                 .withRaider(SHAMAN,             new int[]{0, 8, 8, 8, 8, 8, 8, 8})
+                .withRaider(ENCHANTER,          new int[]{0, 4, 6, 4, 3, 4, 3, 7})
                 .register();
 
         //TODO: Look into using Reflection instead
