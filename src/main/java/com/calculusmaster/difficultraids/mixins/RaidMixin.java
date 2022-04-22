@@ -20,16 +20,19 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raid;
+import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -50,6 +53,8 @@ public abstract class RaidMixin
 
     @Shadow public abstract boolean isVictory();
     @Shadow public abstract boolean isLoss();
+
+    @Shadow public abstract void joinRaid(int p_37714_, Raider p_37715_, @Nullable BlockPos p_37716_, boolean p_37717_);
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -197,6 +202,21 @@ public abstract class RaidMixin
 
             this.level.addFreshEntity(wither);
         }
+    }
+
+    @ModifyVariable(at = @At("HEAD"), method = "joinRaid", ordinal = 0, argsOnly = true)
+    private BlockPos difficultraids_randomizeSpawnPos(BlockPos spawnPos)
+    {
+        if(spawnPos != null)
+        {
+            BlockPos spawnOffset;
+            int tries = 0;
+            do { spawnOffset = spawnPos.offset(this.random.nextInt(7) - 3, 0, this.random.nextInt(7) - 3); }
+            while(!this.level.getBlockState(spawnOffset).isAir() && ++tries < 3);
+
+            return spawnOffset;
+        }
+        else return spawnPos;
     }
 
     /**

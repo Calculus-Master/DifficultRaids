@@ -1,5 +1,6 @@
 package com.calculusmaster.difficultraids.setup;
 
+import com.calculusmaster.difficultraids.DifficultRaids;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.raids.RaidEnemyRegistry;
 import com.electronwill.nightconfig.core.EnumGetMethod;
@@ -62,6 +63,9 @@ public class DifficultRaidsConfig
         ENABLED_RAIDERS.put(RaidEnemyRegistry.ASSASSIN, SERVER.comment("Determines if Assassins will show up in Raids.").define("enableAssassins", true));
         ENABLED_RAIDERS.put(RaidEnemyRegistry.FROSTMAGE, SERVER.comment("Determines if Frostmages will show up in Raids.").define("enableFrostmages", true));
 
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.HUNTER, SERVER.comment("(IF HunterIllager IS INSTALLED) Determines if Hunters will show up in Raids.").define("enableHunters", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.ENCHANTER, SERVER.comment("(IF EnchantWithMob IS INSTALLED) Determines if Enchanters will show up in Raids.").define("enableEnchanters", true));
+
         SERVER.pop();
 
         //Raid Difficulty specific
@@ -69,8 +73,9 @@ public class DifficultRaidsConfig
         for(RaidDifficulty raidDifficulty : RaidDifficulty.values())
         {
             RaidDifficultyConfig config = new RaidDifficultyConfig();
+            ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 
-            SERVER.push(raidDifficulty.getFormattedName());
+            BUILDER.comment("Adjust settings for " + raidDifficulty.getFormattedName() + " Difficulty Raids.");
 
             //Reinforcement Chance
             int default_reinforcementChance = switch(raidDifficulty) {
@@ -81,7 +86,7 @@ public class DifficultRaidsConfig
                 default -> 0;
             };
 
-            config.reinforcementChance = SERVER
+            config.reinforcementChance = BUILDER
                     .comment("Determines the chance that Reinforcements will spawn on any wave of a Raid.")
                     .defineInRange("reinforcementChance", default_reinforcementChance, 0, 100);
 
@@ -94,7 +99,7 @@ public class DifficultRaidsConfig
                 default -> 0.0;
             };
 
-            config.playerCountSpawnModifier = SERVER
+            config.playerCountSpawnModifier = BUILDER
                     .comment("Determines the % increase in spawn counts per wave based on the number of players participating in the Raid.")
                     .defineInRange("playerCountSpawnModifier", default_playerCountSpawnModifier, 0.0, 100.0);
 
@@ -107,7 +112,7 @@ public class DifficultRaidsConfig
                 default -> 0;
             };
 
-            config.armorChance = SERVER
+            config.armorChance = BUILDER
                     .comment("Determines the chance that an individual Raider will be wearing some armor during a Raid.")
                     .defineInRange("armorChance", default_armorChance, 0, 100);
 
@@ -118,7 +123,7 @@ public class DifficultRaidsConfig
                 default -> 0;
             };
 
-            config.maxArmorPieces = SERVER
+            config.maxArmorPieces = BUILDER
                     .comment("Determines the maximum pieces of armor Raiders can have equipped.")
                     .defineInRange("maxArmorPieces", default_maxArmorPieces, 0, 4);
 
@@ -131,7 +136,7 @@ public class DifficultRaidsConfig
                 default -> List.of();
             };
 
-            config.validArmorTiers = SERVER
+            config.validArmorTiers = BUILDER
                     .comment("Valid tiers of armor that Raiders can have equipped during Raids. Valid values: LEATHER, CHAIN, IRON, DIAMOND, NETHERITE (Case-Sensitive!).")
                     .defineList("validArmorTiers", default_validArmorTiers, o -> List.of("LEATHER", "CHAIN", "IRON", "DIAMOND", "NETHERITE").contains(o.toString()));
 
@@ -144,7 +149,7 @@ public class DifficultRaidsConfig
                 default -> 0;
             };
 
-            config.protectionChance = SERVER
+            config.protectionChance = BUILDER
                     .comment("Determines the chance that Raider armor will be enchanted with Protection.")
                     .defineInRange("protectionChance", default_protectionChance, 0, 100);
 
@@ -157,18 +162,18 @@ public class DifficultRaidsConfig
                 default -> new Tuple<>(0, 0);
             };
 
-            config.minProtectionLevel = SERVER
+            config.minProtectionLevel = BUILDER
                     .comment("The maximum level of Protection that any Raider's armor will be enchanted with.")
                     .defineInRange("minProtectionLevel", default_protectionLevel.getA(), 0, 10);
 
-            config.maxProtectionLevel = SERVER
+            config.maxProtectionLevel = BUILDER
                     .comment("The minimum level of Protection that any Raider's armor will be enchanted with.")
                     .defineInRange("maxProtectionLevel", default_protectionLevel.getB(), 0, 10);
 
             //Mob-Based Config
 
             //Assassin
-            SERVER.comment("Change settings regarding the Assassin Illager Entity during Raids.").push("Assassin Illager");
+            BUILDER.comment("Change settings regarding the Assassin Illager Entity during Raids.").push("Assassin Illager");
             config.assassinConfig = new AssassinIllagerConfig();
 
                 int default_assassin_sharpnessLevel = switch(raidDifficulty) {
@@ -178,14 +183,14 @@ public class DifficultRaidsConfig
                     default -> 0;
                 };
 
-                config.assassinConfig.sharpnessLevel = SERVER
+                config.assassinConfig.sharpnessLevel = BUILDER
                         .comment("Determines the level of Sharpness that Assassin Illager Swords will be enchanted with.")
                         .defineInRange("assassinSharpnessLevel", default_assassin_sharpnessLevel, 0, 10);
 
-            SERVER.pop();
+            BUILDER.pop();
 
             //Dart
-            SERVER.comment("Change settings regarding the Dart Illager Entity during Raids.").push("Dart Illager");
+            BUILDER.comment("Change settings regarding the Dart Illager Entity during Raids.").push("Dart Illager");
             config.dartConfig = new DartIllagerConfig();
 
                 int default_dart_sharpnessLevel = switch(raidDifficulty) {
@@ -196,14 +201,14 @@ public class DifficultRaidsConfig
                     default -> 0;
                 };
 
-                config.dartConfig.sharpnessLevel = SERVER
+                config.dartConfig.sharpnessLevel = BUILDER
                         .comment("Determines the level of Sharpness that Dart Illager Swords will be enchanted with.")
                         .defineInRange("dartSharpnessLevel", default_dart_sharpnessLevel, 0, 10);
 
-            SERVER.pop();
+            BUILDER.pop();
 
             //Electro
-            SERVER.comment("Change settings regarding the Electro Illager Entity during Raids.").push("Electro Illager");
+            BUILDER.comment("Change settings regarding the Electro Illager Entity during Raids.").push("Electro Illager");
             config.electroConfig = new ElectroIllagerConfig();
 
                 double default_electro_concentratedBoltDamage = switch(raidDifficulty) {
@@ -214,7 +219,7 @@ public class DifficultRaidsConfig
                     default -> 18.0F;
                 };
 
-                config.electroConfig.concentratedBoltDamage = SERVER
+                config.electroConfig.concentratedBoltDamage = BUILDER
                         .comment("The damage that the Electro Illager's Concentrated Bolt spell deals.")
                         .defineInRange("electroConcentratedBoltDamage", default_electro_concentratedBoltDamage, 0.1, Double.MAX_VALUE);
 
@@ -226,20 +231,20 @@ public class DifficultRaidsConfig
                     default -> 3;
                 };
 
-                config.electroConfig.genericLightningStrikeCount = SERVER
+                config.electroConfig.genericLightningStrikeCount = BUILDER
                         .comment("Determines the number of lightning strikes generated by the Electro Illager's Generic Lightning attack.")
                         .defineInRange("electroGenericLightningStrikeCount", default_electro_genericLightningStrikeCount, 1, Integer.MAX_VALUE);
 
                 boolean default_electro_extraRingBolts = raidDifficulty.is(RaidDifficulty.MASTER, RaidDifficulty.APOCALYPSE);
 
-                config.electroConfig.extraRingBolts = SERVER
+                config.electroConfig.extraRingBolts = BUILDER
                         .comment("If true, Electro Illagers will summon a second set of Lightning Bolts during their Ring Lightning attack.")
                         .define("electroExtraRingBolts", default_electro_extraRingBolts);
 
-            SERVER.pop();
+            BUILDER.pop();
 
             //Frost
-            SERVER.comment("Change settings regarding the Frost Illager Entity during Raids.").push("Frost Illager");
+            BUILDER.comment("Change settings regarding the Frost Illager Entity during Raids.").push("Frost Illager");
             config.frostConfig = new FrostIllagerConfig();
 
                 float default_frost_snowballBlastDamage = switch(raidDifficulty) {
@@ -250,7 +255,7 @@ public class DifficultRaidsConfig
                     default -> 1.5F;
                 };
 
-                config.frostConfig.snowballBlastDamage = SERVER
+                config.frostConfig.snowballBlastDamage = BUILDER
                         .comment("Determines the damage of individual snowballs in the Frost Illager's Snowball Blast attack")
                         .defineInRange("frostSnowballBlastDamage", default_frost_snowballBlastDamage, 0.1, Double.MAX_VALUE);
 
@@ -262,7 +267,7 @@ public class DifficultRaidsConfig
                     default -> 20 * 3;
                 };
 
-                config.frostConfig.barrageDuration = SERVER
+                config.frostConfig.barrageDuration = BUILDER
                         .comment("Determines the duration of the Frost Illager's Barrage attack, in ticks (20 ticks = 1 second).")
                         .defineInRange("frostBarrageDuration", default_frost_barrageDuration, 1, Integer.MAX_VALUE);
 
@@ -274,14 +279,14 @@ public class DifficultRaidsConfig
                     default -> 20 * 4;
                 };
 
-                config.frostConfig.freezeDuration = SERVER
+                config.frostConfig.freezeDuration = BUILDER
                         .comment("Determines the duration of the Frost Illager's Freeze attack, in ticks (20 ticks = 1 second). Mining Fatigue duration will be 1/4 of this value.")
                         .defineInRange("frostFreezeDuration", default_frost_freezeDuration, 1, Integer.MAX_VALUE);
 
-            SERVER.pop();
+            BUILDER.pop();
 
             //Necromancer
-            SERVER.comment("Change settings regarding the Necromancer Illager Entity during Raids.").push("Necromancer Illager");
+            BUILDER.comment("Change settings regarding the Necromancer Illager Entity during Raids.").push("Necromancer Illager");
             config.necromancerConfig = new NecromancerIllagerConfig();
 
                 int default_necromancer_minionSummonCount = switch(raidDifficulty) {
@@ -292,7 +297,7 @@ public class DifficultRaidsConfig
                     default -> 0;
                 };
 
-                config.necromancerConfig.minionSummonCount = SERVER
+                config.necromancerConfig.minionSummonCount = BUILDER
                         .comment("The number of mobs spawned when the Necromancer uses its Summon Minions attack.")
                         .defineInRange("necromancerMinionSummonCount", default_necromancer_minionSummonCount, 0, Integer.MAX_VALUE);
 
@@ -304,7 +309,7 @@ public class DifficultRaidsConfig
                     default -> 0;
                 };
 
-                config.necromancerConfig.minionProtectionLevel = SERVER
+                config.necromancerConfig.minionProtectionLevel = BUILDER
                         .comment("The maximum level of Protection a Summoned Minion's armor will be enchanted with. The actual level of Protection will randomly chosen between 1 and this value. 0 removes this enchantment from Minion armor.")
                         .defineInRange("minionProtectionLevel", default_necromancer_minionProtectionLevel, 0, 10);
 
@@ -316,7 +321,7 @@ public class DifficultRaidsConfig
                     default -> 5;
                 };
 
-                config.necromancerConfig.hordeSize = SERVER
+                config.necromancerConfig.hordeSize = BUILDER
                         .comment("The number of mobs spawned when the Necromancer uses its Summon Horde attack.")
                         .defineInRange("necromancerHordeSize", default_necromancer_hordeSize, 0, Integer.MAX_VALUE);
 
@@ -328,14 +333,14 @@ public class DifficultRaidsConfig
                     default -> 20 * 15;
                 };
 
-                config.necromancerConfig.hordeLifetime = SERVER
+                config.necromancerConfig.hordeLifetime = BUILDER
                         .comment("How long Necromancer Summoned Hordes will be alive before dying automatically, in ticks (20 ticks = 1 second).")
                         .defineInRange("necromancerHordeLifetime", default_necromancer_hordeLifetime, 0, Integer.MAX_VALUE);
 
-            SERVER.pop();
+            BUILDER.pop();
 
             //Shaman
-            SERVER.comment("Change settings regarding the Shaman Illager Entity during Raids.").push("Shaman Illager");
+            BUILDER.comment("Change settings regarding the Shaman Illager Entity during Raids.").push("Shaman Illager");
             config.shamanConfig = new ShamanIllagerConfig();
 
                 int default_shaman_debuffAmount = switch(raidDifficulty) {
@@ -346,7 +351,7 @@ public class DifficultRaidsConfig
                     default -> 1;
                 };
 
-                config.shamanConfig.debuffAmount = SERVER
+                config.shamanConfig.debuffAmount = BUILDER
                         .comment("The amount of debuffs the Shaman will inflict during its primary attack.")
                         .defineInRange("shamanDebuffAmount", default_shaman_debuffAmount, 0, 6);
 
@@ -358,7 +363,7 @@ public class DifficultRaidsConfig
                     default -> 20;
                 };
 
-                config.shamanConfig.nauseaDuration = SERVER
+                config.shamanConfig.nauseaDuration = BUILDER
                         .comment("Duration of the Nausea Effect inflicted by the Shaman, in ticks (20 ticks = 1 second).")
                         .defineInRange("shamanNauseaDuration", default_shaman_nauseaDuration, 0, Integer.MAX_VALUE);
 
@@ -369,7 +374,7 @@ public class DifficultRaidsConfig
                     default -> 60;
                 };
 
-                config.shamanConfig.slownessDuration = SERVER
+                config.shamanConfig.slownessDuration = BUILDER
                         .comment("Duration of the Slowness Effect inflicted by the Shaman, in ticks (20 ticks = 1 second).")
                         .defineInRange("shamanSlownessDuration", default_shaman_slownessDuration, 0, Integer.MAX_VALUE);
 
@@ -379,7 +384,7 @@ public class DifficultRaidsConfig
                     default -> 1;
                 };
 
-                config.shamanConfig.slownessAmplifier = SERVER
+                config.shamanConfig.slownessAmplifier = BUILDER
                         .comment("Amplifier of the Slowness Effect inflicted by the Shaman, in ticks (20 ticks = 1 second).")
                         .defineInRange("shamanSlownessAmplifier", default_shaman_slownessAmplifier, 0, Integer.MAX_VALUE);
 
@@ -390,7 +395,7 @@ public class DifficultRaidsConfig
                     default -> 40;
                 };
 
-                config.shamanConfig.miningFatigueDuration = SERVER
+                config.shamanConfig.miningFatigueDuration = BUILDER
                         .comment("Duration of the Mining Fatigue Effect inflicted by the Shaman, in ticks (20 ticks = 1 second).")
                         .defineInRange("shamanMiningFatigueDuration", default_shaman_MiningFatigueDuration, 0, Integer.MAX_VALUE);
 
@@ -400,7 +405,7 @@ public class DifficultRaidsConfig
                     default -> 1;
                 };
 
-                config.shamanConfig.miningFatigueAmplifier = SERVER
+                config.shamanConfig.miningFatigueAmplifier = BUILDER
                         .comment("Amplifier of the Mining Fatigue Effect inflicted by the Shaman, in ticks (20 ticks = 1 second).")
                         .defineInRange("shamanMiningFatigueAmplifier", default_shaman_miningFatigueAmplifier, 0, Integer.MAX_VALUE);
 
@@ -410,7 +415,7 @@ public class DifficultRaidsConfig
                     default -> 50;
                 };
 
-                config.shamanConfig.poisonDuration = SERVER
+                config.shamanConfig.poisonDuration = BUILDER
                         .comment("Duration of the Poison Effect inflicted by the Shaman, in ticks (20 ticks = 1 second).")
                         .defineInRange("shamanPoisonDuration", default_shaman_poisonDuration, 0, Integer.MAX_VALUE);
 
@@ -422,7 +427,7 @@ public class DifficultRaidsConfig
                     default -> 1;
                 };
 
-                config.shamanConfig.poisonAmplifier = SERVER
+                config.shamanConfig.poisonAmplifier = BUILDER
                         .comment("Amplifier of the Poison Effect inflicted by the Shaman, in ticks (20 ticks = 1 second).")
                         .defineInRange("shamanPoisonAmplifier", default_shaman_poisonAmplifier, 0, Integer.MAX_VALUE);
 
@@ -434,7 +439,7 @@ public class DifficultRaidsConfig
                     default -> 20;
                 };
 
-                config.shamanConfig.levitationDuration = SERVER
+                config.shamanConfig.levitationDuration = BUILDER
                         .comment("Duration of the Levitation Effect inflicted by the Shaman, in ticks (20 ticks = 1 second).")
                         .defineInRange("shamanLevitationDuration", default_shaman_levitationDuration, 0, Integer.MAX_VALUE);
 
@@ -446,7 +451,7 @@ public class DifficultRaidsConfig
                     default -> 20;
                 };
 
-                config.shamanConfig.weaknessDuration = SERVER
+                config.shamanConfig.weaknessDuration = BUILDER
                         .comment("Weakness of the Weakness Effect inflicted by the Shaman, in ticks (20 ticks = 1 second).")
                         .defineInRange("shamanWeaknessDuration", default_shaman_weaknessDuration, 0, Integer.MAX_VALUE);
 
@@ -457,7 +462,7 @@ public class DifficultRaidsConfig
                     default -> 1;
                 };
 
-                config.shamanConfig.weaknessAmplifier = SERVER
+                config.shamanConfig.weaknessAmplifier = BUILDER
                         .comment("Amplifier of the Weakness Effect inflicted by the Shaman, in ticks (20 ticks = 1 second).")
                         .defineInRange("shamanWeaknessAmplifier", default_shaman_weaknessAmplifier, 0, Integer.MAX_VALUE);
 
@@ -469,7 +474,7 @@ public class DifficultRaidsConfig
                     default -> 3.0F;
                 };
 
-                config.shamanConfig.buffRadius = SERVER
+                config.shamanConfig.buffRadius = BUILDER
                         .comment("The maximum radius of the Shaman's boost attacks. All raiders within this radius of the Shaman will receive boosts.")
                         .defineInRange("shamanBuffRadius", default_shaman_buffRadius, 0, Double.MAX_VALUE);
 
@@ -480,7 +485,7 @@ public class DifficultRaidsConfig
                     default -> 40;
                 };
 
-                config.shamanConfig.allyResistanceDuration = SERVER
+                config.shamanConfig.allyResistanceDuration = BUILDER
                         .comment("The duration of the Resistance Effect that the Shaman gives its allies.")
                         .defineInRange("shamanAllyResistanceDuration", default_shaman_allyResistanceDuration, 0, Integer.MAX_VALUE);
 
@@ -490,7 +495,7 @@ public class DifficultRaidsConfig
                     default -> 1;
                 };
 
-                config.shamanConfig.allyResistanceAmplifier = SERVER
+                config.shamanConfig.allyResistanceAmplifier = BUILDER
                         .comment("The amplifier of the Resistance Effect that the Shaman gives its allies.")
                         .defineInRange("shamanAllyResistanceAmplifier", default_shaman_allyResistanceAmplifier, 0, Integer.MAX_VALUE);
 
@@ -500,7 +505,7 @@ public class DifficultRaidsConfig
                     default -> 120;
                 };
 
-                config.shamanConfig.allyStrengthDuration = SERVER
+                config.shamanConfig.allyStrengthDuration = BUILDER
                         .comment("The duration of the Strength Effect that the Shaman gives its allies.")
                         .defineInRange("shamanAllyStrengthDuration", default_shaman_allyStrengthDuration, 0, Integer.MAX_VALUE);
 
@@ -510,14 +515,14 @@ public class DifficultRaidsConfig
                     default -> 1;
                 };
 
-                config.shamanConfig.allyStrengthAmplifier = SERVER
+                config.shamanConfig.allyStrengthAmplifier = BUILDER
                         .comment("The amplifier of the Strength Effect that the Shaman gives its allies.")
                         .defineInRange("shamanAllyStrengthAmplifier", default_shaman_allyStrengthAmplifier, 0, Integer.MAX_VALUE);
 
-            SERVER.pop();
+            BUILDER.pop();
 
             //Tank
-            SERVER.comment("Change settings regarding the Tank Illager Entity during Raids.").push("Tank Illager");
+            BUILDER.comment("Change settings regarding the Tank Illager Entity during Raids.").push("Tank Illager");
             config.tankConfig = new TankIllagerConfig();
 
                 int default_tank_protectionLevel = switch(raidDifficulty) {
@@ -528,7 +533,7 @@ public class DifficultRaidsConfig
                     default -> 1;
                 };
 
-                config.tankConfig.protectionLevel = SERVER
+                config.tankConfig.protectionLevel = BUILDER
                         .comment("Determines the level of Protection that Tank Illager armor will be enchanted with. 0 to disable.")
                         .defineInRange("tankProtectionLevel", default_tank_protectionLevel, 0, 10);
 
@@ -539,14 +544,14 @@ public class DifficultRaidsConfig
                     default -> 0;
                 };
 
-                config.tankConfig.thornsLevel = SERVER
+                config.tankConfig.thornsLevel = BUILDER
                         .comment("Determines the level of Thorns that Tank Illager armor will be enchanted with. 0 to disable.")
                         .defineInRange("tankThornsLevel", default_tank_thornsLevel, 0, 10);
 
-            SERVER.pop();
+            BUILDER.pop();
 
             //Warrior
-            SERVER.comment("Change settings regarding the Warrior Illager Entity during Raids.").push("Warrior Illager");
+            BUILDER.comment("Change settings regarding the Warrior Illager Entity during Raids.").push("Warrior Illager");
             config.warriorConfig = new WarriorIllagerConfig();
 
                 List<String> default_warrior_possibleSwords = switch(raidDifficulty) {
@@ -557,7 +562,7 @@ public class DifficultRaidsConfig
                     default -> List.of("STONE");
                 };
 
-                config.warriorConfig.possibleSwords = SERVER
+                config.warriorConfig.possibleSwords = BUILDER
                         .comment("Determines the possible swords that Warrior Illagers can have equipped during Raids. Valid Swords: STONE, GOLD, IRON, DIAMOND, NETHERITE (Case-Sensitive!).")
                         .defineList("warriorPossibleSwords", default_warrior_possibleSwords, o -> List.of("STONE", "GOLD", "IRON", "DIAMOND", "NETHERITE").contains(o.toString()));
 
@@ -569,7 +574,7 @@ public class DifficultRaidsConfig
                     default -> 0;
                 };
 
-                config.warriorConfig.sharpnessChance = SERVER
+                config.warriorConfig.sharpnessChance = BUILDER
                         .comment("Determines the chance that Warrior Illager swords will be enchanted with some level of Sharpness.")
                         .defineInRange("warriorSharpnessChance", default_warrior_sharpnessChance, 0, 100);
 
@@ -581,11 +586,11 @@ public class DifficultRaidsConfig
                     default -> new Tuple<>(0, 0);
                 };
 
-                config.warriorConfig.minSharpnessLevel = SERVER
+                config.warriorConfig.minSharpnessLevel = BUILDER
                         .comment("The minimum level of Sharpness that Warrior Illager swords will be enchanted with.")
                         .defineInRange("warriorMinSharpnessLevel", default_warrior_sharpnessLevel.getA(), 1, 10);
 
-                config.warriorConfig.maxSharpnessLevel = SERVER
+                config.warriorConfig.maxSharpnessLevel = BUILDER
                         .comment("The maximum level of Sharpness that Warrior Illager swords will be enchanted with.")
                         .defineInRange("warriorMaxSharpnessLevel", default_warrior_sharpnessLevel.getB(), 1, 10);
 
@@ -597,7 +602,7 @@ public class DifficultRaidsConfig
                     default -> 0;
                 };
 
-                config.warriorConfig.fireAspectChance = SERVER
+                config.warriorConfig.fireAspectChance = BUILDER
                         .comment("Determines the chance that Warrior Illager swords will be enchanted with some level of Fire Aspect.")
                         .defineInRange("warriorFireAspectChance", default_warrior_fireAspectChance, 0, 100);
 
@@ -608,7 +613,7 @@ public class DifficultRaidsConfig
                     default -> 0;
                 };
 
-                config.warriorConfig.fireAspectLevel = SERVER
+                config.warriorConfig.fireAspectLevel = BUILDER
                         .comment("The level of Fire Aspect that Warrior Illager swords will be enchanted with.")
                         .defineInRange("warriorFireAspectLevel", default_warrior_fireAspectLevel, 1, 10);
 
@@ -620,7 +625,7 @@ public class DifficultRaidsConfig
                     default -> 0;
                 };
 
-                config.warriorConfig.knockbackChance = SERVER
+                config.warriorConfig.knockbackChance = BUILDER
                         .comment("Determines the chance that Warrior Illager swords will be enchanted with some level of Knockback.")
                         .defineInRange("warriorKnockbackChance", default_warrior_knockbackChance, 0, 100);
 
@@ -631,14 +636,11 @@ public class DifficultRaidsConfig
                     default -> 0;
                 };
 
-                config.warriorConfig.knockbackLevel = SERVER
+                config.warriorConfig.knockbackLevel = BUILDER
                         .comment("The level of Knockback that Warrior Illager swords will be enchanted with.")
                         .defineInRange("warriorKnockbackLevel", default_warrior_knockbackLevel, 1, 10);
 
-            SERVER.pop();
-
-            //Exit Pop
-            SERVER.pop();
+            BUILDER.pop();
 
             //Assign the relevant objects
             switch(raidDifficulty)
@@ -649,9 +651,11 @@ public class DifficultRaidsConfig
                 case MASTER -> MASTER_CONFIG = config;
                 case APOCALYPSE -> APOCALYPSE_CONFIG = config;
             }
+
+            ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, BUILDER.build(), DifficultRaids.MODID + "/difficulty-" + raidDifficulty.toString().toLowerCase() + ".toml");
         }
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, SERVER.build());
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, SERVER.build(), DifficultRaids.MODID + "/general.toml");
     }
 
     public static class RaidDifficultyConfig

@@ -340,7 +340,6 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
         }
     }
 
-    //TODO: Disable the fire spawning from Electro Illager Lightning Bolts -> Either mixin to LightningBolt.class or create a Custom lightningbolt class
     private class ElectroIllagerRingLightningSpellGoal extends SpellcastingIllagerUseSpellGoal
     {
         private ElectroIllagerRingLightningSpellGoal() {}

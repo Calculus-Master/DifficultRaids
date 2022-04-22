@@ -74,7 +74,6 @@ public class WarriorIllagerEntity extends AbstractVindicatorVariant
     {
         RaidDifficulty raidDifficulty = RaidDifficulty.current();
 
-        //TODO: DR RaidDifficulty Raids versus Normal Vanilla Raids (RaidDifficulty.DEFAULT)
         List<Item> swordPool = raidDifficulty.config().warrior().possibleSwords();
         ItemStack sword = new ItemStack(swordPool.get(this.random.nextInt(swordPool.size())));
 

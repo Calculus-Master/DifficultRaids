@@ -69,7 +69,6 @@ public class TankIllagerEntity extends AbstractVindicatorVariant
     public void applyRaidBuffs(int p_37844_, boolean p_37845_)
     {
         RaidDifficulty raidDifficulty = RaidDifficulty.current();
-        //TODO: DR RaidDifficulty Raids versus Normal Vanilla Raids (RaidDifficulty.DEFAULT)
         this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.STONE_SWORD));
 
         ItemStack helmet = null, chestplate = null, leggings = null, boots = null;

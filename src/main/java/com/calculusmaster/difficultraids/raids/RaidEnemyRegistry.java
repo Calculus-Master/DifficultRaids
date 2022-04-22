@@ -86,9 +86,9 @@ public class RaidEnemyRegistry
                 .register();
 
         RaidEnemyRegistry.createWavesFor(RaidDifficulty.HERO)
-                .withRaider(PILLAGER,           new int[]{0, 5, 4, 4, 5, 5, 5, 3})
-                .withRaider(VINDICATOR,         new int[]{0, 2, 3, 1, 2, 3, 3, 4})
-                .withRaider(WARRIOR,            new int[]{0, 2, 3, 1, 2, 2, 3, 4})
+                .withRaider(PILLAGER,           new int[]{0, 4, 3, 3, 4, 5, 5, 3})
+                .withRaider(VINDICATOR,         new int[]{0, 2, 1, 1, 2, 3, 1, 2})
+                .withRaider(WARRIOR,            new int[]{0, 2, 1, 1, 2, 1, 3, 2})
                 .withRaider(TANK,               new int[]{0, 0, 2, 0, 2, 0, 2, 1})
                 .withRaider(DART,               new int[]{0, 0, 0, 1, 1, 1, 0, 0})
                 .withRaider(HUNTER,             new int[]{0, 1, 2, 2, 2, 2, 2, 3})
@@ -105,9 +105,9 @@ public class RaidEnemyRegistry
                 .register();
 
         RaidEnemyRegistry.createWavesFor(RaidDifficulty.LEGEND)
-                .withRaider(PILLAGER,           new int[]{0, 6, 5, 5, 5, 5, 5, 4})
-                .withRaider(VINDICATOR,         new int[]{0, 2, 3, 2, 3, 3, 3, 5})
-                .withRaider(WARRIOR,            new int[]{0, 2, 4, 2, 3, 2, 4, 4})
+                .withRaider(PILLAGER,           new int[]{0, 4, 3, 3, 4, 5, 5, 3})
+                .withRaider(VINDICATOR,         new int[]{0, 2, 3, 1, 3, 4, 2, 3})
+                .withRaider(WARRIOR,            new int[]{0, 2, 2, 3, 3, 1, 4, 4})
                 .withRaider(TANK,               new int[]{0, 0, 2, 1, 2, 1, 2, 1})
                 .withRaider(DART,               new int[]{0, 0, 2, 1, 2, 1, 3, 0})
                 .withRaider(HUNTER,             new int[]{0, 1, 3, 2, 3, 2, 3, 4})
