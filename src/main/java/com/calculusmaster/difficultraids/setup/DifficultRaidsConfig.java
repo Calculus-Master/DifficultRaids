@@ -235,10 +235,10 @@ public class DifficultRaidsConfig
             config.frostConfig = new FrostIllagerConfig();
 
                 float default_frost_snowballBlastDamage = switch(raidDifficulty) {
-                    case HERO -> 2.5F;
-                    case LEGEND -> 3.5F;
-                    case MASTER -> 5.0F;
-                    case APOCALYPSE -> 8.0F;
+                    case HERO -> 3.5F;
+                    case LEGEND -> 5.5F;
+                    case MASTER -> 7.0F;
+                    case APOCALYPSE -> 10.0F;
                     default -> 1.5F;
                 };
 

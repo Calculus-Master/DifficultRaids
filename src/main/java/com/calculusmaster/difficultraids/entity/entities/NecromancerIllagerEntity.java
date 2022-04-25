@@ -141,6 +141,7 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
             {
                 target.hurt(pSource, deflectedDamage);
                 pAmount -= deflectedDamage;
+                this.playSound(SoundEvents.GLASS_PLACE, 1.5F, 0.9F);
             }
         }
 

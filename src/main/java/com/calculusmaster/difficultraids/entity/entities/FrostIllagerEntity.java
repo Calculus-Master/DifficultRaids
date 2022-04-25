@@ -122,6 +122,12 @@ public class FrostIllagerEntity extends AbstractEvokerVariant
         nearbyVillagers.forEach(v -> v.addEffect(slowness.get()));
         nearbyGolems.forEach(g -> g.addEffect(slowness.get()));
 
+        if(DifficultRaidsUtil.isGuardVillagersLoaded())
+        {
+            List<Guard> nearbyGuards = this.level.getEntitiesOfClass(Guard.class, checkRadius, g -> !g.hasEffect(MobEffects.MOVEMENT_SLOWDOWN));
+            nearbyGuards.forEach(g -> g.addEffect(slowness.get()));
+        }
+
         //Barrage
         if(this.barrageTicks > 0)
         {
@@ -196,9 +202,9 @@ public class FrostIllagerEntity extends AbstractEvokerVariant
                     case HARD -> 0.5F;
                 } : switch(FrostIllagerEntity.this.level.getDifficulty()) {
                     case PEACEFUL -> 0.0F;
-                    case EASY -> 0.75F;
-                    case NORMAL -> 1.3F;
-                    case HARD -> 2.0F;
+                    case EASY -> 4.75F;
+                    case NORMAL -> 6.5F;
+                    case HARD -> 8.0F;
                 };
 
                 for(int i = 0; i < size; i++)
@@ -214,7 +220,7 @@ public class FrostIllagerEntity extends AbstractEvokerVariant
                     double targetZ = target.getZ() - FrostIllagerEntity.this.getZ();
                     double distanceY = Math.sqrt(targetX * targetX + targetZ * targetZ) * (double)0.2F;
 
-                    snowball.shoot(targetX, targetSnowballY + distanceY, targetZ, 1.6F, 6.0F);
+                    snowball.shoot(targetX, targetSnowballY + distanceY, targetZ, 1.6F, 3.0F);
                     FrostIllagerEntity.this.level.addFreshEntity(snowball);
                 }
             }
@@ -229,19 +235,19 @@ public class FrostIllagerEntity extends AbstractEvokerVariant
         @Override
         protected int getCastingTime()
         {
-            return 30;
+            return 15;
         }
 
         @Override
         protected int getCastingInterval()
         {
-            return 80;
+            return 60;
         }
 
         @Override
         protected int getCastWarmupTime()
         {
-            return 20;
+            return 5;
         }
 
         @Nullable

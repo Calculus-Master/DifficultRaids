@@ -2,10 +2,13 @@ package com.calculusmaster.difficultraids.entity.entities;
 
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractVindicatorVariant;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
+import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -36,6 +39,7 @@ import java.util.Map;
 public class DartIllagerEntity extends AbstractVindicatorVariant
 {
     private static final AttributeModifier LAST_RESORT_MOVEMENT_BOOST = new AttributeModifier("last_resort_movement_boost", 1.5, AttributeModifier.Operation.MULTIPLY_BASE);
+    private static final AttributeModifier CONDUCTOR_LIGHTNING_MOVEMENT_BOOST = new AttributeModifier("conductor_lightining_movement_boost", 1.2, AttributeModifier.Operation.MULTIPLY_TOTAL);
 
     public DartIllagerEntity(EntityType<? extends AbstractIllager> p_32105_, Level p_32106_)
     {
@@ -47,7 +51,7 @@ public class DartIllagerEntity extends AbstractVindicatorVariant
         return Monster.createMonsterAttributes()
                 .add(Attributes.MOVEMENT_SPEED, 0.60F)
                 .add(Attributes.FOLLOW_RANGE, 18.0D)
-                .add(Attributes.MAX_HEALTH, 10.0D)
+                .add(Attributes.MAX_HEALTH, 12.0D)
                 .add(Attributes.ATTACK_DAMAGE, 5.0D);
     }
 
@@ -73,6 +77,18 @@ public class DartIllagerEntity extends AbstractVindicatorVariant
         this.goalSelector.addGoal(8, new RandomStrollGoal(this, 0.9D));
         this.goalSelector.addGoal(9, new LookAtPlayerGoal(this, Player.class, 3.0F, 1.0F));
         this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Mob.class, 8.0F));
+    }
+
+    @Override
+    public void thunderHit(ServerLevel pLevel, LightningBolt pLightning)
+    {
+        AttributeInstance movementSpeed = this.getAttribute(Attributes.MOVEMENT_SPEED);
+
+        boolean isConductorLightning = pLightning.getCustomName() != null && pLightning.getCustomName().getString().equalsIgnoreCase(DifficultRaidsUtil.ELECTRO_ILLAGER_CUSTOM_BOLT_TAG);
+        if(isConductorLightning && movementSpeed != null && !movementSpeed.hasModifier(CONDUCTOR_LIGHTNING_MOVEMENT_BOOST))
+            movementSpeed.addPermanentModifier(CONDUCTOR_LIGHTNING_MOVEMENT_BOOST);
+
+        super.thunderHit(pLevel, pLightning);
     }
 
     @Override
