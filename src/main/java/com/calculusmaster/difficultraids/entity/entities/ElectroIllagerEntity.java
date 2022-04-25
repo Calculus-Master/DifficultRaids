@@ -4,10 +4,12 @@ import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVari
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
@@ -29,6 +31,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
+import tallestegg.guardvillagers.entities.Guard;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,9 +69,38 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
         this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Mob.class, 8.0F));
 
         this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, Raider.class)).setAlertOthers());
-        this.targetSelector.addGoal(2, (new NearestAttackableTargetGoal<>(this, Player.class, false)).setUnseenMemoryTicks(300));
-        this.targetSelector.addGoal(3, (new NearestAttackableTargetGoal<>(this, AbstractVillager.class, false)).setUnseenMemoryTicks(300));
-        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, false));
+        this.targetSelector.addGoal(2, (new NearestAttackableTargetGoal<>(this, Player.class, true)).setUnseenMemoryTicks(300));
+        this.targetSelector.addGoal(3, (new NearestAttackableTargetGoal<>(this, AbstractVillager.class, true)).setUnseenMemoryTicks(300));
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
+
+        if(DifficultRaidsUtil.isGuardVillagersLoaded()) this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Guard.class, 8.0F, 0.7D, 1.0D));
+    }
+
+    @Override
+    protected boolean spawnDefaultSpellcastingParticles()
+    {
+        return false;
+    }
+
+    @Override
+    public void tick()
+    {
+        super.tick();
+
+        if(this.level.isClientSide && this.isCastingSpell())
+        {
+            SpellType spellType = this.getSpellType();
+            double d0 = spellType.getColor(0), d1 = spellType.getColor(1), d2 = spellType.getColor(2);
+            float f = this.yBodyRot * ((float)Math.PI / 180F) + Mth.cos((float)this.tickCount * 0.6662F) * 0.25F;
+            this.level.addParticle(ParticleTypes.ELECTRIC_SPARK, this.getX() + Math.cos(f) * 0.6D, this.getY() + 1.8D, this.getZ() + Math.sin(f) * 0.6D, d0, d1, d2);
+            this.level.addParticle(ParticleTypes.ELECTRIC_SPARK, this.getX() - Math.cos(f) * 0.6D, this.getY() + 1.8D, this.getZ() - Math.sin(f) * 0.6D, d0, d1, d2);
+        }
+    }
+
+    @Override
+    public float getBrightness()
+    {
+        return 1.2F;
     }
 
     @Override
@@ -147,7 +179,7 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
         @Override
         protected int getCastingInterval()
         {
-            return 250;
+            return 400;
         }
 
         @Override

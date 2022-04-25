@@ -2,12 +2,14 @@ package com.calculusmaster.difficultraids.entity.entities;
 
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
+import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -32,6 +34,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
+import tallestegg.guardvillagers.entities.Guard;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,9 +75,11 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
         this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Mob.class, 8.0F));
 
         this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, Raider.class)).setAlertOthers());
-        this.targetSelector.addGoal(2, (new NearestAttackableTargetGoal<>(this, Player.class, false)).setUnseenMemoryTicks(300));
-        this.targetSelector.addGoal(3, (new NearestAttackableTargetGoal<>(this, AbstractVillager.class, false)).setUnseenMemoryTicks(300));
-        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, false));
+        this.targetSelector.addGoal(2, (new NearestAttackableTargetGoal<>(this, Player.class, true)).setUnseenMemoryTicks(300));
+        this.targetSelector.addGoal(3, (new NearestAttackableTargetGoal<>(this, AbstractVillager.class, true)).setUnseenMemoryTicks(300));
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
+
+        if(DifficultRaidsUtil.isGuardVillagersLoaded()) this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Guard.class, 8.0F, 0.7D, 1.0D));
     }
 
     @Override
@@ -122,6 +127,24 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
             Entity entity = this.level.getEntity(ID);
             if(entity instanceof Monster monster && monster.isAlive()) this.activeMinions.add(monster);
         }
+    }
+
+    @Override
+    public boolean hurt(DamageSource pSource, float pAmount)
+    {
+        if(pSource.getEntity() instanceof LivingEntity && !this.activeMinions.isEmpty() && pAmount > 1.0F && this.random.nextFloat() < 0.33F)
+        {
+            float deflectedDamage = pAmount * 0.4F;
+            Monster target = this.activeMinions.get(this.random.nextInt(this.activeMinions.size()));
+
+            if(target.getHealth() > deflectedDamage)
+            {
+                target.hurt(pSource, deflectedDamage);
+                pAmount -= deflectedDamage;
+            }
+        }
+
+        return super.hurt(pSource, pAmount);
     }
 
     @Override
@@ -210,13 +233,15 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
                 {
                     RaidDifficulty raidDifficulty = RaidDifficulty.current();
 
-                    summons += raidDifficulty.config().necromancer().minionSummonCount();
+                    summons = raidDifficulty.config().necromancer().minionSummonCount();
+                    if(level.getDifficulty().equals(Difficulty.EASY)) summons--;
+                    else if(level.getDifficulty().equals(Difficulty.HARD)) summons++;
 
                     switch(raidDifficulty)
                     {
                         case HERO -> minionPool.add(EntityType.DROWNED);
                         case LEGEND -> minionPool.addAll(List.of(EntityType.DROWNED, EntityType.WITHER_SKELETON));
-                        case MASTER -> minionPool.addAll(List.of(EntityType.DROWNED, EntityType.WITHER_SKELETON, EntityType.WITCH));
+                        case MASTER -> minionPool.addAll(List.of(EntityType.DROWNED, EntityType.WITHER_SKELETON, EntityType.ZOMBIE_VILLAGER));
                     }
                 }
 
@@ -248,6 +273,13 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
 
                     minion.moveTo(summonPos, 0, 0);
                     minion.setTarget(target);
+                    minion.getLookControl().setLookAt(target);
+
+                    minion.targetSelector.removeAllGoals();
+                    minion.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(minion, Player.class, true));
+                    minion.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(minion, AbstractVillager.class, true));
+                    minion.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(minion, IronGolem.class, true));
+                    if(DifficultRaidsUtil.isGuardVillagersLoaded()) minion.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(minion, Guard.class, true));
 
                     level.addFreshEntity(minion);
                     NecromancerIllagerEntity.this.activeMinions.add(minion);
@@ -270,7 +302,7 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
         @Override
         protected int getCastingTime()
         {
-            return 240;
+            return 160;
         }
 
         @Override
@@ -344,6 +376,13 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
 
                     hordeMember.setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.LEATHER_HELMET));
                     hordeMember.setTarget(target);
+                    hordeMember.getLookControl().setLookAt(target);
+
+                    hordeMember.targetSelector.removeAllGoals();
+                    hordeMember.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(hordeMember, Player.class, true));
+                    hordeMember.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(hordeMember, AbstractVillager.class, true));
+                    hordeMember.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(hordeMember, IronGolem.class, true));
+                    if(DifficultRaidsUtil.isGuardVillagersLoaded()) hordeMember.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(hordeMember, Guard.class, true));
 
                     BlockPos summonPos = currentPos.offset(-10 + random.nextInt(21), 0, -10 + random.nextInt(21));
                     hordeMember.moveTo(summonPos, 0, 0);
@@ -429,9 +468,9 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
                 int buryDistance = 1;
                 int fullBuryChance = switch(level.getDifficulty()) {
                     case PEACEFUL -> 0;
-                    case EASY -> 10;
-                    case NORMAL -> 15;
-                    case HARD -> 20;
+                    case EASY -> 20;
+                    case NORMAL -> 35;
+                    case HARD -> 50;
                 };
 
                 if(random.nextInt(100) < fullBuryChance)

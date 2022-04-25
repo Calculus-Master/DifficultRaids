@@ -4,9 +4,12 @@ import com.calculusmaster.difficultraids.DifficultRaids;
 import com.calculusmaster.difficultraids.commands.PrintRaidersCommand;
 import com.calculusmaster.difficultraids.commands.SetRaidDifficultyCommand;
 import com.calculusmaster.difficultraids.entity.entities.*;
+import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
+import com.calculusmaster.difficultraids.entity.entities.core.AbstractIllagerVariant;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -15,6 +18,7 @@ import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import tallestegg.guardvillagers.entities.Guard;
 
 @Mod.EventBusSubscriber(modid = DifficultRaids.MODID)
 public class DRForgeModEvents
@@ -59,6 +63,17 @@ public class DRForgeModEvents
 
             villager.goalSelector.addGoal(1,
                     new AvoidEntityGoal<>(villager, FrostIllagerEntity.class, defaultMaxDistance, defaultWalkSpeedModifier - 0.2F, defaultSprintSpeedModifier - 0.1F));
+        }
+
+        //Compatibility with GuardVillagers - Custom Illagers will also target Guards
+        if(DifficultRaidsUtil.isGuardVillagersLoaded() && event.getEntity() instanceof AbstractIllagerVariant illager)
+        {
+            int priority = 3;
+
+            if(illager instanceof AssassinIllagerEntity || illager instanceof DartIllagerEntity) priority = 2;
+
+            if(illager instanceof AbstractEvokerVariant spellcaster) spellcaster.targetSelector.addGoal(priority, new NearestAttackableTargetGoal<>(illager, Guard.class, true).setUnseenMemoryTicks(300));
+            else illager.targetSelector.addGoal(priority, new NearestAttackableTargetGoal<>(illager, Guard.class, true));
         }
     }
 

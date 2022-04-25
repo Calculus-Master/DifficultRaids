@@ -3,6 +3,7 @@ package com.calculusmaster.difficultraids.entity.entities;
 import com.calculusmaster.difficultraids.entity.entities.component.ShamanDebuffBulletEntity;
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
+import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -29,6 +30,7 @@ import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
+import tallestegg.guardvillagers.entities.Guard;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -66,9 +68,11 @@ public class ShamanIllagerEntity extends AbstractEvokerVariant
         this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Mob.class, 8.0F));
 
         this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, Raider.class)).setAlertOthers());
-        this.targetSelector.addGoal(2, (new NearestAttackableTargetGoal<>(this, Player.class, false)).setUnseenMemoryTicks(300));
-        this.targetSelector.addGoal(3, (new NearestAttackableTargetGoal<>(this, AbstractVillager.class, false)).setUnseenMemoryTicks(300));
-        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, false));
+        this.targetSelector.addGoal(2, (new NearestAttackableTargetGoal<>(this, Player.class, true)).setUnseenMemoryTicks(300));
+        this.targetSelector.addGoal(3, (new NearestAttackableTargetGoal<>(this, AbstractVillager.class, true)).setUnseenMemoryTicks(300));
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
+
+        if(DifficultRaidsUtil.isGuardVillagersLoaded()) this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Guard.class, 8.0F, 0.7D, 1.0D));
     }
 
     private List<Raider> getNearbyRaiders(double distance)

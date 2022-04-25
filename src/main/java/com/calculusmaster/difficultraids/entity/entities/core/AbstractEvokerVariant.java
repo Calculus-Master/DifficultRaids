@@ -85,12 +85,17 @@ public abstract class AbstractEvokerVariant extends AbstractIllagerVariant
         if(this.spellTicks > 0) this.spellTicks--;
     }
 
+    protected boolean spawnDefaultSpellcastingParticles()
+    {
+        return true;
+    }
+
     @Override
     public void tick()
     {
         super.tick();
 
-        if(this.level.isClientSide && this.isCastingSpell())
+        if(this.level.isClientSide && this.isCastingSpell() && this.spawnDefaultSpellcastingParticles())
         {
             SpellType spellType = this.getSpellType();
             double d0 = spellType.spellColor[0];
@@ -145,6 +150,11 @@ public abstract class AbstractEvokerVariant extends AbstractIllagerVariant
         {
             for(SpellType type : values()) if(type.ID == ID) return type;
             return NONE;
+        }
+
+        public double getColor(int index)
+        {
+            return this.spellColor[index];
         }
     }
 

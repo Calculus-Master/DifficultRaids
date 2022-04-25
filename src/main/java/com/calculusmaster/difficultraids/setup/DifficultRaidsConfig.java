@@ -90,19 +90,6 @@ public class DifficultRaidsConfig
                     .comment("Determines the chance that Reinforcements will spawn on any wave of a Raid.")
                     .defineInRange("reinforcementChance", default_reinforcementChance, 0, 100);
 
-            //Player Count Spawn Modifier
-            double default_playerCountSpawnModifier = switch(raidDifficulty) {
-                case HERO -> 0.05;
-                case LEGEND -> 0.1;
-                case MASTER -> 0.25;
-                case APOCALYPSE -> 0.2;
-                default -> 0.0;
-            };
-
-            config.playerCountSpawnModifier = BUILDER
-                    .comment("Determines the % increase in spawn counts per wave based on the number of players participating in the Raid.")
-                    .defineInRange("playerCountSpawnModifier", default_playerCountSpawnModifier, 0.0, 100.0);
-
             //Armor Chance
             int default_armorChance = switch(raidDifficulty) {
                 case HERO -> 10;
@@ -676,12 +663,6 @@ public class DifficultRaidsConfig
         public int maxArmorPieces()
         {
             return this.maxArmorPieces.get();
-        }
-
-        private ForgeConfigSpec.DoubleValue playerCountSpawnModifier;
-        public double playerCountSpawnModifier()
-        {
-            return this.playerCountSpawnModifier.get();
         }
 
         private ForgeConfigSpec.ConfigValue<List<? extends String>> validArmorTiers;

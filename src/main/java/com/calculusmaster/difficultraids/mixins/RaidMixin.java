@@ -14,6 +14,9 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -143,9 +146,6 @@ public abstract class RaidMixin
                 else if(worldDifficulty.equals(Difficulty.HARD)) baseSpawnCount++;
             }
 
-            //Modifiers based on Player Count
-            baseSpawnCount *= 1 + (this.players * raidDifficulty.config().playerCountSpawnModifier());
-
             callbackInfoReturnable.setReturnValue(baseSpawnCount);
         }
     }
@@ -217,6 +217,28 @@ public abstract class RaidMixin
             return spawnOffset;
         }
         else return spawnPos;
+    }
+
+    @ModifyVariable(at = @At("HEAD"), method = "joinRaid", ordinal = 0, argsOnly = true)
+    private Raider difficultraids_boostRaiderFromPlayerCount(Raider defaultRaider)
+    {
+        float healthBoost = switch(this.players) {
+            case 1 -> 0.0F;
+            case 2 -> 0.5F;
+            case 3 -> 1.0F;
+            case 4 -> 1.75F;
+            case 5 -> 2.5F;
+            case 6 -> 3.5F;
+            case 7 -> 5.0F;
+            default -> 5.0F + this.players * 1.25F;
+        };
+
+        AttributeModifier healthBoostModifier = new AttributeModifier("RAID_PLAYER_COUNT_HEALTH_BOOST", healthBoost, AttributeModifier.Operation.ADDITION);
+
+        AttributeInstance health = defaultRaider.getAttribute(Attributes.MAX_HEALTH);
+        if(health != null) health.addPermanentModifier(healthBoostModifier);
+
+        return defaultRaider;
     }
 
     /**
