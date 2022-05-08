@@ -1,4 +1,4 @@
-package com.calculusmaster.difficultraids.entity.entities;
+package com.calculusmaster.difficultraids.entity.entities.raider;
 
 import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
 import com.calculusmaster.difficultraids.entity.entities.component.FrostSnowballEntity;

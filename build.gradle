@@ -29,7 +29,7 @@ apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
 
 
-version = '1.2.1-beta'
+version = '1.3-beta'
 group = 'com.calculusmaster.difficultraids'
 archivesBaseName = 'difficultraids'
 
@@ -170,6 +170,9 @@ dependencies {
 
     //Enchant with Mob 1.18.2 4.0.3
     implementation fg.deobf("curse.maven:enchantwithmob-391187:3760042")
+
+    //Mob Entity Path Visualizer 1.18 1.0.0-release.2
+    runtimeOnly fg.deobf("curse.maven:mobentitypathvisualizer-590716:3680372")
 }
 
 mixin {

@@ -1,7 +1,7 @@
-package com.calculusmaster.difficultraids.entity.renderer;
+package com.calculusmaster.difficultraids.entity.renderer.raider;
 
 import com.calculusmaster.difficultraids.DifficultRaids;
-import com.calculusmaster.difficultraids.entity.entities.ElectroIllagerEntity;
+import com.calculusmaster.difficultraids.entity.entities.raider.ElectroIllagerEntity;
 import com.calculusmaster.difficultraids.entity.renderer.core.AbstractEvokerVariantRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;

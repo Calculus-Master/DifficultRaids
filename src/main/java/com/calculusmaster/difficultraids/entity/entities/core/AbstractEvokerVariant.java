@@ -19,6 +19,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
+import java.util.List;
 
 public abstract class AbstractEvokerVariant extends AbstractIllagerVariant
 {
@@ -135,7 +136,21 @@ public abstract class AbstractEvokerVariant extends AbstractIllagerVariant
         SHAMAN_INVISIBILITY(11, 0.2D, 0.3D, 0.4D),
         FROST_FREEZE(12, 0.5D, 0.5D, 1.0D),
         FROST_BARRAGE(13, 0.5, 0.6D, 1.0D),
-        FROST_SNOWBALL_BLAST(14, 0.9D, 0.3D, 1.0D);
+        FROST_SNOWBALL_BLAST(14, 0.9D, 0.3D, 1.0D),
+
+        XYDRAX_WIND_BLAST(15, 0.1D, 0.1D, 0.1D),
+        XYDRAX_ARROW_BARRAGE(16, 0.3D, 0.0D, 0.1D),
+        XYDRAX_HEAL(17, 0.9D, 0.3D, 0.2D),
+        XYDRAX_WIND_COLUMN(18, 1.0D, 1.0D, 1.0D),
+
+        MODUR_SUMMON_THUNDER(19, 0.5D, 0.5D, 0.5D),
+        MODUR_LIGHTNING_STORM(20, 1.0D, 0.9D, 0.9D),
+        MODUR_LIGHTNING_ZAP(21, 1.0D, 0.2D, 1.0D),
+        MODUR_FIREBALL(22, 0.7D, 0.7D, 0.0D),
+
+        VOLDON_SUMMON_FAMILIARS(23, 0.05D, 0.05D, 0.05D),
+        VOLDON_TELEPORT_FAMILIAR(24, 0.8D, 0.1D, 0.5D),
+        VOLDON_SACRIFICE_FAMILIAR(25, 0.6D, 0.6D, 0.1D);
 
         final int ID;
         final double[] spellColor;
@@ -198,6 +213,11 @@ public abstract class AbstractEvokerVariant extends AbstractIllagerVariant
     {
         protected int spellWarmup;
         protected int spellCooldown;
+
+        protected SpellcastingIllagerUseSpellGoal(Flag... flags)
+        {
+            if(flags.length > 0) this.setFlags(EnumSet.copyOf(List.of(flags)));
+        }
 
         @Override
         public boolean canUse()

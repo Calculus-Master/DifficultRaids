@@ -1,4 +1,4 @@
-package com.calculusmaster.difficultraids.entity.entities;
+package com.calculusmaster.difficultraids.entity.entities.raider;
 
 import com.calculusmaster.difficultraids.entity.entities.component.ShamanDebuffBulletEntity;
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;

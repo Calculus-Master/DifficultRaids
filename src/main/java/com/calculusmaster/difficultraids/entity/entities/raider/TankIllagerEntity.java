@@ -1,4 +1,4 @@
-package com.calculusmaster.difficultraids.entity.entities;
+package com.calculusmaster.difficultraids.entity.entities.raider;
 
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractVindicatorVariant;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
@@ -41,7 +41,7 @@ public class TankIllagerEntity extends AbstractVindicatorVariant
         return Monster.createMonsterAttributes()
                 .add(Attributes.MOVEMENT_SPEED, 0.25F)
                 .add(Attributes.FOLLOW_RANGE, 12.0D)
-                .add(Attributes.MAX_HEALTH, 50.0D)
+                .add(Attributes.MAX_HEALTH, 36.0D)
                 .add(Attributes.ATTACK_DAMAGE, 2.0D);
     }
 

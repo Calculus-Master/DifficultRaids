@@ -1,9 +1,8 @@
-package com.calculusmaster.difficultraids.entity.renderer;
+package com.calculusmaster.difficultraids.entity.renderer.raider;
 
-import com.calculusmaster.difficultraids.entity.entities.DartIllagerEntity;
+import com.calculusmaster.difficultraids.entity.entities.raider.DartIllagerEntity;
 import com.calculusmaster.difficultraids.entity.renderer.core.AbstractVindicatorVariantRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -13,11 +12,5 @@ public class DartIllagerRenderer extends AbstractVindicatorVariantRenderer<DartI
     public DartIllagerRenderer(EntityRendererProvider.Context entityRenderProvider)
     {
         super(entityRenderProvider, "dart_illager.png");
-    }
-
-    @Override
-    public ResourceLocation getTextureLocation(DartIllagerEntity pEntity)
-    {
-        return DEFAULT;
     }
 }

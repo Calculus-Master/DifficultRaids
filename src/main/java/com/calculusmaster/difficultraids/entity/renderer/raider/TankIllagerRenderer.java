@@ -1,6 +1,6 @@
-package com.calculusmaster.difficultraids.entity.renderer;
+package com.calculusmaster.difficultraids.entity.renderer.raider;
 
-import com.calculusmaster.difficultraids.entity.entities.TankIllagerEntity;
+import com.calculusmaster.difficultraids.entity.entities.raider.TankIllagerEntity;
 import com.calculusmaster.difficultraids.entity.renderer.core.AbstractVindicatorVariantRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;

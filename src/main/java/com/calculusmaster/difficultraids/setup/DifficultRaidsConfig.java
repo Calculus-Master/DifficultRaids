@@ -77,6 +77,11 @@ public class DifficultRaidsConfig
 
             BUILDER.comment("Adjust settings for " + raidDifficulty.getFormattedName() + " Difficulty Raids.");
 
+            //Elites
+            config.elitesEnabled = BUILDER
+                    .comment("Toggle whether Elite Raiders will spawn in Raids or not. On Hero, Elites will not spawn regardless of this, and on Legend, only Tier 1 elites will spawn if enabled.")
+                    .define("elitesEnabled", true);
+
             //Reinforcement Chance
             int default_reinforcementChance = switch(raidDifficulty) {
                 case HERO -> 15;
@@ -647,6 +652,12 @@ public class DifficultRaidsConfig
 
     public static class RaidDifficultyConfig
     {
+        private ForgeConfigSpec.BooleanValue elitesEnabled;
+        public boolean areElitesEnabled()
+        {
+            return this.elitesEnabled.get();
+        }
+
         private ForgeConfigSpec.IntValue reinforcementChance;
         public int reinforcementChance()
         {

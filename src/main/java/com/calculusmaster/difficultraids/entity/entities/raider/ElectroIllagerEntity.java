@@ -1,4 +1,4 @@
-package com.calculusmaster.difficultraids.entity.entities;
+package com.calculusmaster.difficultraids.entity.entities.raider;
 
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
@@ -145,6 +145,7 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
 
                 if(target.isAlive())
                 {
+                    //TODO: Only apply if the bolt strikes the target
                     boolean rain = level.isRainingAt(ElectroIllagerEntity.this.blockPosition());
                     boolean thunder = level.isThundering();
 

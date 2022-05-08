@@ -14,6 +14,7 @@ public class RaidEnemyRegistry
 {
     public static final Map<RaidDifficulty, RaidEnemies> WAVES = new HashMap<>();
     public static final Map<RaidDifficulty, RaidReinforcements> REINFORCEMENTS = new HashMap<>();
+    public static final Map<Integer, List<EntityType<?>>> ELITES = new HashMap<>();
 
     public static final String VINDICATOR = "VINDICATOR";
     public static final String EVOKER = "EVOKER";
@@ -35,6 +36,12 @@ public class RaidEnemyRegistry
     public static final String ENCHANTER = "ENCHANTER";
 
     private static final int[] BLANK = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
+
+    //TODO: Increase wave counts, and this should then also use RaidDifficulty
+    public static int getEliteWaveTier(Difficulty difficulty, int wave)
+    {
+        return difficulty.equals(Difficulty.EASY) ? (wave == 3 ? 1 : -1) : (difficulty.equals(Difficulty.NORMAL) ? (wave == 5 ? 1 : -1) : (difficulty.equals(Difficulty.HARD) ? (wave == 5 ? 1 : (wave == 7 ? 2 : -1)) : -1));
+    }
 
     public static boolean isRaiderTypeEnabled(String raiderType)
     {
@@ -62,6 +69,20 @@ public class RaidEnemyRegistry
     private static void createRaiderType(String typeName, EntityType<? extends Raider> type)
     {
         Raid.RaiderType.create(typeName, type, BLANK);
+    }
+
+    public static void registerElites()
+    {
+        //TODO: Change these when reworking the wave system
+        RaidEnemyRegistry.registerTierElites(1,
+                DifficultRaidsEntityTypes.NUAOS_ELITE.get(),
+                DifficultRaidsEntityTypes.XYDRAX_ELITE.get()
+        );
+
+        RaidEnemyRegistry.registerTierElites(2,
+                DifficultRaidsEntityTypes.MODUR_ELITE.get(),
+                DifficultRaidsEntityTypes.VOLDON_ELITE.get()
+        );
     }
 
     public static void registerWaves()
@@ -97,10 +118,10 @@ public class RaidEnemyRegistry
                 .withRaider(ILLUSIONER,         new int[]{0, 0, 1, 0, 0, 0, 1, 0})
                 .withRaider(ASSASSIN,           new int[]{0, 0, 0, 0, 0, 1, 0, 0})
                 .withRaider(EVOKER,             new int[]{0, 0, 0, 0, 1, 0, 2, 2})
-                .withRaider(CONDUCTOR,          new int[]{0, 0, 0, 1, 0, 0, 0, 0})
+                .withRaider(CONDUCTOR,          new int[]{0, 0, 0, 0, 0, 0, 0, 1})
                 .withRaider(NECROMANCER,        new int[]{0, 0, 0, 0, 1, 0, 0, 0})
                 .withRaider(FROSTMAGE,          new int[]{0, 0, 0, 0, 0, 1, 0, 0})
-                .withRaider(SHAMAN,             new int[]{0, 0, 0, 0, 0, 1, 1, 1})
+                .withRaider(SHAMAN,             new int[]{0, 0, 0, 1, 0, 0, 1, 1})
                 .withRaider(ENCHANTER,          new int[]{0, 0, 1, 1, 1, 1, 0, 1})
                 .register();
 
@@ -116,7 +137,7 @@ public class RaidEnemyRegistry
                 .withRaider(ILLUSIONER,         new int[]{0, 0, 1, 1, 1, 0, 1, 0})
                 .withRaider(ASSASSIN,           new int[]{0, 1, 1, 1, 1, 1, 1, 1})
                 .withRaider(EVOKER,             new int[]{0, 0, 2, 2, 1, 2, 2, 2})
-                .withRaider(CONDUCTOR,          new int[]{0, 0, 2, 0, 0, 0, 1, 1})
+                .withRaider(CONDUCTOR,          new int[]{0, 0, 1, 0, 0, 0, 1, 1})
                 .withRaider(NECROMANCER,        new int[]{0, 0, 0, 2, 0, 1, 2, 1})
                 .withRaider(FROSTMAGE,          new int[]{0, 0, 0, 0, 2, 2, 0, 1})
                 .withRaider(SHAMAN,             new int[]{0, 0, 1, 1, 1, 2, 2, 3})
@@ -135,7 +156,7 @@ public class RaidEnemyRegistry
                 .withRaider(ILLUSIONER,         new int[]{0, 0, 1, 2, 1, 0, 2, 0})
                 .withRaider(ASSASSIN,           new int[]{0, 2, 2, 2, 2, 2, 2, 2})
                 .withRaider(EVOKER,             new int[]{0, 1, 2, 3, 4, 1, 1, 3})
-                .withRaider(CONDUCTOR,          new int[]{0, 1, 3, 0, 1, 2, 2, 3})
+                .withRaider(CONDUCTOR,          new int[]{0, 1, 2, 0, 1, 2, 2, 3})
                 .withRaider(NECROMANCER,        new int[]{0, 1, 0, 3, 1, 2, 0, 3})
                 .withRaider(FROSTMAGE,          new int[]{0, 1, 0, 0, 1, 2, 4, 3})
                 .withRaider(SHAMAN,             new int[]{0, 2, 2, 2, 2, 3, 3, 3})
@@ -218,8 +239,17 @@ public class RaidEnemyRegistry
                 .register();
     }
 
-
     //Primary Accessors
+
+    public static EntityType<?> getRandomElite(int tier)
+    {
+        List<EntityType<?>> pool = new ArrayList<>();
+
+        if(ELITES.containsKey(tier)) pool.addAll(ELITES.get(tier));
+        else pool.addAll(ELITES.get(1));
+
+        return pool.get(new Random().nextInt(pool.size()));
+    }
 
     public static int[] getWaves(RaidDifficulty raidDifficulty, String raiderType)
     {
@@ -268,6 +298,12 @@ public class RaidEnemyRegistry
         }
 
         return spawns;
+    }
+
+    //Elites
+    public static void registerTierElites(int tier, EntityType<?>... elites)
+    {
+        ELITES.put(tier, List.of(elites));
     }
 
     //Waves

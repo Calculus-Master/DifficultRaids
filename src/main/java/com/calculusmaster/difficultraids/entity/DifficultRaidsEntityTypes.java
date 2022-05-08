@@ -1,9 +1,14 @@
 package com.calculusmaster.difficultraids.entity;
 
 import com.calculusmaster.difficultraids.DifficultRaids;
-import com.calculusmaster.difficultraids.entity.entities.*;
 import com.calculusmaster.difficultraids.entity.entities.component.FrostSnowballEntity;
 import com.calculusmaster.difficultraids.entity.entities.component.ShamanDebuffBulletEntity;
+import com.calculusmaster.difficultraids.entity.entities.component.VoldonFamiliarEntity;
+import com.calculusmaster.difficultraids.entity.entities.elite.ModurEliteEntity;
+import com.calculusmaster.difficultraids.entity.entities.elite.NuaosEliteEntity;
+import com.calculusmaster.difficultraids.entity.entities.elite.VoldonEliteEntity;
+import com.calculusmaster.difficultraids.entity.entities.elite.XydraxEliteEntity;
+import com.calculusmaster.difficultraids.entity.entities.raider.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -51,6 +56,22 @@ public class DifficultRaidsEntityTypes
             () -> EntityType.Builder.of(ShamanDebuffBulletEntity::new, MobCategory.MISC)
                     .sized(0.3125F, 0.3125F).clientTrackingRange(8)
                     .build(new ResourceLocation(DifficultRaids.MODID, "shaman_debuff_bullet").toString()));
+
+    public static final RegistryObject<EntityType<VoldonFamiliarEntity>> VOLDON_FAMILIAR =
+            registerIllager("voldon_familiar", VoldonFamiliarEntity::new);
+
+    //Elites
+    public static final RegistryObject<EntityType<NuaosEliteEntity>> NUAOS_ELITE =
+            registerIllager("nuaos_elite", NuaosEliteEntity::new);
+
+    public static final RegistryObject<EntityType<XydraxEliteEntity>> XYDRAX_ELITE =
+            registerIllager("xydrax_elite", XydraxEliteEntity::new);
+
+    public static final RegistryObject<EntityType<ModurEliteEntity>> MODUR_ELITE =
+            registerIllager("modur_elite", ModurEliteEntity::new);
+
+    public static final RegistryObject<EntityType<VoldonEliteEntity>> VOLDON_ELITE =
+            registerIllager("voldon_elite", VoldonEliteEntity::new);
 
     private static <T extends AbstractIllager> RegistryObject<EntityType<T>> registerIllager(String registryName, EntityType.EntityFactory<T> entityFactory)
     {

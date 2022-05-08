@@ -21,5 +21,10 @@
     "entity.difficultraids.assassin_illager": "Assassin",
     "entity.difficultraids.frost_illager": "Frostmage",
 
-    "entity.difficultraids.frost_snowball": "Frost Snowball"
+    "entity.difficultraids.frost_snowball": "Frost Snowball",
+    "entity.difficultraids.shaman_debuff_bullet": "Shaman Debuff Bullet",
+
+    "entity.difficultraids.nuaos_elite": "Nuaos",
+    "entity.difficultraids.xydrax_elite": "Xydrax",
+    "entity.difficultraids.modur_elite": "Modur"
 }

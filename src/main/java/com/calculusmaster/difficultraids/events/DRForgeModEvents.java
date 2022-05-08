@@ -1,11 +1,17 @@
 package com.calculusmaster.difficultraids.events;
 
 import com.calculusmaster.difficultraids.DifficultRaids;
+import com.calculusmaster.difficultraids.commands.AdvanceRaidWaveCommand;
 import com.calculusmaster.difficultraids.commands.PrintRaidersCommand;
 import com.calculusmaster.difficultraids.commands.SetRaidDifficultyCommand;
-import com.calculusmaster.difficultraids.entity.entities.*;
+import com.calculusmaster.difficultraids.entity.entities.component.VoldonFamiliarEntity;
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractIllagerVariant;
+import com.calculusmaster.difficultraids.entity.entities.elite.ModurEliteEntity;
+import com.calculusmaster.difficultraids.entity.entities.elite.NuaosEliteEntity;
+import com.calculusmaster.difficultraids.entity.entities.elite.VoldonEliteEntity;
+import com.calculusmaster.difficultraids.entity.entities.elite.XydraxEliteEntity;
+import com.calculusmaster.difficultraids.entity.entities.raider.*;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
@@ -28,6 +34,7 @@ public class DRForgeModEvents
     {
         SetRaidDifficultyCommand.register(event.getDispatcher());
         PrintRaidersCommand.register(event.getDispatcher());
+        AdvanceRaidWaveCommand.register(event.getDispatcher());
     }
 
     @SubscribeEvent
@@ -63,6 +70,21 @@ public class DRForgeModEvents
 
             villager.goalSelector.addGoal(1,
                     new AvoidEntityGoal<>(villager, FrostIllagerEntity.class, defaultMaxDistance, defaultWalkSpeedModifier - 0.2F, defaultSprintSpeedModifier - 0.1F));
+
+            villager.goalSelector.addGoal(1,
+                    new AvoidEntityGoal<>(villager, NuaosEliteEntity.class, defaultMaxDistance, defaultWalkSpeedModifier / 2, defaultSprintSpeedModifier / 2));
+
+            villager.goalSelector.addGoal(1,
+                    new AvoidEntityGoal<>(villager, XydraxEliteEntity.class, defaultMaxDistance, defaultWalkSpeedModifier / 2, defaultSprintSpeedModifier / 2));
+
+            villager.goalSelector.addGoal(1,
+                    new AvoidEntityGoal<>(villager, ModurEliteEntity.class, defaultMaxDistance, defaultWalkSpeedModifier / 2, defaultSprintSpeedModifier / 2));
+
+            villager.goalSelector.addGoal(1,
+                    new AvoidEntityGoal<>(villager, VoldonEliteEntity.class, defaultMaxDistance, defaultWalkSpeedModifier / 2, defaultSprintSpeedModifier / 2));
+
+            villager.goalSelector.addGoal(1,
+                    new AvoidEntityGoal<>(villager, VoldonFamiliarEntity.class, defaultMaxDistance / 2, defaultWalkSpeedModifier - 0.2F, defaultSprintSpeedModifier - 0.2F));
         }
 
         //Compatibility with GuardVillagers - Custom Illagers will also target Guards

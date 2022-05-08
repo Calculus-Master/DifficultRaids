@@ -1,6 +1,6 @@
-package com.calculusmaster.difficultraids.entity.renderer;
+package com.calculusmaster.difficultraids.entity.renderer.raider;
 
-import com.calculusmaster.difficultraids.entity.entities.ShamanIllagerEntity;
+import com.calculusmaster.difficultraids.entity.entities.raider.ShamanIllagerEntity;
 import com.calculusmaster.difficultraids.entity.renderer.core.AbstractEvokerVariantRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraftforge.api.distmarker.Dist;

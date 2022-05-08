@@ -2,7 +2,12 @@ package com.calculusmaster.difficultraids.events;
 
 import com.calculusmaster.difficultraids.DifficultRaids;
 import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
-import com.calculusmaster.difficultraids.entity.renderer.*;
+import com.calculusmaster.difficultraids.entity.renderer.elite.ModurEliteRenderer;
+import com.calculusmaster.difficultraids.entity.renderer.elite.NuaosEliteRenderer;
+import com.calculusmaster.difficultraids.entity.renderer.elite.VoldonEliteRenderer;
+import com.calculusmaster.difficultraids.entity.renderer.elite.XydraxEliteRenderer;
+import com.calculusmaster.difficultraids.entity.renderer.misc.VoldonFamiliarRenderer;
+import com.calculusmaster.difficultraids.entity.renderer.raider.*;
 import net.minecraft.client.renderer.entity.ShulkerBulletRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraftforge.api.distmarker.Dist;
@@ -13,7 +18,7 @@ import net.minecraftforge.fml.common.Mod;
 
 @OnlyIn(Dist.CLIENT)
 @Mod.EventBusSubscriber(modid = DifficultRaids.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class DRClientModEvents
+public class DREntityRendererRegistry
 {
     @SubscribeEvent
     public static void registerEntityRenders(EntityRenderersEvent.RegisterRenderers event)
@@ -28,5 +33,12 @@ public class DRClientModEvents
         event.registerEntityRenderer(DifficultRaidsEntityTypes.FROST_ILLAGER.get(), FrostIllagerRenderer::new);
         event.registerEntityRenderer(DifficultRaidsEntityTypes.FROST_SNOWBALL.get(), ThrownItemRenderer::new);
         event.registerEntityRenderer(DifficultRaidsEntityTypes.SHAMAN_DEBUFF_BULLET.get(), ShulkerBulletRenderer::new);
+
+        event.registerEntityRenderer(DifficultRaidsEntityTypes.NUAOS_ELITE.get(), NuaosEliteRenderer::new);
+        event.registerEntityRenderer(DifficultRaidsEntityTypes.XYDRAX_ELITE.get(), XydraxEliteRenderer::new);
+        event.registerEntityRenderer(DifficultRaidsEntityTypes.MODUR_ELITE.get(), ModurEliteRenderer::new);
+        event.registerEntityRenderer(DifficultRaidsEntityTypes.VOLDON_ELITE.get(), VoldonEliteRenderer::new);
+
+        event.registerEntityRenderer(DifficultRaidsEntityTypes.VOLDON_FAMILIAR.get(), VoldonFamiliarRenderer::new);
     }
 }

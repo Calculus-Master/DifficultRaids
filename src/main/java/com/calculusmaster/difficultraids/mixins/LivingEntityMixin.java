@@ -10,6 +10,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.projectile.Fireball;
@@ -183,8 +184,8 @@ public abstract class LivingEntityMixin extends Entity
                 this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 120, 1));
                 this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 120, 2));
 
-                BlockPos offset1 = this.blockPosition().offset(this.random.nextInt(1, 6) * -1, 2, this.random.nextInt(1, 6) * -1);
-                BlockPos offset2 = this.blockPosition().offset(this.random.nextInt(1, 6) * -1, 2, this.random.nextInt(1, 6) * -1);
+                BlockPos offset1 = this.blockPosition().offset(this.random.nextInt(2, 6), 2, this.random.nextInt(2, 6));
+                BlockPos offset2 = this.blockPosition().offset(this.random.nextInt(2, 6) * -1, 2, this.random.nextInt(2, 6) * -1);
 
                 IronGolem golem1 = EntityType.IRON_GOLEM.create(this.level);
                 IronGolem golem2 = EntityType.IRON_GOLEM.create(this.level);
@@ -195,8 +196,13 @@ public abstract class LivingEntityMixin extends Entity
                 if(damageSource.getEntity() instanceof LivingEntity attacker)
                 {
                     golem1.setTarget(attacker);
+                    golem1.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(golem1, attacker.getClass(), true));
                     golem2.setTarget(attacker);
+                    golem2.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(golem2, attacker.getClass(), true));
                 }
+
+                this.level.addFreshEntity(golem1);
+                this.level.addFreshEntity(golem2);
             }
 
             //Totem of Freezing
@@ -207,7 +213,10 @@ public abstract class LivingEntityMixin extends Entity
                         .stream()
                         .filter(Monster::isAlive)
                         .filter(LivingEntity::canFreeze)
-                        .forEach(m -> m.setTicksFrozen(m.getTicksFrozen() + 20 * 8));
+                        .forEach(m -> {
+                            m.setTicksFrozen(m.getTicksFrozen() + 20 * 8);
+                            m.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20 * 7, 2));
+                        });
             }
 
             //Totem of Teleportation

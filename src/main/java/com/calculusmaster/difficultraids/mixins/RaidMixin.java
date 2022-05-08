@@ -10,17 +10,17 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.entity.raid.Raider;
@@ -38,6 +38,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import tallestegg.guardvillagers.entities.Guard;
 
 import java.util.*;
 
@@ -58,19 +59,27 @@ public abstract class RaidMixin
     @Shadow public abstract boolean isLoss();
 
     @Shadow public abstract void joinRaid(int p_37714_, Raider p_37715_, @Nullable BlockPos p_37716_, boolean p_37717_);
+    @Shadow public abstract int getGroupsSpawned();
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    @Inject(at = @At("TAIL"), method = "absorbBadOmen")
-    private void difficultraids_raidStart(Player p_37729_, CallbackInfo callbackInfo)
+    private void initializeValidRaidArea()
     {
         this.validRaidArea = new AABB(this.center).inflate(Math.sqrt(Raid.VALID_RAID_RADIUS_SQR));
         this.players = this.level.getEntitiesOfClass(Player.class, this.validRaidArea).size();
     }
 
+    @Inject(at = @At("TAIL"), method = "absorbBadOmen")
+    private void difficultraids_raidStart(Player p_37729_, CallbackInfo callbackInfo)
+    {
+        this.initializeValidRaidArea();
+    }
+
     @Inject(at = @At("HEAD"), method = "spawnGroup")
     private void difficultraids_spawnGroup(BlockPos pos, CallbackInfo callbackInfo)
     {
+        if(this.validRaidArea == null) this.initializeValidRaidArea();
+
         List<Player> participants = this.level.getEntitiesOfClass(Player.class, this.validRaidArea);
         this.players = participants.size();
 
@@ -92,7 +101,7 @@ public abstract class RaidMixin
                     EntityType<?> type = entityEntry.getKey();
                     LivingEntity spawn = (LivingEntity)type.create(this.level);
                     if(spawn == null) continue; //This shouldn't execute, but just in case
-                    spawn.moveTo(pos.getX(), pos.getY(), pos.getZ());
+                    spawn.moveTo(pos.getX(), pos.getY(), pos.getZ()); //TODO: Randomize spawn a bit more
                     if(spawn instanceof Monster mob) mob.finalizeSpawn(this.level, this.level.getCurrentDifficultyAt(mob.blockPosition()), MobSpawnType.REINFORCEMENT, null, null);
                     spawn.setOnGround(true);
 
@@ -103,6 +112,11 @@ public abstract class RaidMixin
                     {
                         Path path = monster.getNavigation().createPath(this.center, 10);
                         monster.getNavigation().moveTo(path, 1.3);
+
+                        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, Villager.class, true));
+                        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, IronGolem.class, true));
+                        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, Player.class, true));
+                        if(DifficultRaidsUtil.isGuardVillagersLoaded()) monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, Guard.class, true));
                     }
                     else if(spawn instanceof Animal animal)
                     {
@@ -116,11 +130,32 @@ public abstract class RaidMixin
         }
     }
 
+    @Inject(at = @At("TAIL"), method = "spawnGroup")
+    private void difficultraids_spawnElite(BlockPos spawnPos, CallbackInfo callback)
+    {
+        RaidDifficulty raidDifficulty = RaidDifficulty.current();
+        if(raidDifficulty.config().areElitesEnabled() && raidDifficulty.is(RaidDifficulty.LEGEND, RaidDifficulty.MASTER, RaidDifficulty.APOCALYPSE))
+        {
+            int wave = this.getGroupsSpawned();
+            int eliteTier = RaidEnemyRegistry.getEliteWaveTier(this.level.getDifficulty(), wave);
+
+            //TODO: Remove when reworking waves
+            if(raidDifficulty.is(RaidDifficulty.LEGEND) && eliteTier == 2) eliteTier = 1;
+
+            if(eliteTier != -1)
+            {
+                EntityType<?> eliteType = RaidEnemyRegistry.getRandomElite(eliteTier);
+                Entity elite = eliteType.create(this.level);
+                if(elite instanceof Raider raider) this.joinRaid(wave, raider, spawnPos, false);
+                else LOGGER.error("Failed to spawn Raid Elite! {EntityType: " + eliteType.toShortString() + "}, Wave {" + wave + "}, Elite Tier: {" + eliteTier + "}, Difficulty {" + this.level.getDifficulty() + "}");
+            }
+        }
+    }
+
     @Inject(at = @At("HEAD"), method = "getDefaultNumSpawns", cancellable = true)
     private void difficultraids_getDefaultNumSpawns(Raid.RaiderType raiderType, int groupsSpawned, boolean spawnBonusGroup, CallbackInfoReturnable<Integer> callbackInfoReturnable)
     {
         RaidDifficulty raidDifficulty = RaidDifficulty.current();
-        Difficulty worldDifficulty = this.level.getDifficulty();
 
         boolean isDefault = raidDifficulty.isDefault();
         boolean isRegistered = RaidEnemyRegistry.isRaiderTypeRegistered(raiderType.toString());
@@ -136,15 +171,9 @@ public abstract class RaidMixin
         {
             //Spawns per wave array
             int[] spawnsPerWave = RaidEnemyRegistry.getWaves(raidDifficulty, raiderType.toString());
+
             //Selected spawns for the current wave
             int baseSpawnCount = spawnBonusGroup ? spawnsPerWave[this.numGroups] : spawnsPerWave[groupsSpawned];
-
-            //Modifiers based on Game Difficulty (Default and Apocalypse ignore this)
-            if(!raidDifficulty.is(RaidDifficulty.APOCALYPSE) && baseSpawnCount != 0)
-            {
-                if(worldDifficulty.equals(Difficulty.EASY)) baseSpawnCount--;
-                else if(worldDifficulty.equals(Difficulty.HARD)) baseSpawnCount++;
-            }
 
             callbackInfoReturnable.setReturnValue(baseSpawnCount);
         }
@@ -247,39 +276,42 @@ public abstract class RaidMixin
      */
     //TODO: Reenable after changing default spawn arrays
     //TODO: Check the applyRaidBuffs methods in Vindicator, Pillager, Evoker, Ravager, (?)Witch
-    //@Overwrite
-    public int getNumGroups(Difficulty p_37725_)
+    //@Overwrite //@Inject(...)
+    public void difficultraids_getNumGroups(Difficulty p_37725_, CallbackInfoReturnable<Integer> callback)
     {
         RaidDifficulty raidDifficulty = RaidDifficulty.current();
+        int waves;
 
         if(raidDifficulty.isDefault())
         {
             //Vanilla Defaults
-            return switch(p_37725_) {
+            waves = switch(p_37725_) {
                 case EASY -> 3;
                 case NORMAL -> 5;
                 case HARD -> 7;
                 case PEACEFUL -> 0;
             };
         }
+        else
+        {
+            //Base Waves (from RaidDifficulty)
+            waves = switch(raidDifficulty) {
+                case HERO -> 5;
+                case LEGEND -> 7;
+                case MASTER -> 9;
+                case APOCALYPSE -> 11;
+                default -> 0;
+            };
 
-        //Base Waves (from RaidDifficulty)
-        int waves = switch(raidDifficulty) {
-            case HERO -> 5;
-            case LEGEND -> 7;
-            case MASTER -> 9;
-            case APOCALYPSE -> 11;
-            default -> 0;
-        };
+            //Waves Modifier (from World Difficulty)
+            waves += switch(p_37725_) {
+                case PEACEFUL -> -waves;
+                case EASY -> -1;
+                case NORMAL -> 0;
+                case HARD -> +1;
+            };
+        }
 
-        //Waves Modifier (from World Difficulty)
-        waves += switch(p_37725_) {
-            case PEACEFUL -> -waves;
-            case EASY -> -1;
-            case NORMAL -> 0;
-            case HARD -> +1;
-        };
-
-        return waves;
+        callback.setReturnValue(waves);
     }
 }
