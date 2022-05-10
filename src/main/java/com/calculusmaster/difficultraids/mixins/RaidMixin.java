@@ -38,7 +38,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import tallestegg.guardvillagers.entities.Guard;
 
 import java.util.*;
 
@@ -116,7 +115,7 @@ public abstract class RaidMixin
                         monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, Villager.class, true));
                         monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, IronGolem.class, true));
                         monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, Player.class, true));
-                        if(DifficultRaidsUtil.isGuardVillagersLoaded()) monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, Guard.class, true));
+                        //TODO: Reenable this: if(DifficultRaidsUtil.isGuardVillagersLoaded()) monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, Guard.class, true));
                     }
                     else if(spawn instanceof Animal animal)
                     {

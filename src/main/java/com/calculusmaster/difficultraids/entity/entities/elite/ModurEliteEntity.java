@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.BossEvent;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -206,7 +207,7 @@ public class ModurEliteEntity extends AbstractEvokerVariant
 
         if(this.isStormActive())
         {
-            int strikes = this.level.getDifficulty().ordinal();
+            int strikes = this.level.getDifficulty().equals(Difficulty.HARD) ? 2 : 1;
 
             for(int i = 0; i < strikes; i++)
             {
@@ -215,9 +216,9 @@ public class ModurEliteEntity extends AbstractEvokerVariant
 
                 ModurEliteEntity.this.spawnCustomBolt(strikePos, switch(this.level.getDifficulty()) {
                     case PEACEFUL -> 0.0F;
-                    case EASY -> 4.0F;
-                    case NORMAL -> 9.0F;
-                    case HARD -> 12.0F;
+                    case EASY -> 3.0F;
+                    case NORMAL -> 7.5F;
+                    case HARD -> 10.0F;
                 });
             }
 
@@ -413,9 +414,9 @@ public class ModurEliteEntity extends AbstractEvokerVariant
             });
 
             modur.stormAABB = new AABB(modur.blockPosition()).inflate(modur.getCurrentRaid() != null ? switch(RaidDifficulty.current()) {
-                case HERO -> 12.0;
-                case LEGEND -> 18.0;
-                case MASTER -> 24.0;
+                case HERO -> 18.0;
+                case LEGEND -> 24.0;
+                case MASTER -> 30.0;
                 case APOCALYPSE -> 50.0;
                 default -> 0.0;
             } : 10.0).setMaxY(modur.getEyeY() + 4.0).setMinY(modur.blockPosition().getY() + 0.4);
