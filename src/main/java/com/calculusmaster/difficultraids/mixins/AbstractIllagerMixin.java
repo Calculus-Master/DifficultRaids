@@ -42,12 +42,14 @@ public abstract class AbstractIllagerMixin extends Raider
                                         MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData,
                                         @Nullable CompoundTag tag)
     {
-        RaidDifficulty raidDifficulty = RaidDifficulty.current();
+        boolean inRaid = this.getCurrentRaid() != null;
         Random random = new Random();
 
-        if(!raidDifficulty.isDefault())
+        if(inRaid)
         {
-            if(this.getCurrentRaid() != null && mobSpawnType.equals(MobSpawnType.EVENT) && !this.getType().equals(DifficultRaidsEntityTypes.TANK_ILLAGER.get()))
+            RaidDifficulty raidDifficulty = RaidDifficulty.get(this.getCurrentRaid().getBadOmenLevel());
+
+            if(!raidDifficulty.isDefault() && mobSpawnType.equals(MobSpawnType.EVENT) && !this.getType().equals(DifficultRaidsEntityTypes.TANK_ILLAGER.get()))
             {
                 List<ArmorMaterials> tiers = raidDifficulty.config().validArmorTiers();
                 int armorChance = raidDifficulty.config().armorChance();

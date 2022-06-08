@@ -217,14 +217,14 @@ public class ShamanIllagerEntity extends AbstractEvokerVariant
         {
             ServerLevel level = (ServerLevel)ShamanIllagerEntity.this.getLevel();
             LivingEntity target = ShamanIllagerEntity.this.getTarget();
-            boolean raid = ShamanIllagerEntity.this.getCurrentRaid() != null;
+            boolean raid = ShamanIllagerEntity.this.isInRaid();
             Random random = new Random();
 
             List<MobEffect> debuffPool = List.of(MobEffects.CONFUSION, MobEffects.MOVEMENT_SLOWDOWN, MobEffects.DIG_SLOWDOWN, MobEffects.POISON, MobEffects.LEVITATION, MobEffects.WEAKNESS);
 
             if(raid && target != null)
             {
-                RaidDifficulty raidDifficulty = RaidDifficulty.current();
+                RaidDifficulty raidDifficulty = ShamanIllagerEntity.this.getRaidDifficulty();
                 int debuffCount = raidDifficulty.config().shaman().debuffAmount();
 
                 Set<MobEffect> apply = new HashSet<>();
@@ -326,20 +326,20 @@ public class ShamanIllagerEntity extends AbstractEvokerVariant
         @Override
         public boolean canUse()
         {
-            return super.canUse() && !ShamanIllagerEntity.this.getNearbyRaiders(RaidDifficulty.current().config().shaman().buffRadius()).isEmpty();
+            return super.canUse() && ShamanIllagerEntity.this.isInRaid() && !ShamanIllagerEntity.this.getNearbyRaiders(ShamanIllagerEntity.this.getRaidDifficulty().config().shaman().buffRadius()).isEmpty();
         }
 
         @Override
         protected void castSpell()
         {
             ServerLevel level = (ServerLevel)ShamanIllagerEntity.this.getLevel();
-            boolean raid = ShamanIllagerEntity.this.getCurrentRaid() != null;
+            boolean raid = ShamanIllagerEntity.this.isInRaid();
             Random random = new Random();
 
             //In a Raid, Shaman will boost others. If not, it'll boost itself (but the Shaman is a Raid-only mob at the moment)
             if(raid)
             {
-                RaidDifficulty raidDifficulty = RaidDifficulty.current();
+                RaidDifficulty raidDifficulty = ShamanIllagerEntity.this.getRaidDifficulty();
 
                 AABB buffAABB = new AABB(ShamanIllagerEntity.this.blockPosition()).inflate(raidDifficulty.config().shaman().buffRadius());
                 Predicate<AbstractIllager> canReceiveBuff = illager -> !illager.is(ShamanIllagerEntity.this) && !illager.hasEffect(MobEffects.DAMAGE_RESISTANCE);
@@ -420,7 +420,7 @@ public class ShamanIllagerEntity extends AbstractEvokerVariant
         @Override
         public boolean canUse()
         {
-            return super.canUse() && !ShamanIllagerEntity.this.getNearbyRaiders(RaidDifficulty.current().config().shaman().buffRadius()).isEmpty();
+            return super.canUse() && ShamanIllagerEntity.this.isInRaid() && !ShamanIllagerEntity.this.getNearbyRaiders(ShamanIllagerEntity.this.getRaidDifficulty().config().shaman().buffRadius()).isEmpty();
         }
 
         @Override
@@ -433,7 +433,7 @@ public class ShamanIllagerEntity extends AbstractEvokerVariant
             //In a Raid, Shaman will boost others. If not, it'll boost itself (but the Shaman is a Raid-only mob at the moment)
             if(raid)
             {
-                RaidDifficulty raidDifficulty = RaidDifficulty.current();
+                RaidDifficulty raidDifficulty = ShamanIllagerEntity.this.getRaidDifficulty();
 
                 AABB buffAABB = new AABB(ShamanIllagerEntity.this.blockPosition()).inflate(raidDifficulty.config().shaman().buffRadius());
                 Predicate<AbstractIllager> canReceiveBuff = illager -> !illager.is(ShamanIllagerEntity.this) && !illager.hasEffect(MobEffects.DAMAGE_BOOST);

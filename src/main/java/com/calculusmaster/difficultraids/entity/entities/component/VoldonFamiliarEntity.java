@@ -161,16 +161,26 @@ public class VoldonFamiliarEntity extends AbstractPillagerVariant
     {
         private VoldonFamiliarReturnGoal() { this.setFlags(EnumSet.of(Flag.MOVE)); }
 
+        private boolean hasVoldon()
+        {
+            return VoldonFamiliarEntity.this.voldon != null && VoldonFamiliarEntity.this.voldon.isAlive();
+        }
+
+        private double getDistanceToVoldon()
+        {
+            return VoldonFamiliarEntity.this.distanceTo(VoldonFamiliarEntity.this.voldon);
+        }
+
         @Override
         public boolean canUse()
         {
-            return VoldonFamiliarEntity.this.voldon != null && VoldonFamiliarEntity.this.distanceTo(VoldonFamiliarEntity.this.voldon) > 15.0;
+            return this.hasVoldon() && this.getDistanceToVoldon() > 15.0;
         }
 
         @Override
         public boolean canContinueToUse()
         {
-            return super.canContinueToUse();
+            return this.hasVoldon() && this.getDistanceToVoldon() > 5.0;
         }
 
         @Override

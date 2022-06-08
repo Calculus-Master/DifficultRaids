@@ -145,7 +145,7 @@ public class NuaosEliteEntity extends AbstractIllagerVariant
     @Override
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData, @Nullable CompoundTag pDataTag)
     {
-        ItemStack sword = new ItemStack(RaidDifficulty.current().is(RaidDifficulty.MASTER, RaidDifficulty.APOCALYPSE) ? Items.NETHERITE_SWORD : Items.DIAMOND_SWORD);
+        ItemStack sword = new ItemStack(this.isInRaid() ? Items.DIAMOND_SWORD : this.getRaidDifficulty().is(RaidDifficulty.MASTER, RaidDifficulty.GRANDMASTER) ? Items.NETHERITE_SWORD : Items.DIAMOND_SWORD);
 
         Map<Enchantment, Integer> enchants = new HashMap<>();
         enchants.put(Enchantments.SHARPNESS, 3);
@@ -188,7 +188,6 @@ public class NuaosEliteEntity extends AbstractIllagerVariant
         this.chargedDamage = 0.0F;
     }
 
-    //TODO: Nuaos Charge State Textures
     public ChargeState getChargeState()
     {
         double percentCharged = this.chargedDamage / this.maxChargedDamage;
@@ -214,7 +213,14 @@ public class NuaosEliteEntity extends AbstractIllagerVariant
             List<EntityType<? extends LivingEntity>> canReceiveDamage = new ArrayList<>(List.of(EntityType.VILLAGER, EntityType.PLAYER, EntityType.IRON_GOLEM));
             if(DifficultRaidsUtil.isGuardVillagersLoaded()) canReceiveDamage.add(GuardEntityType.GUARD.get());
 
-            double shockwaveRadius = 4.0D;
+            double shockwaveRadius;
+            if(this.isInRaid()) shockwaveRadius = switch(this.getRaidDifficulty()) {
+                case DEFAULT, HERO, LEGEND -> 4.0D;
+                case MASTER -> 5.0D;
+                case GRANDMASTER -> 7.0D;
+            };
+            else shockwaveRadius = 4.0D;
+
             AABB shockwaveAABB = new AABB(this.blockPosition()).inflate(shockwaveRadius);
             List<LivingEntity> targets = this.level.getEntitiesOfClass(LivingEntity.class, shockwaveAABB, entity -> canReceiveDamage.stream().anyMatch(type -> entity.getType().equals(type)));
 

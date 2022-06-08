@@ -3,7 +3,6 @@ package com.calculusmaster.difficultraids.entity.entities.raider;
 import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
 import com.calculusmaster.difficultraids.entity.entities.component.FrostSnowballEntity;
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
-import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -196,7 +195,7 @@ public class FrostIllagerEntity extends AbstractEvokerVariant
 
             if(target != null)
             {
-                float damage = FrostIllagerEntity.this.getCurrentRaid() != null ? RaidDifficulty.current().config().frost().snowballBlastDamage() + switch(FrostIllagerEntity.this.level.getDifficulty()) {
+                float damage = FrostIllagerEntity.this.getCurrentRaid() != null ? FrostIllagerEntity.this.getRaidDifficulty().config().frost().snowballBlastDamage() + switch(FrostIllagerEntity.this.level.getDifficulty()) {
                     case PEACEFUL, NORMAL -> 0.0F;
                     case EASY -> -0.5F;
                     case HARD -> 0.5F;
@@ -272,7 +271,7 @@ public class FrostIllagerEntity extends AbstractEvokerVariant
         protected void castSpell()
         {
             FrostIllagerEntity.this.barrageTicks = FrostIllagerEntity.this.getCurrentRaid() != null
-                    ? RaidDifficulty.current().config().frost().barrageDuration()
+                    ? FrostIllagerEntity.this.getRaidDifficulty().config().frost().barrageDuration()
                     : switch(FrostIllagerEntity.this.level.getDifficulty()) {
                         case PEACEFUL -> 0;
                         case EASY -> 20 * 2;
@@ -332,7 +331,7 @@ public class FrostIllagerEntity extends AbstractEvokerVariant
 
             if(target != null)
             {
-                int duration = raid ? RaidDifficulty.current().config().frost().freezeDuration() : switch(level.getDifficulty()) {
+                int duration = raid ? FrostIllagerEntity.this.getRaidDifficulty().config().frost().freezeDuration() : switch(level.getDifficulty()) {
                     case PEACEFUL -> 0;
                     case EASY -> 20 * 3;
                     case NORMAL -> 20 * 5;

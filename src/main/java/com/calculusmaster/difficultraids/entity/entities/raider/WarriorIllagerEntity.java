@@ -72,7 +72,7 @@ public class WarriorIllagerEntity extends AbstractVindicatorVariant
     @Override
     public void applyRaidBuffs(int p_37844_, boolean p_37845_)
     {
-        RaidDifficulty raidDifficulty = RaidDifficulty.current();
+        RaidDifficulty raidDifficulty = this.getRaidDifficulty();
 
         List<Item> swordPool = raidDifficulty.config().warrior().possibleSwords();
         ItemStack sword = new ItemStack(swordPool.get(this.random.nextInt(swordPool.size())));

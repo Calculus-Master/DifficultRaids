@@ -1,7 +1,6 @@
 package com.calculusmaster.difficultraids.entity.entities.raider;
 
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractVindicatorVariant;
-import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -49,7 +48,7 @@ public class DartIllagerEntity extends AbstractVindicatorVariant
     public static AttributeSupplier.Builder createAttributes()
     {
         return Monster.createMonsterAttributes()
-                .add(Attributes.MOVEMENT_SPEED, 0.60F)
+                .add(Attributes.MOVEMENT_SPEED, 0.42F)
                 .add(Attributes.FOLLOW_RANGE, 18.0D)
                 .add(Attributes.MAX_HEALTH, 12.0D)
                 .add(Attributes.ATTACK_DAMAGE, 5.0D);
@@ -63,7 +62,7 @@ public class DartIllagerEntity extends AbstractVindicatorVariant
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new AbstractIllager.RaiderOpenDoorGoal(this));
         this.goalSelector.addGoal(2, new Raider.HoldGroundAttackGoal(this, 10.0F));
-        this.goalSelector.addGoal(3, new MeleeAttackGoal(this, 1.5D, true));
+        this.goalSelector.addGoal(3, new MeleeAttackGoal(this, 1.3D, true));
 
         this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, Raider.class)).setAlertOthers());
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
@@ -110,15 +109,13 @@ public class DartIllagerEntity extends AbstractVindicatorVariant
     @Override
     public void applyRaidBuffs(int p_37844_, boolean p_37845_)
     {
-        RaidDifficulty raidDifficulty = RaidDifficulty.current();
-
         ItemStack sword = new ItemStack(Items.GOLDEN_SWORD);
 
-        if(!raidDifficulty.is(RaidDifficulty.DEFAULT))
+        if(this.isInDifficultRaid())
         {
             Map<Enchantment, Integer> enchants = new HashMap<>();
 
-            enchants.put(Enchantments.SHARPNESS, raidDifficulty.config().dart().sharpnessLevel());
+            enchants.put(Enchantments.SHARPNESS, this.getRaidDifficulty().config().dart().sharpnessLevel());
             enchants.put(Enchantments.VANISHING_CURSE, 1);
 
             EnchantmentHelper.setEnchantments(enchants, sword);

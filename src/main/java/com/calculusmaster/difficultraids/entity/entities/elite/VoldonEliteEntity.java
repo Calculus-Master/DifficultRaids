@@ -2,7 +2,6 @@ package com.calculusmaster.difficultraids.entity.entities.elite;
 
 import com.calculusmaster.difficultraids.entity.entities.component.VoldonFamiliarEntity;
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
-import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsItems;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import com.mojang.logging.LogUtils;
@@ -380,15 +379,13 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
         @Override
         protected void castSpell()
         {
-            RaidDifficulty raidDifficulty = RaidDifficulty.current();
-
             int familiarCount;
 
-            if(VoldonEliteEntity.this.getCurrentRaid() != null && !raidDifficulty.isDefault()) familiarCount = switch(raidDifficulty) {
+            if(VoldonEliteEntity.this.isInRaid() && !VoldonEliteEntity.this.getRaidDifficulty().isDefault()) familiarCount = switch(VoldonEliteEntity.this.getRaidDifficulty()) {
                 case HERO -> 4;
                 case LEGEND -> 6;
                 case MASTER -> 8;
-                case APOCALYPSE -> 12;
+                case GRANDMASTER -> 12;
                 default -> 0;
             };
             else familiarCount = switch(VoldonEliteEntity.this.level.getDifficulty()) {
@@ -404,7 +401,6 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
             Supplier<BlockPos> familiarPos = () -> sourcePos.offset(VoldonEliteEntity.this.random.nextInt(2, 6), VoldonEliteEntity.this.random.nextInt(2, 6), VoldonEliteEntity.this.random.nextInt(2, 6));
             for(int i = 0; i < familiarCount; i++)
             {
-                //TODO: Create custom familiars
                 Monster familiar = new VoldonFamiliarEntity(VoldonEliteEntity.this.level, VoldonEliteEntity.this);
                 familiar.moveTo(familiarPos.get(), 0.0F, 0.0F);
                 familiar.setOnGround(true);

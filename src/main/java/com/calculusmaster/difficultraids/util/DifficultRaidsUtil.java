@@ -20,6 +20,11 @@ public class DifficultRaidsUtil
         return ModList.get().isLoaded("hunterillager");
     }
 
+    public static boolean isEnchantWithMobLoaded()
+    {
+        return ModList.get().isLoaded("enchantwithmob");
+    }
+
     public static final String ELECTRO_ILLAGER_CUSTOM_BOLT_TAG = "DifficultRaids_Electro_Bolt";
 
     //Returns the correct armor piece given a slot and ArmorMaterial. Returns AIR if none are found.

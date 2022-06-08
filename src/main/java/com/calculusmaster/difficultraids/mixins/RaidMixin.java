@@ -7,6 +7,7 @@ import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
@@ -59,7 +60,9 @@ public abstract class RaidMixin
 
     @Shadow public abstract void joinRaid(int p_37714_, Raider p_37715_, @Nullable BlockPos p_37716_, boolean p_37717_);
     @Shadow public abstract int getGroupsSpawned();
+    @Shadow public abstract int getBadOmenLevel();
 
+    @Shadow @Final private ServerBossEvent raidEvent;
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private void initializeValidRaidArea()
@@ -74,6 +77,16 @@ public abstract class RaidMixin
         this.initializeValidRaidArea();
     }
 
+    @Inject(at = @At("TAIL"), method = "tick")
+    private void difficultraids_addDifficultyToEventBar(CallbackInfo callback)
+    {
+        RaidDifficulty raidDifficulty = RaidDifficulty.get(this.getBadOmenLevel());
+        String title = this.raidEvent.getName().getString();
+
+        if(title.toLowerCase().contains("raid") && !title.toLowerCase().contains(raidDifficulty.getFormattedName().toLowerCase()))
+            this.raidEvent.setName(new TextComponent(raidDifficulty.getFormattedName() + " " + title));
+    }
+
     @Inject(at = @At("HEAD"), method = "spawnGroup")
     private void difficultraids_spawnGroup(BlockPos pos, CallbackInfo callbackInfo)
     {
@@ -83,10 +96,10 @@ public abstract class RaidMixin
         this.players = participants.size();
 
         Difficulty levelDifficulty = this.level.getDifficulty();
-        RaidDifficulty raidDifficulty = RaidDifficulty.current();
+        RaidDifficulty raidDifficulty = RaidDifficulty.get(this.getBadOmenLevel());
 
         //Entity Reinforcements (no Raiders)
-        if(this.random.nextInt(100) < raidDifficulty.config().reinforcementChance())
+        if(false && this.random.nextInt(100) < raidDifficulty.config().reinforcementChance())
         {
             Map<EntityType<?>, Integer> reinforcements = RaidEnemyRegistry.getReinforcements(this.groupsSpawned, raidDifficulty, levelDifficulty);
             final String sum = "(" + reinforcements.values().stream().mapToInt(i -> i).sum() + ")";
@@ -132,8 +145,8 @@ public abstract class RaidMixin
     @Inject(at = @At("TAIL"), method = "spawnGroup")
     private void difficultraids_spawnElite(BlockPos spawnPos, CallbackInfo callback)
     {
-        RaidDifficulty raidDifficulty = RaidDifficulty.current();
-        if(raidDifficulty.config().areElitesEnabled() && raidDifficulty.is(RaidDifficulty.LEGEND, RaidDifficulty.MASTER, RaidDifficulty.APOCALYPSE))
+        RaidDifficulty raidDifficulty = RaidDifficulty.get(this.getBadOmenLevel());
+        if(raidDifficulty.config().areElitesEnabled() && raidDifficulty.is(RaidDifficulty.LEGEND, RaidDifficulty.MASTER, RaidDifficulty.GRANDMASTER))
         {
             int wave = this.getGroupsSpawned();
             int eliteTier = RaidEnemyRegistry.getEliteWaveTier(this.level.getDifficulty(), wave);
@@ -154,7 +167,7 @@ public abstract class RaidMixin
     @Inject(at = @At("HEAD"), method = "getDefaultNumSpawns", cancellable = true)
     private void difficultraids_getDefaultNumSpawns(Raid.RaiderType raiderType, int groupsSpawned, boolean spawnBonusGroup, CallbackInfoReturnable<Integer> callbackInfoReturnable)
     {
-        RaidDifficulty raidDifficulty = RaidDifficulty.current();
+        RaidDifficulty raidDifficulty = RaidDifficulty.get(this.getBadOmenLevel());
 
         boolean isDefault = raidDifficulty.isDefault();
         boolean isRegistered = RaidEnemyRegistry.isRaiderTypeRegistered(raiderType.toString());
@@ -181,20 +194,20 @@ public abstract class RaidMixin
     @Inject(at = @At("HEAD"), method = "getPotentialBonusSpawns", cancellable = true)
     private void difficultraids_getPotentialBonusSpawns(Raid.RaiderType raiderType, Random random, int groupsSpawned, DifficultyInstance difficultyInstance, boolean shouldSpawnBonusGroup, CallbackInfoReturnable<Integer> callbackInfoReturnable)
     {
-        if(!RaidDifficulty.current().isDefault()) callbackInfoReturnable.setReturnValue(0);
+        if(!RaidDifficulty.get(this.getBadOmenLevel()).isDefault()) callbackInfoReturnable.setReturnValue(0);
     }
 
     @Inject(at = @At("HEAD"), method = "stop")
     public void difficultraids_grantRewards(CallbackInfo callbackInfo)
     {
-        RaidDifficulty raidDifficulty = RaidDifficulty.current();
+        RaidDifficulty raidDifficulty = RaidDifficulty.get(this.getBadOmenLevel());
 
         if(this.isVictory() && !raidDifficulty.isDefault())
         {
             List<ItemStack> rewards = RaidLoot.generate(raidDifficulty, this.level.getDifficulty());
 
             //TODO: Temporary
-            if(raidDifficulty.is(RaidDifficulty.APOCALYPSE))
+            if(raidDifficulty.is(RaidDifficulty.GRANDMASTER))
             {
                 rewards.addAll(RaidLoot.generate(RaidDifficulty.MASTER, this.level.getDifficulty()));
                 rewards.addAll(RaidLoot.generate(RaidDifficulty.MASTER, this.level.getDifficulty()));
@@ -221,7 +234,7 @@ public abstract class RaidMixin
                 );
             });
         }
-        else if(this.isLoss() && raidDifficulty.is(RaidDifficulty.APOCALYPSE))
+        else if(this.isLoss() && raidDifficulty.is(RaidDifficulty.GRANDMASTER))
         {
             WitherBoss wither = EntityType.WITHER.create(this.level);
 
@@ -267,50 +280,5 @@ public abstract class RaidMixin
         if(health != null) health.addPermanentModifier(healthBoostModifier);
 
         return defaultRaider;
-    }
-
-    /**
-     * @author CalculusMaster
-     * @reason Changing the wave counts based on RaidDifficulty and World Difficulty
-     */
-    //TODO: Reenable after changing default spawn arrays
-    //TODO: Check the applyRaidBuffs methods in Vindicator, Pillager, Evoker, Ravager, (?)Witch
-    //@Overwrite //@Inject(...)
-    public void difficultraids_getNumGroups(Difficulty p_37725_, CallbackInfoReturnable<Integer> callback)
-    {
-        RaidDifficulty raidDifficulty = RaidDifficulty.current();
-        int waves;
-
-        if(raidDifficulty.isDefault())
-        {
-            //Vanilla Defaults
-            waves = switch(p_37725_) {
-                case EASY -> 3;
-                case NORMAL -> 5;
-                case HARD -> 7;
-                case PEACEFUL -> 0;
-            };
-        }
-        else
-        {
-            //Base Waves (from RaidDifficulty)
-            waves = switch(raidDifficulty) {
-                case HERO -> 5;
-                case LEGEND -> 7;
-                case MASTER -> 9;
-                case APOCALYPSE -> 11;
-                default -> 0;
-            };
-
-            //Waves Modifier (from World Difficulty)
-            waves += switch(p_37725_) {
-                case PEACEFUL -> -waves;
-                case EASY -> -1;
-                case NORMAL -> 0;
-                case HARD -> +1;
-            };
-        }
-
-        callback.setReturnValue(waves);
     }
 }

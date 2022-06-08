@@ -210,7 +210,7 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
         {
             LivingEntity target = NecromancerIllagerEntity.this.getTarget();
             ServerLevel level = (ServerLevel)NecromancerIllagerEntity.this.getLevel();
-            boolean raid = NecromancerIllagerEntity.this.getCurrentRaid() != null;
+            boolean raid = NecromancerIllagerEntity.this.isInRaid();
 
             if(target != null)
             {
@@ -232,7 +232,7 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
 
                 if(raid)
                 {
-                    RaidDifficulty raidDifficulty = RaidDifficulty.current();
+                    RaidDifficulty raidDifficulty = NecromancerIllagerEntity.this.getRaidDifficulty();
 
                     summons = raidDifficulty.config().necromancer().minionSummonCount();
                     if(level.getDifficulty().equals(Difficulty.EASY)) summons--;
@@ -260,7 +260,7 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
                     };
 
                     int protectionLevel = 0;
-                    if(raid) protectionLevel = RaidDifficulty.current().config().necromancer().minionProtectionLevel();
+                    if(raid) protectionLevel = NecromancerIllagerEntity.this.getRaidDifficulty().config().necromancer().minionProtectionLevel();
 
                     List<EquipmentSlot> slots = List.of(EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET);
                     for(Item item : armor)
@@ -341,7 +341,7 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
         {
             LivingEntity target = NecromancerIllagerEntity.this.getTarget();
             ServerLevel level = (ServerLevel)NecromancerIllagerEntity.this.getLevel();
-            boolean raid = NecromancerIllagerEntity.this.getCurrentRaid() != null;
+            boolean raid = NecromancerIllagerEntity.this.isInRaid();
 
             if(target != null)
             {
@@ -351,8 +351,10 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
 
                 if(raid)
                 {
-                    size = RaidDifficulty.current().config().necromancer().hordeSize() + switch(level.getDifficulty()) {
-                        case PEACEFUL -> -RaidDifficulty.current().config().necromancer().hordeSize();
+                    RaidDifficulty raidDifficulty = NecromancerIllagerEntity.this.getRaidDifficulty();
+
+                    size = raidDifficulty.config().necromancer().hordeSize() + switch(level.getDifficulty()) {
+                        case PEACEFUL -> -raidDifficulty.config().necromancer().hordeSize();
                         case EASY -> -5;
                         case NORMAL -> 0;
                         case HARD -> 5;
@@ -392,7 +394,7 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
                     NecromancerIllagerEntity.this.activeHorde.add(hordeMember);
                 }
 
-                NecromancerIllagerEntity.this.hordeLifetimeTicks = raid ? RaidDifficulty.current().config().necromancer().hordeLifetime() : switch(level.getDifficulty()) {
+                NecromancerIllagerEntity.this.hordeLifetimeTicks = raid ? NecromancerIllagerEntity.this.getRaidDifficulty().config().necromancer().hordeLifetime() : switch(level.getDifficulty()) {
                     case PEACEFUL -> 1;
                     case EASY -> 20 * 15;
                     case NORMAL -> 20 * 30;
@@ -455,7 +457,7 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
         {
             LivingEntity target = NecromancerIllagerEntity.this.getTarget();
             ServerLevel level = (ServerLevel)NecromancerIllagerEntity.this.getLevel();
-            boolean raid = NecromancerIllagerEntity.this.getCurrentRaid() != null;
+            boolean raid = NecromancerIllagerEntity.this.isInRaid();
             Random random = new Random();
 
             if(target != null)

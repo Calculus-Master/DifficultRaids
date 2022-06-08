@@ -20,15 +20,17 @@ import tallestegg.guardvillagers.entities.Guard;
 @Pseudo
 @Mixin(Raid.class)
 // TODO: FIXME: 4/12/22
-public class GuardVillagerRaidMixin
+public abstract class GuardVillagerRaidMixin
 {
     @Shadow private BlockPos center;
     @Shadow @Final private ServerLevel level;
 
+    @Shadow public abstract int getBadOmenLevel();
+
     @Inject(at = @At("HEAD"), method = "spawnGroup")
     private void difficultraids_spawnGroupGuardReinforcements(BlockPos pos, CallbackInfo callbackInfo)
     {
-        RaidDifficulty raidDifficulty = RaidDifficulty.current();
+        RaidDifficulty raidDifficulty = RaidDifficulty.get(this.getBadOmenLevel());
 
         //Spawn Extra Guards
         if(DifficultRaidsUtil.isGuardVillagersLoaded() && !raidDifficulty.isDefault())
@@ -37,7 +39,7 @@ public class GuardVillagerRaidMixin
                 case HERO -> 2;
                 case LEGEND -> 3;
                 case MASTER -> 4;
-                case APOCALYPSE -> 7;
+                case GRANDMASTER -> 7;
                 default -> 0;
             };
 

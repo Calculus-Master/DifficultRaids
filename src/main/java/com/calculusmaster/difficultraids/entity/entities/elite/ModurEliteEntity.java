@@ -1,7 +1,6 @@
 package com.calculusmaster.difficultraids.entity.entities.elite;
 
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
-import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsItems;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import net.minecraft.core.BlockPos;
@@ -145,7 +144,7 @@ public class ModurEliteEntity extends AbstractEvokerVariant
     {
         super.die(pCause);
 
-        this.spawnCustomBolt(this.blockPosition(), 20.0F);
+        this.spawnCustomBolt(this.blockPosition().offset(0, 0.2, 0), 15.0F);
 
         if(!this.level.isClientSide) ((ServerLevel)ModurEliteEntity.this.level).setWeatherParameters(6000, 0, false, false);
     }
@@ -408,16 +407,16 @@ public class ModurEliteEntity extends AbstractEvokerVariant
 
             modur.stormTicks = modur.random.nextInt(40, switch(modur.level.getDifficulty()) {
                 case PEACEFUL -> 41;
-                case EASY -> 80;
-                case NORMAL -> 100;
-                case HARD -> 160;
+                case EASY -> 81;
+                case NORMAL -> 101;
+                case HARD -> 161;
             });
 
-            modur.stormAABB = new AABB(modur.blockPosition()).inflate(modur.getCurrentRaid() != null ? switch(RaidDifficulty.current()) {
+            modur.stormAABB = new AABB(modur.blockPosition()).inflate(modur.isInRaid() ? switch(modur.getRaidDifficulty()) {
                 case HERO -> 18.0;
                 case LEGEND -> 24.0;
                 case MASTER -> 30.0;
-                case APOCALYPSE -> 50.0;
+                case GRANDMASTER -> 50.0;
                 default -> 0.0;
             } : 10.0).setMaxY(modur.getEyeY() + 4.0).setMinY(modur.blockPosition().getY() + 0.4);
         }

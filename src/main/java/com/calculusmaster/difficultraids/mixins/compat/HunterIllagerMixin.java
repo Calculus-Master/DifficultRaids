@@ -38,9 +38,10 @@ public abstract class HunterIllagerMixin extends AbstractIllager
     @Inject(at = @At("HEAD"), method = "applyRaidBuffs", cancellable = true)
     private void difficultraids_applyRaidBuffs(int p_213660_1_, boolean p_213660_2_, CallbackInfo callback)
     {
-        RaidDifficulty raidDifficulty = RaidDifficulty.current();
+        boolean inRaid = this.getCurrentRaid() != null;
+        RaidDifficulty raidDifficulty = inRaid ? RaidDifficulty.get(this.getCurrentRaid().getBadOmenLevel()) : null;
 
-        if(!raidDifficulty.isDefault() && DifficultRaidsUtil.isHunterIllagerLoaded())
+        if(inRaid && !raidDifficulty.isDefault() && DifficultRaidsUtil.isHunterIllagerLoaded())
         {
             //TODO: Add Config for this stuff
             //Main Weapon
@@ -48,7 +49,7 @@ public abstract class HunterIllagerMixin extends AbstractIllager
                 case HERO -> Items.STONE_SWORD;
                 case LEGEND -> Items.IRON_SWORD;
                 case MASTER -> Items.DIAMOND_SWORD;
-                case APOCALYPSE -> Items.NETHERITE_SWORD;
+                case GRANDMASTER -> Items.NETHERITE_SWORD;
                 default -> Items.GOLDEN_SWORD;
             };
 
@@ -62,7 +63,7 @@ public abstract class HunterIllagerMixin extends AbstractIllager
                     case HERO -> 25;
                     case LEGEND -> 35;
                     case MASTER -> 45;
-                    case APOCALYPSE -> 90;
+                    case GRANDMASTER -> 90;
                     default -> 0;
                 };
 
@@ -72,7 +73,7 @@ public abstract class HunterIllagerMixin extends AbstractIllager
                         case HERO -> this.random.nextInt(1, 3);
                         case LEGEND -> this.random.nextInt(1, 5);
                         case MASTER -> this.random.nextInt(2, 5);
-                        case APOCALYPSE -> this.random.nextInt(5, 7);
+                        case GRANDMASTER -> this.random.nextInt(5, 7);
                         default -> 0;
                     };
 
@@ -84,7 +85,7 @@ public abstract class HunterIllagerMixin extends AbstractIllager
                     case HERO -> 15;
                     case LEGEND -> 20;
                     case MASTER -> 25;
-                    case APOCALYPSE -> 50;
+                    case GRANDMASTER -> 50;
                     default -> 0;
                 };
 
@@ -93,7 +94,7 @@ public abstract class HunterIllagerMixin extends AbstractIllager
                     int punchLevel = switch(raidDifficulty) {
                         case HERO, LEGEND -> 1;
                         case MASTER -> 2;
-                        case APOCALYPSE -> 3;
+                        case GRANDMASTER -> 3;
                         default -> 0;
                     };
 
@@ -105,7 +106,7 @@ public abstract class HunterIllagerMixin extends AbstractIllager
                     case HERO -> 5;
                     case LEGEND -> 10;
                     case MASTER -> 15;
-                    case APOCALYPSE -> 50;
+                    case GRANDMASTER -> 50;
                     default -> 0;
                 };
 
@@ -114,7 +115,7 @@ public abstract class HunterIllagerMixin extends AbstractIllager
                     int fireLevel = switch(raidDifficulty) {
                         case HERO, LEGEND -> 1;
                         case MASTER -> 2;
-                        case APOCALYPSE -> 3;
+                        case GRANDMASTER -> 3;
                         default -> 0;
                     };
 
@@ -127,7 +128,7 @@ public abstract class HunterIllagerMixin extends AbstractIllager
                     case HERO -> 60;
                     case LEGEND -> 70;
                     case MASTER -> 80;
-                    case APOCALYPSE -> 90;
+                    case GRANDMASTER -> 90;
                     default -> 0;
                 };
 
@@ -137,7 +138,7 @@ public abstract class HunterIllagerMixin extends AbstractIllager
                         case HERO -> 2;
                         case LEGEND -> 3;
                         case MASTER -> 4;
-                        case APOCALYPSE -> 6;
+                        case GRANDMASTER -> 6;
                         default -> 0;
                     };
 
@@ -156,7 +157,7 @@ public abstract class HunterIllagerMixin extends AbstractIllager
                 case HERO -> 33;
                 case LEGEND -> 45;
                 case MASTER -> 55;
-                case APOCALYPSE -> 90;
+                case GRANDMASTER -> 90;
                 default -> 0;
             };
 
@@ -166,7 +167,7 @@ public abstract class HunterIllagerMixin extends AbstractIllager
                 case HERO -> 20;
                 case LEGEND -> 30;
                 case MASTER -> 45;
-                case APOCALYPSE -> 90;
+                case GRANDMASTER -> 90;
                 default -> 0;
             };
 
@@ -176,7 +177,7 @@ public abstract class HunterIllagerMixin extends AbstractIllager
                     case HERO -> 1;
                     case LEGEND -> 2;
                     case MASTER -> 3;
-                    case APOCALYPSE -> 7;
+                    case GRANDMASTER -> 7;
                     default -> 0;
                 };
 
@@ -190,7 +191,7 @@ public abstract class HunterIllagerMixin extends AbstractIllager
                 case HERO -> 6;
                 case LEGEND -> 8;
                 case MASTER -> 10;
-                case APOCALYPSE -> 20;
+                case GRANDMASTER -> 20;
                 default -> 0;
             };
 

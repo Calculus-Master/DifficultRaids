@@ -10,11 +10,17 @@ public enum RaidDifficulty
     HERO,
     LEGEND,
     MASTER,
-    APOCALYPSE;
+    GRANDMASTER;
 
-    public static RaidDifficulty current()
+    public static RaidDifficulty get(int badOmenLevel)
     {
-        return DifficultRaidsConfig.RAID_DIFFICULTY.get();
+        return switch(badOmenLevel) {
+            case 2 -> HERO;
+            case 3 -> LEGEND;
+            case 4 -> MASTER;
+            case 5 -> GRANDMASTER;
+            default -> DEFAULT;
+        };
     }
 
     public DifficultRaidsConfig.RaidDifficultyConfig config()
@@ -23,7 +29,7 @@ public enum RaidDifficulty
             case HERO -> DifficultRaidsConfig.HERO_CONFIG;
             case LEGEND -> DifficultRaidsConfig.LEGEND_CONFIG;
             case MASTER -> DifficultRaidsConfig.MASTER_CONFIG;
-            case APOCALYPSE -> DifficultRaidsConfig.APOCALYPSE_CONFIG;
+            case GRANDMASTER -> DifficultRaidsConfig.APOCALYPSE_CONFIG;
             default -> DifficultRaidsConfig.DEFAULT_CONFIG;
         };
     }

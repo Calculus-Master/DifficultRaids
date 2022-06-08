@@ -31,7 +31,7 @@ public abstract class PillagerMixin extends AbstractIllager
     @Inject(at = @At("TAIL"), method = "applyRaidBuffs", cancellable = true)
     public void applyRaidBuffs(int p_37844_, boolean p_37845_, CallbackInfo callbackInfo)
     {
-        RaidDifficulty raidDifficulty = RaidDifficulty.current();
+        RaidDifficulty raidDifficulty = RaidDifficulty.get(this.getCurrentRaid().getBadOmenLevel());
 
         if(!raidDifficulty.isDefault() && this.getItemBySlot(EquipmentSlot.MAINHAND).is(Items.CROSSBOW))
         {
@@ -44,7 +44,7 @@ public abstract class PillagerMixin extends AbstractIllager
                 case HERO -> 20;
                 case LEGEND -> 40;
                 case MASTER -> 50;
-                case APOCALYPSE -> 90;
+                case GRANDMASTER -> 90;
                 default -> 0;
             };
 
@@ -54,7 +54,7 @@ public abstract class PillagerMixin extends AbstractIllager
                     case HERO -> this.random.nextInt(1, 3);
                     case LEGEND -> this.random.nextInt(1, 5);
                     case MASTER -> this.random.nextInt(3, 6);
-                    case APOCALYPSE -> 5;
+                    case GRANDMASTER -> 5;
                     default -> 0;
                 };
 
@@ -66,7 +66,7 @@ public abstract class PillagerMixin extends AbstractIllager
                 case HERO -> 25;
                 case LEGEND -> 30;
                 case MASTER -> 40;
-                case APOCALYPSE -> 50;
+                case GRANDMASTER -> 50;
                 default -> 0;
             };
 

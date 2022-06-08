@@ -3,7 +3,6 @@ package com.calculusmaster.difficultraids.setup;
 import com.calculusmaster.difficultraids.DifficultRaids;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.raids.RaidEnemyRegistry;
-import com.electronwill.nightconfig.core.EnumGetMethod;
 import com.mojang.logging.LogUtils;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ArmorMaterials;
@@ -23,8 +22,6 @@ public class DifficultRaidsConfig
 {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public static ForgeConfigSpec.EnumValue<RaidDifficulty> RAID_DIFFICULTY;
-
     public static Map<String, ForgeConfigSpec.BooleanValue> ENABLED_RAIDERS;
 
     public static RaidDifficultyConfig DEFAULT_CONFIG, HERO_CONFIG, LEGEND_CONFIG, MASTER_CONFIG, APOCALYPSE_CONFIG;
@@ -33,15 +30,6 @@ public class DifficultRaidsConfig
     {
         //Server Configs
         ForgeConfigSpec.Builder SERVER = new ForgeConfigSpec.Builder();
-
-        RAID_DIFFICULTY = SERVER
-                .comment("""
-                        Change the overall difficulty of Raids.
-                        DEFAULT difficulty removes all of this mod's changes to raids, and uses the vanilla Minecraft Raid settings. Also prevents any custom mobs from this mod from spawning in Raids.
-                        HERO is the easiest difficulty added by this mod (but still harder than DEFAULT).
-                        WARNING: APOCALYPSE difficulty spawns massive amounts of mobs, potentially generating vast amounts of lag. Choose at your own risk!
-                        """)
-                .defineEnum("raidDifficulty", RaidDifficulty.HERO, EnumGetMethod.NAME_IGNORECASE);
 
         //Disable mobs
 
@@ -87,7 +75,7 @@ public class DifficultRaidsConfig
                 case HERO -> 15;
                 case LEGEND -> 25;
                 case MASTER -> 40;
-                case APOCALYPSE -> 100;
+                case GRANDMASTER -> 100;
                 default -> 0;
             };
 
@@ -100,7 +88,7 @@ public class DifficultRaidsConfig
                 case HERO -> 10;
                 case LEGEND -> 25;
                 case MASTER -> 40;
-                case APOCALYPSE -> 80;
+                case GRANDMASTER -> 80;
                 default -> 0;
             };
 
@@ -111,7 +99,7 @@ public class DifficultRaidsConfig
             //Max Armor Pieces
             int default_maxArmorPieces = switch(raidDifficulty) {
                 case HERO, LEGEND, MASTER -> 1;
-                case APOCALYPSE -> 4;
+                case GRANDMASTER -> 4;
                 default -> 0;
             };
 
@@ -124,7 +112,7 @@ public class DifficultRaidsConfig
                 case HERO -> List.of("LEATHER", "CHAIN", "IRON");
                 case LEGEND -> List.of("CHAIN", "IRON", "DIAMOND");
                 case MASTER -> List.of("IRON", "DIAMOND", "NETHERITE");
-                case APOCALYPSE -> List.of("DIAMOND", "NETHERITE");
+                case GRANDMASTER -> List.of("DIAMOND", "NETHERITE");
                 default -> List.of();
             };
 
@@ -137,7 +125,7 @@ public class DifficultRaidsConfig
                 case HERO -> 5;
                 case LEGEND -> 10;
                 case MASTER -> 15;
-                case APOCALYPSE -> 40;
+                case GRANDMASTER -> 40;
                 default -> 0;
             };
 
@@ -150,7 +138,7 @@ public class DifficultRaidsConfig
                 case HERO -> new Tuple<>(1, 2);
                 case LEGEND -> new Tuple<>(1, 4);
                 case MASTER -> new Tuple<>(3, 4);
-                case APOCALYPSE -> new Tuple<>(4, 5);
+                case GRANDMASTER -> new Tuple<>(4, 5);
                 default -> new Tuple<>(0, 0);
             };
 
@@ -171,7 +159,7 @@ public class DifficultRaidsConfig
                 int default_assassin_sharpnessLevel = switch(raidDifficulty) {
                     case HERO, LEGEND -> 1;
                     case MASTER -> 2;
-                    case APOCALYPSE -> 5;
+                    case GRANDMASTER -> 5;
                     default -> 0;
                 };
 
@@ -189,7 +177,7 @@ public class DifficultRaidsConfig
                     case HERO -> 2;
                     case LEGEND -> 3;
                     case MASTER -> 4;
-                    case APOCALYPSE -> 5;
+                    case GRANDMASTER -> 5;
                     default -> 0;
                 };
 
@@ -207,7 +195,7 @@ public class DifficultRaidsConfig
                     case HERO -> 19.0F;
                     case LEGEND -> 20.0F;
                     case MASTER -> 24.0F;
-                    case APOCALYPSE -> 30.0F;
+                    case GRANDMASTER -> 30.0F;
                     default -> 18.0F;
                 };
 
@@ -219,7 +207,7 @@ public class DifficultRaidsConfig
                     case HERO -> 4;
                     case LEGEND -> 6;
                     case MASTER -> 8;
-                    case APOCALYPSE -> 10;
+                    case GRANDMASTER -> 10;
                     default -> 3;
                 };
 
@@ -227,7 +215,7 @@ public class DifficultRaidsConfig
                         .comment("Determines the number of lightning strikes generated by the Electro Illager's Generic Lightning attack.")
                         .defineInRange("electroGenericLightningStrikeCount", default_electro_genericLightningStrikeCount, 1, Integer.MAX_VALUE);
 
-                boolean default_electro_extraRingBolts = raidDifficulty.is(RaidDifficulty.MASTER, RaidDifficulty.APOCALYPSE);
+                boolean default_electro_extraRingBolts = raidDifficulty.is(RaidDifficulty.MASTER, RaidDifficulty.GRANDMASTER);
 
                 config.electroConfig.extraRingBolts = BUILDER
                         .comment("If true, Electro Illagers will summon a second set of Lightning Bolts during their Ring Lightning attack.")
@@ -243,7 +231,7 @@ public class DifficultRaidsConfig
                     case HERO -> 3.5F;
                     case LEGEND -> 5.5F;
                     case MASTER -> 7.0F;
-                    case APOCALYPSE -> 10.0F;
+                    case GRANDMASTER -> 10.0F;
                     default -> 1.5F;
                 };
 
@@ -255,7 +243,7 @@ public class DifficultRaidsConfig
                     case HERO -> 20 * 7;
                     case LEGEND -> 20 * 12;
                     case MASTER -> 20 * 15;
-                    case APOCALYPSE -> 20 * 20;
+                    case GRANDMASTER -> 20 * 20;
                     default -> 20 * 3;
                 };
 
@@ -267,7 +255,7 @@ public class DifficultRaidsConfig
                     case HERO -> 20 * 6;
                     case LEGEND -> 20 * 8;
                     case MASTER -> 20 * 10;
-                    case APOCALYPSE -> 20 * 15;
+                    case GRANDMASTER -> 20 * 15;
                     default -> 20 * 4;
                 };
 
@@ -285,7 +273,7 @@ public class DifficultRaidsConfig
                     case HERO -> 2;
                     case LEGEND -> 3;
                     case MASTER -> 5;
-                    case APOCALYPSE -> 10;
+                    case GRANDMASTER -> 10;
                     default -> 0;
                 };
 
@@ -297,7 +285,7 @@ public class DifficultRaidsConfig
                     case HERO -> 1;
                     case LEGEND -> 2;
                     case MASTER -> 3;
-                    case APOCALYPSE -> 4;
+                    case GRANDMASTER -> 4;
                     default -> 0;
                 };
 
@@ -309,7 +297,7 @@ public class DifficultRaidsConfig
                     case HERO -> 10;
                     case LEGEND -> 15;
                     case MASTER -> 20;
-                    case APOCALYPSE -> 30;
+                    case GRANDMASTER -> 30;
                     default -> 5;
                 };
 
@@ -321,7 +309,7 @@ public class DifficultRaidsConfig
                     case HERO -> 20 * 30;
                     case LEGEND -> 20 * 60;
                     case MASTER -> 20 * 90;
-                    case APOCALYPSE -> 20 * 180;
+                    case GRANDMASTER -> 20 * 180;
                     default -> 20 * 15;
                 };
 
@@ -339,7 +327,7 @@ public class DifficultRaidsConfig
                     case HERO -> 2;
                     case LEGEND -> 3;
                     case MASTER -> 4;
-                    case APOCALYPSE -> 5;
+                    case GRANDMASTER -> 5;
                     default -> 1;
                 };
 
@@ -351,7 +339,7 @@ public class DifficultRaidsConfig
                     case HERO -> 40;
                     case LEGEND -> 60;
                     case MASTER -> 80;
-                    case APOCALYPSE -> 160;
+                    case GRANDMASTER -> 160;
                     default -> 20;
                 };
 
@@ -362,7 +350,7 @@ public class DifficultRaidsConfig
                 int default_shaman_slownessDuration = switch(raidDifficulty) {
                     case HERO, LEGEND -> 100;
                     case MASTER -> 160;
-                    case APOCALYPSE -> 240;
+                    case GRANDMASTER -> 240;
                     default -> 60;
                 };
 
@@ -372,7 +360,7 @@ public class DifficultRaidsConfig
 
                 int default_shaman_slownessAmplifier = switch(raidDifficulty) {
                     case LEGEND, MASTER -> 2;
-                    case APOCALYPSE -> 3;
+                    case GRANDMASTER -> 3;
                     default -> 1;
                 };
 
@@ -383,7 +371,7 @@ public class DifficultRaidsConfig
                 int default_shaman_MiningFatigueDuration = switch(raidDifficulty) {
                     case HERO -> 100;
                     case LEGEND, MASTER -> 160;
-                    case APOCALYPSE -> 280;
+                    case GRANDMASTER -> 280;
                     default -> 40;
                 };
 
@@ -393,7 +381,7 @@ public class DifficultRaidsConfig
 
                 int default_shaman_miningFatigueAmplifier = switch(raidDifficulty) {
                     case MASTER -> 2;
-                    case APOCALYPSE -> 3;
+                    case GRANDMASTER -> 3;
                     default -> 1;
                 };
 
@@ -403,7 +391,7 @@ public class DifficultRaidsConfig
 
                 int default_shaman_poisonDuration = switch(raidDifficulty) {
                     case HERO, LEGEND, MASTER -> 100;
-                    case APOCALYPSE -> 200;
+                    case GRANDMASTER -> 200;
                     default -> 50;
                 };
 
@@ -415,7 +403,7 @@ public class DifficultRaidsConfig
                     case HERO -> 2;
                     case LEGEND -> 3;
                     case MASTER -> 4;
-                    case APOCALYPSE -> 5;
+                    case GRANDMASTER -> 5;
                     default -> 1;
                 };
 
@@ -427,7 +415,7 @@ public class DifficultRaidsConfig
                     case HERO -> 40;
                     case LEGEND -> 80;
                     case MASTER -> 100;
-                    case APOCALYPSE -> 160;
+                    case GRANDMASTER -> 160;
                     default -> 20;
                 };
 
@@ -439,7 +427,7 @@ public class DifficultRaidsConfig
                     case HERO -> 60;
                     case LEGEND -> 100;
                     case MASTER -> 120;
-                    case APOCALYPSE -> 200;
+                    case GRANDMASTER -> 200;
                     default -> 20;
                 };
 
@@ -450,7 +438,7 @@ public class DifficultRaidsConfig
                 int default_shaman_weaknessAmplifier = switch(raidDifficulty) {
                     case HERO, LEGEND -> 2;
                     case MASTER -> 3;
-                    case APOCALYPSE -> 4;
+                    case GRANDMASTER -> 4;
                     default -> 1;
                 };
 
@@ -462,7 +450,7 @@ public class DifficultRaidsConfig
                     case HERO -> 5.0F;
                     case LEGEND -> 8.0F;
                     case MASTER -> 12.0F;
-                    case APOCALYPSE -> 20.0F;
+                    case GRANDMASTER -> 20.0F;
                     default -> 3.0F;
                 };
 
@@ -473,7 +461,7 @@ public class DifficultRaidsConfig
                 int default_shaman_allyResistanceDuration = switch(raidDifficulty) {
                     case HERO -> 80;
                     case LEGEND, MASTER -> 160;
-                    case APOCALYPSE -> 360;
+                    case GRANDMASTER -> 360;
                     default -> 40;
                 };
 
@@ -483,7 +471,7 @@ public class DifficultRaidsConfig
 
                 int default_shaman_allyResistanceAmplifier = switch(raidDifficulty) {
                     case MASTER -> 2;
-                    case APOCALYPSE -> 3;
+                    case GRANDMASTER -> 3;
                     default -> 1;
                 };
 
@@ -493,7 +481,7 @@ public class DifficultRaidsConfig
 
                 int default_shaman_allyStrengthDuration = switch(raidDifficulty) {
                     case HERO, MASTER -> 200;
-                    case LEGEND, APOCALYPSE -> 480;
+                    case LEGEND, GRANDMASTER -> 480;
                     default -> 120;
                 };
 
@@ -503,7 +491,7 @@ public class DifficultRaidsConfig
 
                 int default_shaman_allyStrengthAmplifier = switch(raidDifficulty) {
                     case MASTER -> 2;
-                    case APOCALYPSE -> 3;
+                    case GRANDMASTER -> 3;
                     default -> 1;
                 };
 
@@ -521,7 +509,7 @@ public class DifficultRaidsConfig
                     case HERO -> 2;
                     case LEGEND -> 3;
                     case MASTER -> 4;
-                    case APOCALYPSE -> 5;
+                    case GRANDMASTER -> 5;
                     default -> 1;
                 };
 
@@ -532,7 +520,7 @@ public class DifficultRaidsConfig
                 int default_tank_thornsLevel = switch(raidDifficulty) {
                     case LEGEND -> 1;
                     case MASTER -> 2;
-                    case APOCALYPSE -> 3;
+                    case GRANDMASTER -> 3;
                     default -> 0;
                 };
 
@@ -550,7 +538,7 @@ public class DifficultRaidsConfig
                     case HERO -> List.of("STONE", "GOLD", "IRON");
                     case LEGEND -> List.of("IRON", "DIAMOND");
                     case MASTER -> List.of("IRON", "DIAMOND", "NETHERITE");
-                    case APOCALYPSE -> List.of("NETHERITE");
+                    case GRANDMASTER -> List.of("NETHERITE");
                     default -> List.of("STONE");
                 };
 
@@ -562,7 +550,7 @@ public class DifficultRaidsConfig
                     case HERO -> 20;
                     case LEGEND -> 35;
                     case MASTER -> 45;
-                    case APOCALYPSE -> 90;
+                    case GRANDMASTER -> 90;
                     default -> 0;
                 };
 
@@ -574,7 +562,7 @@ public class DifficultRaidsConfig
                     case HERO -> new Tuple<>(1, 3);
                     case LEGEND -> new Tuple<>(2, 4);
                     case MASTER -> new Tuple<>(3, 5);
-                    case APOCALYPSE -> new Tuple<>(4, 6);
+                    case GRANDMASTER -> new Tuple<>(4, 6);
                     default -> new Tuple<>(0, 0);
                 };
 
@@ -590,7 +578,7 @@ public class DifficultRaidsConfig
                     case HERO -> 5;
                     case LEGEND -> 10;
                     case MASTER -> 15;
-                    case APOCALYPSE -> 50;
+                    case GRANDMASTER -> 50;
                     default -> 0;
                 };
 
@@ -601,7 +589,7 @@ public class DifficultRaidsConfig
                 int default_warrior_fireAspectLevel = switch(raidDifficulty) {
                     case HERO, LEGEND -> 1;
                     case MASTER -> 2;
-                    case APOCALYPSE -> 3;
+                    case GRANDMASTER -> 3;
                     default -> 0;
                 };
 
@@ -613,7 +601,7 @@ public class DifficultRaidsConfig
                     case HERO -> 10;
                     case LEGEND -> 15;
                     case MASTER -> 20;
-                    case APOCALYPSE -> 90;
+                    case GRANDMASTER -> 90;
                     default -> 0;
                 };
 
@@ -624,7 +612,7 @@ public class DifficultRaidsConfig
                 int default_warrior_knockbackLevel = switch(raidDifficulty) {
                     case HERO -> 1;
                     case LEGEND, MASTER -> 2;
-                    case APOCALYPSE -> 3;
+                    case GRANDMASTER -> 3;
                     default -> 0;
                 };
 
@@ -641,7 +629,7 @@ public class DifficultRaidsConfig
                 case HERO -> HERO_CONFIG = config;
                 case LEGEND -> LEGEND_CONFIG = config;
                 case MASTER -> MASTER_CONFIG = config;
-                case APOCALYPSE -> APOCALYPSE_CONFIG = config;
+                case GRANDMASTER -> APOCALYPSE_CONFIG = config;
             }
 
             ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, BUILDER.build(), DifficultRaids.MODID + "/difficulty-" + raidDifficulty.toString().toLowerCase() + ".toml");

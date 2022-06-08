@@ -68,7 +68,7 @@ public class TankIllagerEntity extends AbstractVindicatorVariant
     @Override
     public void applyRaidBuffs(int p_37844_, boolean p_37845_)
     {
-        RaidDifficulty raidDifficulty = RaidDifficulty.current();
+        RaidDifficulty raidDifficulty = this.getRaidDifficulty();
         this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.STONE_SWORD));
 
         ItemStack helmet = null, chestplate = null, leggings = null, boots = null;
@@ -76,7 +76,7 @@ public class TankIllagerEntity extends AbstractVindicatorVariant
         if(raidDifficulty.is(RaidDifficulty.DEFAULT)) { helmet = new ItemStack(Items.LEATHER_HELMET); chestplate = new ItemStack(Items.LEATHER_CHESTPLATE); leggings = new ItemStack(Items.LEATHER_LEGGINGS); boots = new ItemStack(Items.LEATHER_BOOTS); }
         else if(raidDifficulty.is(RaidDifficulty.HERO, RaidDifficulty.LEGEND)) { helmet = new ItemStack(Items.IRON_HELMET); chestplate = new ItemStack(Items.IRON_CHESTPLATE); leggings = new ItemStack(Items.IRON_LEGGINGS); boots = new ItemStack(Items.IRON_BOOTS); }
         else if(raidDifficulty.is(RaidDifficulty.MASTER)) { helmet = new ItemStack(Items.DIAMOND_HELMET); chestplate = new ItemStack(Items.DIAMOND_CHESTPLATE); leggings = new ItemStack(Items.DIAMOND_LEGGINGS); boots = new ItemStack(Items.DIAMOND_BOOTS); }
-        else if(raidDifficulty.is(RaidDifficulty.APOCALYPSE)) { helmet = new ItemStack(Items.NETHERITE_HELMET); chestplate = new ItemStack(Items.NETHERITE_CHESTPLATE); leggings = new ItemStack(Items.NETHERITE_LEGGINGS); boots = new ItemStack(Items.NETHERITE_BOOTS); }
+        else if(raidDifficulty.is(RaidDifficulty.GRANDMASTER)) { helmet = new ItemStack(Items.NETHERITE_HELMET); chestplate = new ItemStack(Items.NETHERITE_CHESTPLATE); leggings = new ItemStack(Items.NETHERITE_LEGGINGS); boots = new ItemStack(Items.NETHERITE_BOOTS); }
 
         final Map<Enchantment, Integer> enchants = new HashMap<>();
 

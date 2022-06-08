@@ -212,7 +212,7 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
         {
             LivingEntity target = ElectroIllagerEntity.this.getTarget();
             ServerLevel level = (ServerLevel)ElectroIllagerEntity.this.getLevel();
-            boolean raid = ElectroIllagerEntity.this.getCurrentRaid() != null;
+            boolean raid = ElectroIllagerEntity.this.isInRaid();
             boolean rain = level.isRainingAt(ElectroIllagerEntity.this.blockPosition());
             boolean thunder = level.isThundering();
 
@@ -224,7 +224,7 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
                 lightning.setCustomName(new TextComponent(DifficultRaidsUtil.ELECTRO_ILLAGER_CUSTOM_BOLT_TAG));
 
                 float damage = raid
-                        ? RaidDifficulty.current().config().electro().concentratedBoltDamage()
+                        ? ElectroIllagerEntity.this.getRaidDifficulty().config().electro().concentratedBoltDamage()
                         : RaidDifficulty.DEFAULT.config().electro().concentratedBoltDamage();
 
                 damage += switch(level.getDifficulty()) {
@@ -306,7 +306,7 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
                 Random random = new Random();
 
                 int strikes = raid
-                    ? RaidDifficulty.current().config().electro().genericLightningStrikeCount()
+                    ? ElectroIllagerEntity.this.getRaidDifficulty().config().electro().genericLightningStrikeCount()
                     : RaidDifficulty.DEFAULT.config().electro().genericLightningStrikeCount();
 
                 strikes += switch(level.getDifficulty()) {
@@ -403,7 +403,7 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
                 if(ElectroIllagerEntity.this.getCurrentRaid() != null)
                 {
                     List<BlockPos> extraOffsets = new ArrayList<>();
-                    RaidDifficulty raidDifficulty = RaidDifficulty.current();
+                    RaidDifficulty raidDifficulty = ElectroIllagerEntity.this.getRaidDifficulty();
 
                     if(raidDifficulty.config().electro().extraRingBolts()) offsets.forEach(pos -> {
                         BlockPos farPos = new BlockPos(pos);
