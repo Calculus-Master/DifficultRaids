@@ -25,6 +25,7 @@ import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.entity.raid.Raider;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.pathfinder.Path;
@@ -99,7 +100,7 @@ public abstract class RaidMixin
         RaidDifficulty raidDifficulty = RaidDifficulty.get(this.getBadOmenLevel());
 
         //Entity Reinforcements (no Raiders)
-        if(false && this.random.nextInt(100) < raidDifficulty.config().reinforcementChance())
+        if(this.random.nextInt(100) < raidDifficulty.config().reinforcementChance())
         {
             Map<EntityType<?>, Integer> reinforcements = RaidEnemyRegistry.getReinforcements(this.groupsSpawned, raidDifficulty, levelDifficulty);
             final String sum = "(" + reinforcements.values().stream().mapToInt(i -> i).sum() + ")";
@@ -129,6 +130,16 @@ public abstract class RaidMixin
                         monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, IronGolem.class, true));
                         monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, Player.class, true));
                         //TODO: Reenable this: if(DifficultRaidsUtil.isGuardVillagersLoaded()) monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, Guard.class, true));
+
+                        if(raidDifficulty.is(RaidDifficulty.GRANDMASTER))
+                        {
+                            List<Item> armors = List.of(Items.DIAMOND_HELMET, Items.DIAMOND_CHESTPLATE, Items.DIAMOND_LEGGINGS, Items.DIAMOND_BOOTS);
+
+                            monster.setItemSlot(EquipmentSlot.HEAD, new ItemStack(armors.get(0)));
+                            monster.setItemSlot(EquipmentSlot.CHEST, new ItemStack(armors.get(1)));
+                            monster.setItemSlot(EquipmentSlot.LEGS, new ItemStack(armors.get(2)));
+                            monster.setItemSlot(EquipmentSlot.FEET, new ItemStack(armors.get(3)));
+                        }
                     }
                     else if(spawn instanceof Animal animal)
                     {

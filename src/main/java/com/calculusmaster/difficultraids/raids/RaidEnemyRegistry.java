@@ -189,7 +189,7 @@ public class RaidEnemyRegistry
     public static void registerReinforcements()
     {
         RaidEnemyRegistry.createReinforcementsFor(RaidDifficulty.HERO)
-                .withGroups(2)
+                .withGroups(1)
                 .addEntry(EntityType.ZOMBIE, 3, 0, 2, 5, -2, 3)
                 .addEntry(EntityType.SKELETON, 3, 0, 2, 5, -2, 3)
                 .addEntry(EntityType.WITCH, 1, 2, 1, 2, -1, 1)
@@ -198,7 +198,7 @@ public class RaidEnemyRegistry
                 .register();
 
         RaidEnemyRegistry.createReinforcementsFor(RaidDifficulty.LEGEND)
-                .withGroups(3)
+                .withGroups(2)
                 .addEntry(EntityType.ZOMBIE, 4, 0, 4, 6, -2, 3)
                 .addEntry(EntityType.SKELETON, 4, 0, 4, 6, -2, 3)
                 .addEntry(EntityType.WITCH, 1, 2, 1, 2, -1, 1)
@@ -210,7 +210,7 @@ public class RaidEnemyRegistry
                 .register();
 
         RaidEnemyRegistry.createReinforcementsFor(RaidDifficulty.MASTER)
-                .withGroups(5)
+                .withGroups(3)
                 .addEntry(EntityType.ZOMBIE, 4, 0, 2, 7, -2, 3)
                 .addEntry(EntityType.SKELETON, 4, 0, 2, 7, -2, 3)
                 .addEntry(EntityType.WITCH, 2, 2, 1, 4, -1, 1)
@@ -223,7 +223,7 @@ public class RaidEnemyRegistry
                 .register();
 
         RaidEnemyRegistry.createReinforcementsFor(RaidDifficulty.GRANDMASTER)
-                .withGroups(10)
+                .withGroups(4)
                 .addEntry(EntityType.ZOMBIE, 4, 0, 2, 7, -2, 3)
                 .addEntry(EntityType.SKELETON, 4, 0, 2, 7, -2, 3)
                 .addEntry(EntityType.WITCH, 2, 2, 1, 4, -1, 1)

@@ -75,7 +75,7 @@ public class DifficultRaidsConfig
                 case HERO -> 15;
                 case LEGEND -> 25;
                 case MASTER -> 40;
-                case GRANDMASTER -> 100;
+                case GRANDMASTER -> 80;
                 default -> 0;
             };
 
