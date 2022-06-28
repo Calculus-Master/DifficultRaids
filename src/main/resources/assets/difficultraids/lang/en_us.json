@@ -12,6 +12,11 @@
     "item.difficultraids.teleportation_totem": "Totem of Teleportation",
     "item.difficultraids.fireball_totem": "Totem of Fireballs",
 
+    "item.difficultraids.grandmaster_helmet": "Helmet of the Grandmaster",
+    "item.difficultraids.grandmaster_chestplate": "Chestplate of the Grandmaster",
+    "item.difficultraids.grandmaster_leggings": "Leggings of the Grandmaster",
+    "item.difficultraids.grandmaster_boots": "Boots of the Grandmaster",
+
     "entity.difficultraids.warrior_illager": "Warrior",
     "entity.difficultraids.dart_illager": "Dart",
     "entity.difficultraids.electro_illager": "Conductor",

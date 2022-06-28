@@ -1,175 +1,275 @@
 package com.calculusmaster.difficultraids.raids;
 
-import com.calculusmaster.difficultraids.setup.DifficultRaidsItems;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.fml.ModList;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraftforge.registries.RegistryObject;
 
 import java.util.*;
+import java.util.stream.Stream;
+
+import static com.calculusmaster.difficultraids.setup.DifficultRaidsItems.*;
 
 public class RaidLoot
 {
-    private static final Map<RaidDifficulty, RaidLootInfo> RAID_LOOT_INFO = new HashMap<>();
+    public static final Map<RaidDifficulty, RaidLootData> RAID_LOOT = new LinkedHashMap<>();
 
-    public static void register()
+    public static void registerLoot()
     {
-        RaidLootInfo
+        RaidLootData
                 .forRD(RaidDifficulty.HERO)
-                .withRewardCount(5)
-                .addLootEntry(Items.TOTEM_OF_UNDYING, 100, 3, 1, -1, 1)
-                .addLootEntry(Items.EMERALD, 10, 5, 10, 4, -2, 2)
-                .addLootEntry(Items.IRON_INGOT, 15, 8, 32, 4, -4, 8)
-                .addLootEntry(Items.DIAMOND, 5, 1, 2, 1, -1, 1)
-                .addLootEntry(DifficultRaidsItems.TOTEM_OF_SPEED.get(), 4, 1, 2, 1, -1, 1)
-                .addLootEntry(DifficultRaidsItems.TOTEM_OF_POISON.get(), 4, 1, 2, 1, -1, 1)
-                .addLootEntry(DifficultRaidsItems.TOTEM_OF_LEVITATION.get(), 4, 1, 2, 1, -1, 1)
-                .compile();
+                .setEmeralds(16, 64)
+                .setValuablesPoolPulls(5, 7, 10)
+                .setValuablesPool(
+                        LootEntry.of(Items.IRON_INGOT, 0.6F),
+                        LootEntry.of(Items.GOLD_INGOT, 0.3F),
+                        LootEntry.of(Items.DIAMOND, 0.1F)
+                )
+                .setTotemsPoolPulls(1, 2, 3)
+                .setTotemsPool(TOTEM_OF_SPEED, TOTEM_OF_POISON, TOTEM_OF_LEVITATION, TOTEM_OF_FREEZING)
+                .setArmorLoot(new Tuple<>(ArmorMaterials.IRON, 3), new Tuple<>(ArmorMaterials.DIAMOND, 1))
+                .register();
 
-        RaidLootInfo
+        RaidLootData
                 .forRD(RaidDifficulty.LEGEND)
-                .withRewardCount(7)
-                .addLootEntry(Items.TOTEM_OF_UNDYING, 100, 5, 1, -1, 1)
-                .addLootEntry(Items.EMERALD, 10, 10, 20, 4, -3, 5)
-                .addLootEntry(Items.IRON_INGOT, 15, 20, 64, 4, -8, 12)
-                .addLootEntry(Items.DIAMOND, 5, 5, 12, 1, -1, 1)
-                .addLootEntry(Items.GOLDEN_APPLE, 6, 5, 10, 2, -2, 4)
-                .addLootEntry(DifficultRaidsItems.TOTEM_OF_SPEED.get(), 4, 1, 3, 1, -1, 2)
-                .addLootEntry(DifficultRaidsItems.TOTEM_OF_POISON.get(), 4, 1, 3, 1, -1, 2)
-                .addLootEntry(DifficultRaidsItems.TOTEM_OF_LEVITATION.get(), 4, 1, 3, 1, -1, 2)
-                .addLootEntry(DifficultRaidsItems.TOTEM_OF_LIGHTNING.get(), 4, 1, 2, 1, -1, 1)
-                .addLootEntry(DifficultRaidsItems.TOTEM_OF_TELEPORTATION.get(), 4, 1, 2, 1, -1, 1)
-                .addLootEntry(DifficultRaidsItems.TOTEM_OF_FIREBALLS.get(), 4, 1, 2, 1, -1, 1)
-                .addLootEntry(DifficultRaidsItems.TOTEM_OF_FREEZING.get(), 4, 1, 2, 1, -1, 1)
-                .addLootEntry(DifficultRaidsItems.TOTEM_OF_VENGEANCE.get(), 4, 1, 2, 1, -1, 1)
-                .addLootEntry(DifficultRaidsItems.TOTEM_OF_PERSISTENCE.get(), 1, 1, 1, 0, 0)
-                .compile();
+                .setEmeralds(64, 128)
+                .setValuablesPoolPulls(8, 12, 16)
+                .setValuablesPool(
+                        LootEntry.of(Items.IRON_INGOT, 0.5F),
+                        LootEntry.of(Items.GOLD_INGOT, 0.3F),
+                        LootEntry.of(Items.DIAMOND, 0.15F),
+                        LootEntry.of(Items.NETHERITE_INGOT, 0.05F)
+                )
+                .setTotemsPoolPulls(3, 5, 7)
+                .setTotemsPool(TOTEM_OF_SPEED, TOTEM_OF_POISON, TOTEM_OF_LEVITATION, TOTEM_OF_LIGHTNING, TOTEM_OF_TELEPORTATION, TOTEM_OF_FIREBALLS, TOTEM_OF_FREEZING, TOTEM_OF_PERSISTENCE)
+                .setArmorLoot(new Tuple<>(ArmorMaterials.IRON, 2), new Tuple<>(ArmorMaterials.DIAMOND, 2))
+                .register();
 
-        RaidLootInfo.forRD(RaidDifficulty.MASTER)
-                .withRewardCount(12)
-                .addLootEntry(Items.TOTEM_OF_UNDYING, 100, 10, 1, -1, 1)
-                .addLootEntry(Items.EMERALD, 10, 64, 200, 2, -32, 32)
-                .addLootEntry(Items.IRON_INGOT, 15, 48, 72, 2, -8, 12)
-                .addLootEntry(Items.DIAMOND, 5, 16, 2, -6, 3)
-                .addLootEntry(Items.GOLDEN_APPLE, 6, 16, 32, 2, -5, 5)
-                .addLootEntry(Items.ANCIENT_DEBRIS, 2, 2, 1, -1, 1)
-                .addLootEntry(DifficultRaidsItems.TOTEM_OF_SPEED.get(), 4, 1, 5, 1, -2, 3)
-                .addLootEntry(DifficultRaidsItems.TOTEM_OF_POISON.get(), 4, 1, 5, 1, -2, 3)
-                .addLootEntry(DifficultRaidsItems.TOTEM_OF_LEVITATION.get(), 4, 1, 5, 1, -2, 3)
-                .addLootEntry(DifficultRaidsItems.TOTEM_OF_FREEZING.get(), 4, 1, 5, 1, -2, 3)
-                .addLootEntry(DifficultRaidsItems.TOTEM_OF_LIGHTNING.get(), 4, 1, 3, 1, -1, 2)
-                .addLootEntry(DifficultRaidsItems.TOTEM_OF_VENGEANCE.get(), 4, 1, 3, 1, -1, 2)
-                .addLootEntry(DifficultRaidsItems.TOTEM_OF_TELEPORTATION.get(), 4, 1, 2, 1, -1, 1)
-                .addLootEntry(DifficultRaidsItems.TOTEM_OF_FIREBALLS.get(), 4, 1, 2, 1, -1, 1)
-                .addLootEntry(DifficultRaidsItems.TOTEM_OF_DESTINY.get(), 8, 1, 2, 1, 0, 2)
-                .addLootEntry(DifficultRaidsItems.TOTEM_OF_PROTECTION.get(), 8, 1, 2, 1, 0, 2)
-                .addLootEntry(DifficultRaidsItems.TOTEM_OF_PERSISTENCE.get(), 6, 1, 1, 0, 1)
-                .compile();
+        RaidLootData
+                .forRD(RaidDifficulty.MASTER)
+                .setEmeralds(128, 256)
+                .setValuablesPoolPulls(12, 16, 20)
+                .setValuablesPool(
+                        LootEntry.of(Items.IRON_INGOT, 0.3F),
+                        LootEntry.of(Items.GOLD_INGOT, 0.3F),
+                        LootEntry.of(Items.DIAMOND, 0.25F),
+                        LootEntry.of(Items.NETHERITE_INGOT, 0.15F)
+                )
+                .setTotemsPoolPulls(5, 7, 9)
+                .setTotemsPool(TOTEM_OF_SPEED, TOTEM_OF_POISON, TOTEM_OF_LEVITATION, TOTEM_OF_LIGHTNING, TOTEM_OF_TELEPORTATION, TOTEM_OF_FIREBALLS, TOTEM_OF_FREEZING, TOTEM_OF_PERSISTENCE, TOTEM_OF_DESTINY, TOTEM_OF_PROTECTION)
+                .setArmorLoot(new Tuple<>(ArmorMaterials.DIAMOND, 3), new Tuple<>(ArmorMaterials.NETHERITE, 1))
+                .register();
+
+        RaidLootData
+                .forRD(RaidDifficulty.GRANDMASTER)
+                .setEmeralds(320, 640)
+                .setValuablesPoolPulls(25, 30, 50)
+                .setValuablesPool(
+                        LootEntry.of(Items.IRON_INGOT, 0.325F),
+                        LootEntry.of(Items.GOLD_INGOT, 0.25F),
+                        LootEntry.of(Items.DIAMOND, 0.3F),
+                        LootEntry.of(Items.NETHERITE_INGOT, 0.175F)
+                )
+                .setTotemsPoolPulls(8, 10, 12)
+                .setTotemsPool(TOTEM_OF_SPEED, TOTEM_OF_POISON, TOTEM_OF_LEVITATION, TOTEM_OF_LIGHTNING, TOTEM_OF_TELEPORTATION, TOTEM_OF_FIREBALLS, TOTEM_OF_FREEZING, TOTEM_OF_PERSISTENCE, TOTEM_OF_DESTINY, TOTEM_OF_PROTECTION)
+                .register();
     }
 
-    public static List<ItemStack> generate(RaidDifficulty raidDifficulty, Difficulty levelDifficulty)
+    public static List<ItemStack> generateArmorLoot(RaidDifficulty rd)
     {
-        Random random = new Random();
-        RaidLootInfo info = RAID_LOOT_INFO.get(raidDifficulty);
+        Random r = new Random();
 
-        if(info == null) return List.of();
-
-        //Base Item Pool
-        List<Item> pool = new ArrayList<>();
-        info.loot.forEach(entry -> {
-            for(int i = 0; i < entry.weight; i++) pool.add(entry.loot);
-        });
-
-        Map<Item, Integer> pullCount = new HashMap<>();
-
-        List<ItemStack> stacks = new ArrayList<>();
-        //Main Loot Pull Logic
-        for(int i = 0; i < info.rewards; i++)
+        if(!rd.is(RaidDifficulty.DEFAULT, RaidDifficulty.GRANDMASTER))
         {
-            //Item
-            int itemIndex = random.nextInt(pool.size());
-            Item item = pool.get(itemIndex);
+            //TODO: Special Effects for Raid Armor, and an entire set of Raid armor for each Difficulty
 
-            //Loot Data
-            RaidLootInfo.LootEntry data = info.getEntry(item);
-            if(data == null) { i--; continue; } //Shouldn't happen
+            int count = switch(rd) {
+                case HERO -> 2;
+                case LEGEND -> 3;
+                case MASTER -> 4;
+                default -> 0;
+            };
 
-            //If the Item has already been pulled the max times, skip
-            if(pullCount.getOrDefault(item, 0) == data.maxPulls()) { i--; continue; }
+            RaidLootData data = RAID_LOOT.get(rd);
+            List<ItemStack> loot = new ArrayList<>();
+            for(int i = 0; i < count; i++)
+            {
+                ItemStack armor = new ItemStack(data.armorMaterials.get(r.nextInt(data.armorMaterials.size())));
+                Map<Enchantment, Integer> enchantments = new HashMap<>();
 
-            //Item Count
-            int count;
+                int[] protectionLevels = switch(rd) {
+                    case HERO -> new int[]{1, 3};
+                    case LEGEND -> new int[]{1, 4};
+                    case MASTER -> new int[]{2, 5};
+                    default -> new int[]{0, 0};
+                };
+                int protection = r.nextInt(protectionLevels[0], protectionLevels[1] + 1);
+                enchantments.put(Enchantments.ALL_DAMAGE_PROTECTION, protection);
 
-            if(data.minReward() == data.maxReward()) count = data.maxReward();
-            else count = random.nextInt(data.minReward(), data.maxReward() + 1);
+                int unbreaking = switch(rd) {
+                    case HERO -> 1;
+                    case LEGEND -> 2;
+                    case MASTER -> 3;
+                    default -> 0;
+                };
+                enchantments.put(Enchantments.UNBREAKING, unbreaking);
 
-            //Difficulty Modifiers for Count
-            count += levelDifficulty.equals(Difficulty.EASY) ? data.easyRewardModifier() : (levelDifficulty.equals(Difficulty.HARD) ? data.hardRewardModifier() : 0);
+                if(rd.is(RaidDifficulty.MASTER)) enchantments.put(Enchantments.MENDING, 1);
 
-            ItemStack finalStack = new ItemStack(item, count);
-            pullCount.put(item, pullCount.getOrDefault(item, 0) + 1);
+                EnchantmentHelper.setEnchantments(enchantments, armor);
+                loot.add(armor);
+            }
 
-            stacks.add(finalStack);
-            pool.remove(itemIndex);
-            Collections.shuffle(pool);
+            return loot;
         }
+        else if(rd.is(RaidDifficulty.GRANDMASTER))
+        {
+            List<ItemStack> pieces = new ArrayList<>();
+            List<Item> pool = List.of(GRANDMASTER_HELMET.get(), GRANDMASTER_CHESTPLATE.get(), GRANDMASTER_LEGGINGS.get(), GRANDMASTER_BOOTS.get());
 
-        return stacks;
+            int count = r.nextInt(2, 4);
+            for(int i = 0; i < count; i++) pieces.add(new ItemStack(pool.get(r.nextInt(pool.size()))));
+
+            Map<Enchantment, Integer> enchantments = new HashMap<>();
+            enchantments.put(Enchantments.ALL_DAMAGE_PROTECTION, 6);
+            enchantments.put(Enchantments.UNBREAKING, 5);
+            enchantments.put(Enchantments.MENDING, 1);
+
+            pieces.forEach(stack -> EnchantmentHelper.setEnchantments(enchantments, stack));
+
+            return pieces;
+        }
+        else return new ArrayList<>();
     }
 
-    private static class RaidLootInfo
+    public static class RaidLootData
     {
         private RaidDifficulty raidDifficulty;
-        private List<LootEntry> loot;
-        private int rewards;
 
-        private RaidLootInfo(RaidDifficulty raidDifficulty)
+        public int[] emeralds;
+
+        public Map<Difficulty, Integer> valuablesPulls;
+        public List<LootEntry> valuablesPool;
+
+        public Map<Difficulty, Integer> totemsPulls;
+        public List<Item> totemsPool;
+
+        public List<Item> armorMaterials;
+
+        RaidLootData()
         {
-            this.raidDifficulty = raidDifficulty;
-            this.loot = new ArrayList<>();
+            this.emeralds = new int[2];
+
+            this.valuablesPulls = new LinkedHashMap<>();
+            this.valuablesPool = new ArrayList<>();
+
+            this.totemsPulls = new LinkedHashMap<>();
+            this.totemsPool = new ArrayList<>();
+
+            this.armorMaterials = new ArrayList<>();
         }
 
-        static RaidLootInfo forRD(RaidDifficulty raidDifficulty)
+        //Registry
+
+        static RaidLootData forRD(RaidDifficulty raidDifficulty)
         {
-            return new RaidLootInfo(raidDifficulty);
+            RaidLootData data = new RaidLootData();
+            data.raidDifficulty = raidDifficulty;
+            return data;
         }
 
-        RaidLootInfo withRewardCount(int rewards)
+        final RaidLootData setEmeralds(int min, int max)
         {
-            this.rewards = rewards;
+            this.emeralds = new int[]{min, max};
             return this;
         }
 
-        //TODO: Raid Tokens
-
-        RaidLootInfo addLootEntry(Item loot, int weight, int minReward, int maxReward, int maxPulls, int easyRewardModifier, int hardRewardModifier)
+        final RaidLootData setValuablesPoolPulls(int easy, int normal, int hard)
         {
-            this.loot.add(new LootEntry(loot, weight, minReward, maxReward, maxPulls, easyRewardModifier, hardRewardModifier));
+            this.valuablesPulls.put(Difficulty.EASY, easy);
+            this.valuablesPulls.put(Difficulty.NORMAL, normal);
+            this.valuablesPulls.put(Difficulty.HARD, hard);
             return this;
         }
 
-        RaidLootInfo addLootEntry(Item loot, int weight, int reward, int maxPulls, int easyRewardModifier, int hardRewardModifier)
+        final RaidLootData setValuablesPool(LootEntry... entries)
         {
-            return this.addLootEntry(loot, weight, reward, reward, maxPulls, easyRewardModifier, hardRewardModifier);
+            this.valuablesPool = new ArrayList<>(List.of(entries));
+            return this;
         }
 
-        RaidLootInfo addLootEntry(String modid, Item loot, int weight, int minReward, int maxReward, int maxPulls, int easyRewardModifier, int hardRewardModifier)
+        final RaidLootData setTotemsPoolPulls(int easy, int normal, int hard)
         {
-            if(ModList.get().isLoaded(modid)) return this.addLootEntry(loot, weight, minReward, maxReward, maxPulls, easyRewardModifier, hardRewardModifier);
-            else return this;
+            this.totemsPulls.put(Difficulty.EASY, easy);
+            this.totemsPulls.put(Difficulty.NORMAL, normal);
+            this.totemsPulls.put(Difficulty.HARD, hard);
+            return this;
         }
 
-        void compile()
+        @SafeVarargs
+        final RaidLootData setTotemsPool(RegistryObject<Item>... totems)
         {
-            RAID_LOOT_INFO.put(this.raidDifficulty, this);
+            this.totemsPool.addAll(Stream.of(totems).map(RegistryObject::get).toList());
+            return this;
         }
 
-        LootEntry getEntry(Item item)
+        @SafeVarargs
+        final RaidLootData setArmorLoot(Tuple<ArmorMaterials, Integer>... armorMaterials)
         {
-            return this.loot.stream().filter(e -> e.loot().equals(item)).findFirst().orElse(null);
+            for(Tuple<ArmorMaterials, Integer> pair : armorMaterials)
+            {
+                ArmorMaterials a = pair.getA();
+
+                for(int i = 0; i < pair.getB(); i++)
+                {
+                    if(a.equals(ArmorMaterials.IRON)) this.armorMaterials.addAll(List.of(Items.IRON_HELMET, Items.IRON_CHESTPLATE, Items.IRON_LEGGINGS, Items.IRON_BOOTS));
+                    else if(a.equals(ArmorMaterials.DIAMOND)) this.armorMaterials.addAll(List.of(Items.DIAMOND_HELMET, Items.DIAMOND_CHESTPLATE, Items.DIAMOND_LEGGINGS, Items.DIAMOND_BOOTS));
+                    else if(a.equals(ArmorMaterials.NETHERITE)) this.armorMaterials.addAll(List.of(Items.NETHERITE_HELMET, Items.NETHERITE_CHESTPLATE, Items.NETHERITE_LEGGINGS, Items.NETHERITE_BOOTS));
+                }
+            }
+
+            return this;
         }
 
-        record LootEntry(Item loot, int weight, int minReward, int maxReward, int maxPulls, int easyRewardModifier, int hardRewardModifier) {}
+        //Getters
+        public final Item pullValuable(Random rand)
+        {
+            float r = rand.nextFloat();
+
+            for(int i = 0; i < this.valuablesPool.size(); i++)
+            {
+                float threshold = this.valuablesPool.get(i).chance;
+                if(i > 0) for(int j = i - 1; j >= 0; j--) threshold += this.valuablesPool.get(j).chance;
+
+                if(r < threshold) return this.valuablesPool.get(i).item;
+            }
+
+            return null;
+        }
+
+        void register()
+        {
+            RAID_LOOT.put(this.raidDifficulty, this);
+        }
+    }
+
+    public static class LootEntry
+    {
+        public Item item;
+        public float chance;
+
+        static LootEntry of(Item item, float chance)
+        {
+            LootEntry entry = new LootEntry();
+            entry.item = item;
+            entry.chance = chance;
+            return entry;
+        }
     }
 }

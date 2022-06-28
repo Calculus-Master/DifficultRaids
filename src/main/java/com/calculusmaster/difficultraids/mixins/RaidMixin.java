@@ -215,28 +215,67 @@ public abstract class RaidMixin
 
         if(this.isVictory() && !raidDifficulty.isDefault())
         {
-            List<ItemStack> rewards = RaidLoot.generate(raidDifficulty, this.level.getDifficulty());
+            BlockPos rewardPos = new BlockPos(this.center.getX(), this.center.getY() + 7, this.center.getZ());
 
-            //TODO: Temporary
-            if(raidDifficulty.is(RaidDifficulty.GRANDMASTER))
+            RaidLoot.RaidLootData data = RaidLoot.RAID_LOOT.get(raidDifficulty);
+
+            //Emeralds
+            int emeralds = this.random.nextInt(data.emeralds[0], data.emeralds[1] + 1);
+
+            for(int i = 0; i < emeralds; i++)
             {
-                rewards.addAll(RaidLoot.generate(RaidDifficulty.MASTER, this.level.getDifficulty()));
-                rewards.addAll(RaidLoot.generate(RaidDifficulty.MASTER, this.level.getDifficulty()));
-                rewards.addAll(RaidLoot.generate(List.of(RaidDifficulty.HERO, RaidDifficulty.LEGEND, RaidDifficulty.MASTER).get(this.random.nextInt(3)), this.level.getDifficulty()));
-            }
+                BlockPos pos = rewardPos.offset(this.random.nextInt(11) - 5, 0, this.random.nextInt(11) - 5);
 
-            BlockPos rewardPos = new BlockPos(this.center.getX(), this.center.getY(), this.center.getZ() + 10);
-            rewards.forEach(stack -> {
-                int x = rewardPos.getX();
-                int y = rewardPos.getY();
-                int z = rewardPos.getZ();
-
-                ItemEntity entityItem = new ItemEntity(this.level, this.random.nextInt(x - 5, x + 6), this.random.nextInt(y - 5, y + 6), this.random.nextInt(z - 5, z + 6), stack);
+                ItemEntity entityItem = new ItemEntity(this.level, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(Items.EMERALD));
                 entityItem.setExtendedLifetime();
 
                 this.level.addFreshEntity(entityItem);
+            }
+
+            //Totems
+            int totems = data.totemsPulls.get(this.level.getDifficulty());
+
+            for(int i = 0; i < totems; i++)
+            {
+                BlockPos pos = rewardPos.offset(this.random.nextInt(5) - 2, 0, this.random.nextInt(5) - 2);
+
+                Item totem = data.totemsPool.get(this.random.nextInt(data.totemsPool.size()));
+                ItemEntity entityItem = new ItemEntity(this.level, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(totem));
+                entityItem.setExtendedLifetime();
+
+                this.level.addFreshEntity(entityItem);
+            }
+
+            //Valuables
+            int valuables = data.valuablesPulls.get(this.level.getDifficulty());
+
+            Map<Item, Integer> valuablesLoot = new HashMap<>();
+            for(int i = 0; i < valuables; i++)
+            {
+                Item item = data.pullValuable(this.random);
+
+                if(item != null) valuablesLoot.put(item, valuablesLoot.getOrDefault(item, 0) + 1);
+                else LOGGER.error("Error pulling valuables Loot Item from a " + raidDifficulty.getFormattedName() + " Raid!");
+            }
+
+            valuablesLoot.forEach((item, count) -> {
+                ItemStack stack = new ItemStack(item, count);
+
+                ItemEntity entityItem = new ItemEntity(this.level, rewardPos.getX(), rewardPos.getY(), rewardPos.getZ(), stack);
+                entityItem.setExtendedLifetime();
+                this.level.addFreshEntity(entityItem);
             });
-            //TODO: Chest with loot instead of dropping on ground
+
+            //Armor
+            List<ItemStack> armor = RaidLoot.generateArmorLoot(raidDifficulty);
+
+            armor.forEach(stack -> {
+                ItemEntity entityItem = new ItemEntity(this.level, rewardPos.getX(), rewardPos.getY(), rewardPos.getZ(), stack);
+                entityItem.setExtendedLifetime();
+                this.level.addFreshEntity(entityItem);
+            });
+
+            //Weapons - TODO Add Raid Weapons
 
             this.heroesOfTheVillage.stream().map(uuid -> this.level.getPlayerByUUID(uuid)).filter(Objects::nonNull).forEach(p -> {
                 p.sendMessage(
