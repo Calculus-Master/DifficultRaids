@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": [
+    "difficultraids:warrior_illager",
+    "difficultraids:dart_illager",
+    "difficultraids:electro_illager",
+    "difficultraids:necromancer_illager",
+    "difficultraids:shaman_illager",
+    "difficultraids:tank_illager",
+    "difficultraids:assassin_illager",
+    "difficultraids:frost_illager",
+    "difficultraids:nuaos_elite",
+    "difficultraids:xydrax_elite",
+    "difficultraids:modur_elite",
+    "difficultraids:voldon_elite",
+    "difficultraids:voldon_familiar"
+  ]
+}
