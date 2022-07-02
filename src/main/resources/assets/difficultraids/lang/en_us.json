@@ -17,6 +17,21 @@
     "item.difficultraids.grandmaster_leggings": "Leggings of the Grandmaster",
     "item.difficultraids.grandmaster_boots": "Boots of the Grandmaster",
 
+    "enchantment.difficultraids.raiders_bane": "Bane of Raiders",
+    "enchantment.difficultraids.raiders_bane.desc": "Deals extra damage to all Raiders.",
+    "enchantment.difficultraids.invisibility": "Defender's Vanish",
+    "enchantment.difficultraids.invisibility.desc": "Taking damage has a chance to grant Invisibility for a short duration (longer if the damage was taken from a Raider).",
+    "enchantment.difficultraids.critical_strike": "Critical Strike",
+    "enchantment.difficultraids.critical_strike.desc": "Increases the chance of a critical hit, which deals extra damage. Combine with Critical Burst to help increase critical hit damage.",
+    "enchantment.difficultraids.critical_burst": "Critical Burst",
+    "enchantment.difficultraids.critical_burst.desc": "Increases damage dealt by critical hits. Combine with Critical Strike to help increase critical hit chance.",
+    "enchantment.difficultraids.lightning_resistance": "Lightning Resistance",
+    "enchantment.difficultraids.lightning_resistance.desc": "Reduces damage taken from lightning bolts.",
+    "enchantment.difficultraids.critical_resistance": "Critical Resistance",
+    "enchantment.difficultraids.critical_resistance.desc": "Any damage taken has a small chance to be heavily reduced.",
+    "enchantment.difficultraids.projectile_evasion": "Projectile Evasion",
+    "enchantment.difficultraids.projectile_evasion.desc": "Grants a small chance for projectiles to completely miss their target and deal no damage.",
+
     "entity.difficultraids.warrior_illager": "Warrior",
     "entity.difficultraids.dart_illager": "Dart",
     "entity.difficultraids.electro_illager": "Conductor",
@@ -31,5 +46,8 @@
 
     "entity.difficultraids.nuaos_elite": "Nuaos",
     "entity.difficultraids.xydrax_elite": "Xydrax",
-    "entity.difficultraids.modur_elite": "Modur"
+    "entity.difficultraids.modur_elite": "Modur",
+    "entity.difficultraids.voldon_elite": "Voldon",
+
+    "entity.difficultraids.voldon_familiar": "Voldon Familiar"
 }

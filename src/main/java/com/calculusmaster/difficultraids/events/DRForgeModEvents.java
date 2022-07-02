@@ -12,12 +12,17 @@ import com.calculusmaster.difficultraids.entity.entities.elite.NuaosEliteEntity;
 import com.calculusmaster.difficultraids.entity.entities.elite.VoldonEliteEntity;
 import com.calculusmaster.difficultraids.entity.entities.elite.XydraxEliteEntity;
 import com.calculusmaster.difficultraids.entity.entities.raider.*;
+import com.calculusmaster.difficultraids.setup.DifficultRaidsEnchantments;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.raid.Raider;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
@@ -103,10 +108,29 @@ public class DRForgeModEvents
     public static void onEntityHitByLightning(EntityStruckByLightningEvent event)
     {
         LightningBolt lightning = event.getLightning();
+        boolean isElectroIllagerBolt = lightning.getCustomName() != null && lightning.getCustomName().getString().equals(DifficultRaidsUtil.ELECTRO_ILLAGER_CUSTOM_BOLT_TAG);
 
-        if(lightning.getCustomName() != null && lightning.getCustomName().getString().equals(DifficultRaidsUtil.ELECTRO_ILLAGER_CUSTOM_BOLT_TAG))
+        //Prevent Raiders from taking damage to Electro Illager lightning attacks
+        if(isElectroIllagerBolt && event.getEntity() instanceof Raider) event.setCanceled(true);
+
+        //Lightning Resistance Enchantment
+        if(event.getEntity() instanceof LivingEntity living)
         {
-            if(event.getEntity() instanceof Raider) event.setCanceled(true);
+            ItemStack stack = living.getItemBySlot(EquipmentSlot.HEAD);
+            int level = EnchantmentHelper.getItemEnchantmentLevel(DifficultRaidsEnchantments.LIGHTNING_RESISTANCE.get(), stack);
+
+            float damageMultiplier = switch(level) {
+                case 1 -> 0.95F;
+                case 2 -> 0.8F;
+                case 3 -> 0.7F;
+                case 4 -> 0.5F;
+                case 5 -> 0.25F;
+                default -> 0.0F;
+            };
+
+            if(isElectroIllagerBolt) damageMultiplier -= 0.05F;
+
+            lightning.setDamage(lightning.getDamage() * damageMultiplier);
         }
     }
 }

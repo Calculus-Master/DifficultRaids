@@ -275,8 +275,17 @@ public abstract class RaidMixin
                 this.level.addFreshEntity(entityItem);
             });
 
-            //Weapons - TODO Add Raid Weapons
+            //Enchantments
+            for(int i = 0; i < data.enchantmentCount; i++)
+            {
+                ItemStack book = data.pullEnchantment(this.random);
 
+                ItemEntity entityItem = new ItemEntity(this.level, rewardPos.getX(), rewardPos.getY(), rewardPos.getZ(), book);
+                entityItem.setExtendedLifetime();
+                this.level.addFreshEntity(entityItem);
+            }
+
+            //Notify players
             this.heroesOfTheVillage.stream().map(uuid -> this.level.getPlayerByUUID(uuid)).filter(Objects::nonNull).forEach(p -> {
                 p.sendMessage(
                         new TextComponent("Raid Rewards have spawned at X: %s Y: %s Z: %s!".formatted(rewardPos.getX(), rewardPos.getY(), rewardPos.getZ())),

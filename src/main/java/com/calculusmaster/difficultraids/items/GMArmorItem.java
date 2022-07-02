@@ -37,7 +37,12 @@ public class GMArmorItem extends ArmorItem
     @Override
     public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced)
     {
-        pTooltipComponents.add(new TextComponent("Full Set Bonus: Applies Regeneration II & Speed I constantly."));
+        pTooltipComponents.add(new TextComponent("Reduces damage taken from Raiders by 10%.\nFull Set Bonus: Applies Regeneration II & Speed I constantly."));
+    }
+
+    public float getRaiderDamageReduction()
+    {
+        return 0.1F;
     }
 
     private boolean hasFullSet(Player player)

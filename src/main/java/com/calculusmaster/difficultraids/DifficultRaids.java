@@ -4,6 +4,7 @@ import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
 import com.calculusmaster.difficultraids.raids.RaidEnemyRegistry;
 import com.calculusmaster.difficultraids.raids.RaidLoot;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
+import com.calculusmaster.difficultraids.setup.DifficultRaidsEnchantments;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsItems;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsStructures;
 import com.mojang.logging.LogUtils;
@@ -34,6 +35,8 @@ public class DifficultRaids
         DifficultRaidsConfig.register();
 
         DifficultRaidsEntityTypes.register(eventBus);
+
+        DifficultRaidsEnchantments.register(eventBus);
 
         // Register the setup method for modloading
         eventBus.addListener(this::setup);

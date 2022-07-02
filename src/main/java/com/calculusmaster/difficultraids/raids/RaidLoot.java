@@ -1,13 +1,12 @@
 package com.calculusmaster.difficultraids.raids;
 
+import com.calculusmaster.difficultraids.setup.DifficultRaidsEnchantments;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.item.ArmorMaterials;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraftforge.registries.RegistryObject;
 
@@ -34,6 +33,12 @@ public class RaidLoot
                 .setTotemsPoolPulls(1, 2, 3)
                 .setTotemsPool(TOTEM_OF_SPEED, TOTEM_OF_POISON, TOTEM_OF_LEVITATION, TOTEM_OF_FREEZING)
                 .setArmorLoot(new Tuple<>(ArmorMaterials.IRON, 3), new Tuple<>(ArmorMaterials.DIAMOND, 1))
+                .setEnchantmentCount(2)
+                .setEnchantmentsLoot(
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.RAIDERS_BANE.get(), 3, 1, 2),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_STRIKE.get(), 1, 1, 1),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.PROJECTILE_EVASION.get(), 2, 1, 1)
+                )
                 .register();
 
         RaidLootData
@@ -49,6 +54,16 @@ public class RaidLoot
                 .setTotemsPoolPulls(3, 5, 7)
                 .setTotemsPool(TOTEM_OF_SPEED, TOTEM_OF_POISON, TOTEM_OF_LEVITATION, TOTEM_OF_LIGHTNING, TOTEM_OF_TELEPORTATION, TOTEM_OF_FIREBALLS, TOTEM_OF_FREEZING, TOTEM_OF_PERSISTENCE)
                 .setArmorLoot(new Tuple<>(ArmorMaterials.IRON, 2), new Tuple<>(ArmorMaterials.DIAMOND, 2))
+                .setEnchantmentCount(4)
+                .setEnchantmentsLoot(
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.RAIDERS_BANE.get(), 5, 1, 3),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.INVISIBILITY.get(), 4, 1, 2),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_STRIKE.get(), 2, 1, 1),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_BURST.get(), 2, 1, 2),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_RESISTANCE.get(), 2, 1, 2),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.LIGHTNING_RESISTANCE.get(), 1, 1, 3),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.PROJECTILE_EVASION.get(), 3, 1, 2)
+                )
                 .register();
 
         RaidLootData
@@ -64,6 +79,16 @@ public class RaidLoot
                 .setTotemsPoolPulls(5, 7, 9)
                 .setTotemsPool(TOTEM_OF_SPEED, TOTEM_OF_POISON, TOTEM_OF_LEVITATION, TOTEM_OF_LIGHTNING, TOTEM_OF_TELEPORTATION, TOTEM_OF_FIREBALLS, TOTEM_OF_FREEZING, TOTEM_OF_PERSISTENCE, TOTEM_OF_DESTINY, TOTEM_OF_PROTECTION)
                 .setArmorLoot(new Tuple<>(ArmorMaterials.DIAMOND, 3), new Tuple<>(ArmorMaterials.NETHERITE, 1))
+                .setEnchantmentCount(6)
+                .setEnchantmentsLoot(
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.RAIDERS_BANE.get(), 4, 2, 4),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.INVISIBILITY.get(), 2, 1, 3),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_STRIKE.get(), 2, 1, 2),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_BURST.get(), 2, 1, 3),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_RESISTANCE.get(), 2, 1, 3),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.LIGHTNING_RESISTANCE.get(), 2, 1, 5),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.PROJECTILE_EVASION.get(), 3, 1, 3)
+                )
                 .register();
 
         RaidLootData
@@ -78,6 +103,17 @@ public class RaidLoot
                 )
                 .setTotemsPoolPulls(8, 10, 12)
                 .setTotemsPool(TOTEM_OF_SPEED, TOTEM_OF_POISON, TOTEM_OF_LEVITATION, TOTEM_OF_LIGHTNING, TOTEM_OF_TELEPORTATION, TOTEM_OF_FIREBALLS, TOTEM_OF_FREEZING, TOTEM_OF_PERSISTENCE, TOTEM_OF_DESTINY, TOTEM_OF_PROTECTION)
+                .setArmorLoot(new Tuple<>(ArmorMaterials.NETHERITE, 1))
+                .setEnchantmentCount(10)
+                .setEnchantmentsLoot(
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.RAIDERS_BANE.get(), 1, 3, 5),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.INVISIBILITY.get(), 1, 2, 3),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_STRIKE.get(), 1, 2, 2),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_BURST.get(), 1, 2, 3),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_RESISTANCE.get(), 1, 2, 3),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.LIGHTNING_RESISTANCE.get(), 1, 3, 5),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.PROJECTILE_EVASION.get(), 1, 2, 3)
+                )
                 .register();
     }
 
@@ -162,6 +198,9 @@ public class RaidLoot
 
         public List<Item> armorMaterials;
 
+        public int enchantmentCount;
+        public List<EnchantmentLootEntry> enchantmentsPool;
+
         RaidLootData()
         {
             this.emeralds = new int[2];
@@ -173,6 +212,9 @@ public class RaidLoot
             this.totemsPool = new ArrayList<>();
 
             this.armorMaterials = new ArrayList<>();
+
+            this.enchantmentCount = 0;
+            this.enchantmentsPool = new ArrayList<>();
         }
 
         //Registry
@@ -237,6 +279,18 @@ public class RaidLoot
             return this;
         }
 
+        final RaidLootData setEnchantmentCount(int count)
+        {
+            this.enchantmentCount = count;
+            return this;
+        }
+
+        final RaidLootData setEnchantmentsLoot(EnchantmentLootEntry... enchantments)
+        {
+            this.enchantmentsPool.addAll(List.of(enchantments));
+            return this;
+        }
+
         //Getters
         public final Item pullValuable(Random rand)
         {
@@ -253,11 +307,24 @@ public class RaidLoot
             return null;
         }
 
+        public final ItemStack pullEnchantment(Random rand)
+        {
+            List<EnchantmentLootEntry> pool = new ArrayList<>();
+            for(EnchantmentLootEntry e : this.enchantmentsPool) for(int i = 0; i < e.weight(); i++) pool.add(e);
+
+            EnchantmentLootEntry selected = pool.get(rand.nextInt(pool.size()));
+            int level = selected.minLevel() == selected.maxLevel() ? selected.maxLevel() : rand.nextInt(selected.minLevel(), selected.maxLevel() + 1);
+
+            return EnchantedBookItem.createForEnchantment(new EnchantmentInstance(selected.enchantment(), level));
+        }
+
         void register()
         {
             RAID_LOOT.put(this.raidDifficulty, this);
         }
     }
+
+    private record EnchantmentLootEntry(Enchantment enchantment, int weight, int minLevel, int maxLevel) {}
 
     public static class LootEntry
     {
