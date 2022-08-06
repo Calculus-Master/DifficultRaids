@@ -293,7 +293,7 @@ public class XydraxEliteEntity extends AbstractEvokerVariant
     {
         public XydraxAvoidEntityGoal(float pMaxDistance, double pWalkSpeedModifier, double pSprintSpeedModifier)
         {
-            super(XydraxEliteEntity.this, LivingEntity.class, pMaxDistance, pWalkSpeedModifier, pSprintSpeedModifier, e -> (e instanceof Player player && !player.isCreative() && !player.isSpectator()) || e instanceof Guard);
+            super(XydraxEliteEntity.this, LivingEntity.class, pMaxDistance, pWalkSpeedModifier, pSprintSpeedModifier, e -> (e instanceof Player player && !player.isCreative() && !player.isSpectator()) || (DifficultRaidsUtil.isGuardVillagersLoaded() && e instanceof Guard));
         }
 
         @Override
