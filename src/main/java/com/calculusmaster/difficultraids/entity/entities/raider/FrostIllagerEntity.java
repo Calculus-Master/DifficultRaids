@@ -195,7 +195,7 @@ public class FrostIllagerEntity extends AbstractEvokerVariant
 
             if(target != null)
             {
-                float damage = FrostIllagerEntity.this.getCurrentRaid() != null ? FrostIllagerEntity.this.getRaidDifficulty().config().frost().snowballBlastDamage() + switch(FrostIllagerEntity.this.level.getDifficulty()) {
+                float damage = FrostIllagerEntity.this.isInRaid() ? FrostIllagerEntity.this.getRaidDifficulty().config().frost().snowballBlastDamage() + switch(FrostIllagerEntity.this.level.getDifficulty()) {
                     case PEACEFUL, NORMAL -> 0.0F;
                     case EASY -> -0.5F;
                     case HARD -> 0.5F;
@@ -270,7 +270,7 @@ public class FrostIllagerEntity extends AbstractEvokerVariant
         @Override
         protected void castSpell()
         {
-            FrostIllagerEntity.this.barrageTicks = FrostIllagerEntity.this.getCurrentRaid() != null
+            FrostIllagerEntity.this.barrageTicks = FrostIllagerEntity.this.isInRaid()
                     ? FrostIllagerEntity.this.getRaidDifficulty().config().frost().barrageDuration()
                     : switch(FrostIllagerEntity.this.level.getDifficulty()) {
                         case PEACEFUL -> 0;

@@ -15,6 +15,8 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
@@ -53,13 +55,17 @@ public class NuaosEliteEntity extends AbstractIllagerVariant
 
     private final float maxChargedDamage;
     private float chargedDamage;
+    private int ticksLastDamageTaken;
+
+    private static final AttributeModifier NUAOS_CHARGED_DAMAGE_BOOST = new AttributeModifier("Nuaos Charged Damage Boost", 1.25D, AttributeModifier.Operation.MULTIPLY_BASE);
 
     public NuaosEliteEntity(EntityType<? extends AbstractIllager> entityType, Level level)
     {
         super(entityType, level);
 
         this.chargedDamage = 0;
-        this.maxChargedDamage = 20.0F;
+        this.maxChargedDamage = 30.0F;
+        this.ticksLastDamageTaken = 0;
     }
 
     public static AttributeSupplier.Builder createEliteAttributes()
@@ -67,7 +73,7 @@ public class NuaosEliteEntity extends AbstractIllagerVariant
         return Monster.createMonsterAttributes()
                 .add(Attributes.MOVEMENT_SPEED, 0.30F)
                 .add(Attributes.FOLLOW_RANGE, 16.0D)
-                .add(Attributes.MAX_HEALTH, 100.0D)
+                .add(Attributes.MAX_HEALTH, 120.0D)
                 .add(Attributes.ATTACK_DAMAGE, 10.0D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.8D);
     }
@@ -145,7 +151,7 @@ public class NuaosEliteEntity extends AbstractIllagerVariant
     @Override
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData, @Nullable CompoundTag pDataTag)
     {
-        ItemStack sword = new ItemStack(this.isInRaid() ? Items.DIAMOND_SWORD : this.getRaidDifficulty().is(RaidDifficulty.MASTER, RaidDifficulty.GRANDMASTER) ? Items.NETHERITE_SWORD : Items.DIAMOND_SWORD);
+        ItemStack sword = new ItemStack(this.isInRaid() && this.getRaidDifficulty().is(RaidDifficulty.MASTER, RaidDifficulty.GRANDMASTER) ? Items.NETHERITE_SWORD : Items.DIAMOND_SWORD);
 
         Map<Enchantment, Integer> enchants = new HashMap<>();
         enchants.put(Enchantments.SHARPNESS, 3);
@@ -188,6 +194,11 @@ public class NuaosEliteEntity extends AbstractIllagerVariant
         this.chargedDamage = 0.0F;
     }
 
+    public void resetLastDamageTakenTicks()
+    {
+        this.ticksLastDamageTaken = 0;
+    }
+
     public ChargeState getChargeState()
     {
         double percentCharged = this.chargedDamage / this.maxChargedDamage;
@@ -204,11 +215,28 @@ public class NuaosEliteEntity extends AbstractIllagerVariant
         super.customServerAiStep();
         this.ELITE_EVENT.setProgress(this.getHealth() / this.getMaxHealth());
 
+        AttributeInstance attackDamageAttribute = this.getAttribute(Attributes.ATTACK_DAMAGE);
+        if(attackDamageAttribute != null)
+        {
+            boolean hasModifier = attackDamageAttribute.hasModifier(NUAOS_CHARGED_DAMAGE_BOOST);
+            if(!this.getChargeState().equals(ChargeState.NO_CHARGE) && !hasModifier)
+                attackDamageAttribute.addTransientModifier(NUAOS_CHARGED_DAMAGE_BOOST);
+            else if(hasModifier)
+                attackDamageAttribute.removeModifier(NUAOS_CHARGED_DAMAGE_BOOST);
+        }
+
+        if(this.ticksLastDamageTaken++ > 20 * 5)
+        {
+            float decayPercent = this.random.nextFloat(0.1F) + 0.005F;
+            this.chargedDamage -= this.maxChargedDamage * decayPercent;
+            if(this.chargedDamage < 0) this.resetChargedDamage();
+        }
+
         if(this.chargedDamage >= this.maxChargedDamage)
         {
             this.resetChargedDamage();
 
-            this.playSound(SoundEvents.GENERIC_EXPLODE, 1.0F, 0.8F);
+            this.playSound(SoundEvents.GENERIC_EXPLODE, 0.8F, 0.8F);
 
             List<EntityType<? extends LivingEntity>> canReceiveDamage = new ArrayList<>(List.of(EntityType.VILLAGER, EntityType.PLAYER, EntityType.IRON_GOLEM));
             if(DifficultRaidsUtil.isGuardVillagersLoaded()) canReceiveDamage.add(GuardEntityType.GUARD.get());

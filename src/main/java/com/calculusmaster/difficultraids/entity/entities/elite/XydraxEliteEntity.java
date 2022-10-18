@@ -3,7 +3,6 @@ package com.calculusmaster.difficultraids.entity.entities.elite;
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsItems;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
-import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -91,8 +90,8 @@ public class XydraxEliteEntity extends AbstractEvokerVariant
 
         this.goalSelector.addGoal(1, new XydraxCastSpellGoal());
         this.goalSelector.addGoal(2, new XydraxAvoidEntityGoal( 4.0F, 0.7D, 0.9D));
-        this.goalSelector.addGoal(3, new XydraxHealGoal());
-        this.goalSelector.addGoal(4, new XydraxWindBlastGoal());
+        this.goalSelector.addGoal(3, new XydraxWindBlastGoal());
+        this.goalSelector.addGoal(4, new XydraxHealGoal());
         this.goalSelector.addGoal(4, new XydraxWindColumnGoal());
         this.goalSelector.addGoal(5, new XydraxBarrageGoal());
 
@@ -468,7 +467,6 @@ public class XydraxEliteEntity extends AbstractEvokerVariant
                 };
 
                 Vec3 pushVector = new Vec3(vecToNormalized.x * force, 0.5, vecToNormalized.z * force);
-                LogUtils.getLogger().warn("Xydrax Entity Push Vector: " + pushVector);
                 entity.push(pushVector.x, pushVector.y, pushVector.z);
             });
         }
@@ -488,7 +486,7 @@ public class XydraxEliteEntity extends AbstractEvokerVariant
         @Override
         protected int getCastingInterval()
         {
-            return 600;
+            return 500;
         }
 
         @Override
@@ -501,7 +499,7 @@ public class XydraxEliteEntity extends AbstractEvokerVariant
         @Override
         protected SoundEvent getSpellPrepareSound()
         {
-            return SoundEvents.AMBIENT_UNDERWATER_EXIT;
+            return SoundEvents.FIRE_EXTINGUISH;
         }
 
         @Override

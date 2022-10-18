@@ -29,7 +29,11 @@ public class DREntityEvents
         Random random = new Random();
 
         //Nuaos Chargewave
-        if(event.getEntityLiving() instanceof NuaosEliteEntity nuaos && event.getAmount() > 0) nuaos.increaseChargedDamage(event.getAmount());
+        if(event.getEntityLiving() instanceof NuaosEliteEntity nuaos && event.getAmount() > 0)
+        {
+            nuaos.increaseChargedDamage(event.getAmount());
+            nuaos.resetLastDamageTakenTicks();
+        }
 
         //Grandmaster Armor Damage Reduction
         if(event.getEntityLiving() instanceof Player player && event.getAmount() > 0 && event.getSource().getEntity() instanceof Raider)
