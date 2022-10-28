@@ -85,7 +85,7 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
         this.goalSelector.addGoal(3, new VoldonSummonFamiliarsSpellGoal());
         this.goalSelector.addGoal(4, new VoldonTeleportFamiliarSpellGoal());
         this.goalSelector.addGoal(5, new VoldonSacrificeFamiliarSpellGoal());
-        this.goalSelector.addGoal(5, new RangedAttackGoal(this, 0.5, 40, 5.0F));
+        //this.goalSelector.addGoal(5, new RangedAttackGoal(this, 0.5, 40, 5.0F));
 
         //TODO: Voldon (and Necromancer maybe) Void Blast Spell as a basic attack
         this.goalSelector.addGoal(8, new RandomStrollGoal(this, 0.5D));
@@ -220,15 +220,7 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
     @Override
     public void performRangedAttack(LivingEntity pTarget, float pDistanceFactor)
     {
-        BlockPos shootingTargetPos = pTarget.eyeBlockPosition();
 
-        //TODO: Void blast, also this code for the fireball doesn't work lol
-        Projectile fireball = new SmallFireball(EntityType.SMALL_FIREBALL, this.level);
-        fireball.setPos(this.position().add(0.0, this.getEyeHeight(), 0.0));
-        fireball.shoot(shootingTargetPos.getX(), shootingTargetPos.getY(), shootingTargetPos.getZ(), 2.0F, 4.2F);
-
-        this.level.addFreshEntity(fireball);
-        if(this.level.isClientSide) this.level.addParticle(ParticleTypes.SMALL_FLAME, this.getX(), this.getEyeY() + 0.4, this.getZ(), 0.2, 0.0, 0.3);
     }
 
     private class VoldonCastSpellGoal extends SpellcastingIllagerCastSpellGoal
