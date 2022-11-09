@@ -75,7 +75,7 @@ public abstract class AbstractIllagerMixin extends Raider
                                 {
                                     Tuple<Integer, Integer> minMaxLevel = raidDifficulty.config().protectionLevel();
 
-                                    if(minMaxLevel.getB() > minMaxLevel.getA())
+                                    if(minMaxLevel.getB() < minMaxLevel.getA())
                                     {
                                         minMaxLevel.setA(1);
                                         minMaxLevel.setB(1);
