@@ -59,7 +59,7 @@ public class RaidLoot
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.RAIDERS_BANE.get(), 5, 1, 3),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.INVISIBILITY.get(), 4, 1, 2),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_STRIKE.get(), 2, 1, 1),
-                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_BURST.get(), 2, 1, 2),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_BURST.get(), 2, 1, 3),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_RESISTANCE.get(), 2, 1, 2),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.LIGHTNING_RESISTANCE.get(), 1, 1, 3),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.PROJECTILE_EVASION.get(), 3, 1, 2)
@@ -83,8 +83,8 @@ public class RaidLoot
                 .setEnchantmentsLoot(
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.RAIDERS_BANE.get(), 4, 2, 4),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.INVISIBILITY.get(), 2, 1, 3),
-                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_STRIKE.get(), 2, 1, 2),
-                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_BURST.get(), 2, 1, 3),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_STRIKE.get(), 2, 1, 3),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_BURST.get(), 2, 2, 5),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_RESISTANCE.get(), 2, 1, 3),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.LIGHTNING_RESISTANCE.get(), 2, 1, 5),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.PROJECTILE_EVASION.get(), 3, 1, 3)
@@ -108,8 +108,8 @@ public class RaidLoot
                 .setEnchantmentsLoot(
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.RAIDERS_BANE.get(), 1, 3, 5),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.INVISIBILITY.get(), 1, 2, 3),
-                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_STRIKE.get(), 1, 2, 2),
-                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_BURST.get(), 1, 2, 3),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_STRIKE.get(), 1, 2, 3),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_BURST.get(), 1, 3, 6),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_RESISTANCE.get(), 1, 2, 3),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.LIGHTNING_RESISTANCE.get(), 1, 3, 5),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.PROJECTILE_EVASION.get(), 1, 2, 3)

@@ -29,7 +29,7 @@ apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
 
 
-version = '1.7.3-release'
+version = '1.7.4-release'
 group = 'com.calculusmaster.difficultraids'
 archivesBaseName = 'difficultraids'
 
@@ -177,6 +177,9 @@ dependencies {
     //Enchantment Descriptions 1.18.2 10.0.4 + Bookshelf 1.18.2 13.2.21
     runtimeOnly fg.deobf("curse.maven:enchantmentdescriptions-250419:3821023")
     runtimeOnly fg.deobf("curse.maven:bookshelf-228525:3832270")
+
+    //ToroHealth Damage Indicators 1.18.2 1.0.0
+    runtimeOnly fg.deobf("curse.maven:torohealth-damage-indicators-245733:3556931")
 }
 
 mixin {
