@@ -222,7 +222,7 @@ public abstract class LivingEntityMixin extends Entity
             //Totem of Teleportation
             if(totem.is(totemTeleportation))
             {
-                BlockPos current = this.eyeBlockPosition();
+                BlockPos current = new BlockPos(this.getEyePosition());
                 BlockPos target;
 
                 int tries = 0;
@@ -250,16 +250,16 @@ public abstract class LivingEntityMixin extends Entity
             //Totem of Fireballs
             if(totem.is(totemFireball))
             {
-                BlockPos source = this.eyeBlockPosition();
+                BlockPos source = new BlockPos(this.getEyePosition());
                 Stream.of(
-                        new Vec3(1, 0, 0),
-                        new Vec3(1, 0, 1),
-                        new Vec3(0, 0, 1),
-                        new Vec3(-1, 0, 0),
-                        new Vec3(-1, 0, -1),
-                        new Vec3(0, 0, -1),
-                        new Vec3(-1, 0, 1),
-                        new Vec3(1, 0, -1)
+                        new Vec3(1, 0.33, 0),
+                        new Vec3(1, 0.33, 1),
+                        new Vec3(0, 0.33, 1),
+                        new Vec3(-1, 0.33, 0),
+                        new Vec3(-1, 0.33, -1),
+                        new Vec3(0, 0.33, -1),
+                        new Vec3(-1, 0.33, 1),
+                        new Vec3(1, 0.33, -1)
                 ).forEach(v -> {
                     Fireball fireball = EntityType.FIREBALL.create(this.level);
                     fireball.moveTo(source, 0.0F, 0.0F);

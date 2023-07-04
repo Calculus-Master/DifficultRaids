@@ -3,8 +3,8 @@ package com.calculusmaster.difficultraids.entity.entities.component;
 import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractPillagerVariant;
 import com.calculusmaster.difficultraids.entity.entities.elite.VoldonEliteEntity;
+import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
-import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -12,14 +12,14 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.monster.AbstractIllager;
-import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raider;
@@ -47,15 +47,6 @@ public class VoldonFamiliarEntity extends AbstractPillagerVariant
         this.voldon = voldon;
     }
 
-    public static AttributeSupplier.Builder createAttributes()
-    {
-        return Monster.createMonsterAttributes()
-                .add(Attributes.MOVEMENT_SPEED, 0.33F)
-                .add(Attributes.FOLLOW_RANGE, 7.0D)
-                .add(Attributes.MAX_HEALTH, 25.0D)
-                .add(Attributes.ATTACK_DAMAGE, 6.0D);
-    }
-
     @Override
     protected void registerGoals()
     {
@@ -77,7 +68,7 @@ public class VoldonFamiliarEntity extends AbstractPillagerVariant
             public boolean canUse() { return super.canUse() && VoldonFamiliarEntity.this.isInHideState(); }
         });
 
-        this.goalSelector.addGoal(4, new MeleeAttackGoal(this, 0.7D, true));
+        this.goalSelector.addGoal(4, new MeleeAttackGoal(this, 0.7D, false));
         this.goalSelector.addGoal(5, new VoldonFamiliarReturnGoal());
 
         this.goalSelector.addGoal(8, new RandomStrollGoal(this, 0.6D));
@@ -121,7 +112,28 @@ public class VoldonFamiliarEntity extends AbstractPillagerVariant
     @Override
     public void applyRaidBuffs(int p_37844_, boolean p_37845_)
     {
-        //TODO: Raid Buffs for Familiars
+        RaidDifficulty raidDifficulty = this.getRaidDifficulty();
+
+        AttributeModifier attackModifier = new AttributeModifier("VOLDON_FAMILIAR_RAID_ATTACK_BOOST", switch(raidDifficulty)
+        {
+            case HERO -> 1.5F;
+            case LEGEND -> 2.0F;
+            case MASTER -> 2.5F;
+            case GRANDMASTER -> 4.0F;
+            default -> 1.0F;
+        }, AttributeModifier.Operation.MULTIPLY_TOTAL);
+
+        AttributeInstance attackDamage = this.getAttribute(Attributes.ATTACK_DAMAGE);
+        if(attackDamage != null) attackDamage.addPermanentModifier(attackModifier);
+
+        if(raidDifficulty.is(RaidDifficulty.MASTER, RaidDifficulty.GRANDMASTER))
+        {
+            AttributeInstance health = this.getAttribute(Attributes.MAX_HEALTH);
+            if(health != null) health.addPermanentModifier(new AttributeModifier("VOLDON_FAMILIAR_MAX_HEALTH_INCREASE",
+                    raidDifficulty.is(RaidDifficulty.MASTER) ? 2.0F : 2.5F,
+                    AttributeModifier.Operation.MULTIPLY_TOTAL)
+            );
+        }
     }
 
     public boolean isInHideState()
@@ -145,16 +157,11 @@ public class VoldonFamiliarEntity extends AbstractPillagerVariant
             double distance = this.distanceTo(this.getTarget());
             Vec3 targetPos = this.getTarget().position();
 
-            if(distance > 3.0 && this.random.nextInt(100) < 2) this.randomTeleport(targetPos.x, targetPos.y + 0.2, targetPos.z, true);
+            if(distance > 3.0 && this.random.nextFloat() < 0.02F) this.randomTeleport(targetPos.x, targetPos.y + 0.2, targetPos.z, true);
         }
 
-        if(this.voldon != null)
-        {
-            double voldonDistance = this.distanceTo(this.voldon);
-
-            if(voldonDistance > 15.0) this.getNavigation().moveTo(this.voldon, 0.9D);
-        }
-        else LogUtils.getLogger().warn("Voldon Familiar (ID {%s}, Pos {%s}) has a null Voldon attribute!".formatted(this.getId(), this.blockPosition()));
+        if(this.distanceTo(this.voldon) >= 40)
+            this.randomTeleport(this.voldon.getX() + (2 - this.random.nextInt(5)), this.voldon.getY(), this.voldon.getZ() + (2 - this.random.nextInt(5)), true);
     }
 
     private class VoldonFamiliarReturnGoal extends Goal

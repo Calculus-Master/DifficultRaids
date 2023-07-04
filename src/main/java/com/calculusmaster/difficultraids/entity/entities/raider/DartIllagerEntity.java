@@ -11,7 +11,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
@@ -21,7 +20,6 @@ import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.*;
 import net.minecraft.world.entity.monster.AbstractIllager;
-import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raider;
@@ -39,21 +37,13 @@ import java.util.Map;
 
 public class DartIllagerEntity extends AbstractVindicatorVariant
 {
+    //TODO: Remove Dart Illagers
     private static final AttributeModifier LAST_RESORT_MOVEMENT_BOOST = new AttributeModifier("last_resort_movement_boost", 1.5, AttributeModifier.Operation.MULTIPLY_BASE);
     private static final AttributeModifier CONDUCTOR_LIGHTNING_MOVEMENT_BOOST = new AttributeModifier("conductor_lightining_movement_boost", 1.2, AttributeModifier.Operation.MULTIPLY_TOTAL);
 
     public DartIllagerEntity(EntityType<? extends AbstractIllager> p_32105_, Level p_32106_)
     {
         super(p_32105_, p_32106_);
-    }
-
-    public static AttributeSupplier.Builder createAttributes()
-    {
-        return Monster.createMonsterAttributes()
-                .add(Attributes.MOVEMENT_SPEED, 0.42F)
-                .add(Attributes.FOLLOW_RANGE, 18.0D)
-                .add(Attributes.MAX_HEALTH, 12.0D)
-                .add(Attributes.ATTACK_DAMAGE, 5.0D);
     }
 
     @Override

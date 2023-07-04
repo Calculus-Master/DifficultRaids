@@ -1,22 +1,25 @@
 package com.calculusmaster.difficultraids.mixins;
 
+import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.raids.RaidEnemyRegistry;
 import com.calculusmaster.difficultraids.raids.RaidLoot;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -52,9 +55,10 @@ public abstract class RaidMixin
     @Shadow @Final private int numGroups;
     @Shadow private int groupsSpawned;
     @Shadow @Final private ServerLevel level;
-    @Shadow @Final private Random random;
+    @Shadow @Final private RandomSource random;
     @Shadow private BlockPos center;
     @Shadow @Final private Set<UUID> heroesOfTheVillage;
+    @Shadow private long ticksActive;
 
     @Shadow public abstract boolean isVictory();
     @Shadow public abstract boolean isLoss();
@@ -62,6 +66,8 @@ public abstract class RaidMixin
     @Shadow public abstract void joinRaid(int p_37714_, Raider p_37715_, @Nullable BlockPos p_37716_, boolean p_37717_);
     @Shadow public abstract int getGroupsSpawned();
     @Shadow public abstract int getBadOmenLevel();
+    @Shadow public abstract int getTotalRaidersAlive();
+    @Shadow public abstract Set<Raider> getAllRaiders();
 
     @Shadow @Final private ServerBossEvent raidEvent;
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -79,13 +85,23 @@ public abstract class RaidMixin
     }
 
     @Inject(at = @At("TAIL"), method = "tick")
+    private void difficultraids_highlightRemainingRaiders(CallbackInfo callback)
+    {
+        if(this.ticksActive % 5 == 0 && this.getTotalRaidersAlive() <= 3)
+            this.getAllRaiders().stream()
+                    .filter(LivingEntity::isAlive) //Alive Raiders
+                    .filter(r -> !r.hasEffect(MobEffects.GLOWING)) //Not already glowing
+                    .forEach(r -> r.addEffect(new MobEffectInstance(MobEffects.GLOWING, 20 * 3, 1, false, false))); //Apply glow
+    }
+
+    @Inject(at = @At("TAIL"), method = "tick")
     private void difficultraids_addDifficultyToEventBar(CallbackInfo callback)
     {
         RaidDifficulty raidDifficulty = RaidDifficulty.get(this.getBadOmenLevel());
         String title = this.raidEvent.getName().getString();
 
         if(title.toLowerCase().contains("raid") && !title.toLowerCase().contains(raidDifficulty.getFormattedName().toLowerCase()))
-            this.raidEvent.setName(new TextComponent(raidDifficulty.getFormattedName() + " " + title));
+            this.raidEvent.setName(Component.literal(raidDifficulty.getFormattedName() + " " + title));
     }
 
     @Inject(at = @At("HEAD"), method = "spawnGroup")
@@ -105,18 +121,16 @@ public abstract class RaidMixin
             Map<EntityType<?>, Integer> reinforcements = RaidEnemyRegistry.getReinforcements(this.groupsSpawned, raidDifficulty, levelDifficulty);
             final String sum = "(" + reinforcements.values().stream().mapToInt(i -> i).sum() + ")";
             final List<String> messages = List.of("Reinforcements have arrived!", "Additional mobs have joined!", "An extra group of mobs has appeared!", "The Illagers have called in reinforcements!", "The Illagers have called for backup!");
-            participants.forEach(p -> p.sendMessage(new TextComponent(messages.get(this.random.nextInt(messages.size())) + " " + sum), p.getUUID()));
+            participants.forEach(p -> p.sendSystemMessage(Component.literal(messages.get(this.random.nextInt(messages.size())) + " " + sum)));
 
             for(Map.Entry<EntityType<?>, Integer> entityEntry : reinforcements.entrySet())
             {
                 for(int i = 0; i < entityEntry.getValue(); i++)
                 {
                     EntityType<?> type = entityEntry.getKey();
-                    LivingEntity spawn = (LivingEntity)type.create(this.level);
-                    if(spawn == null) continue; //This shouldn't execute, but just in case
+                    LivingEntity spawn = (LivingEntity)type.create(this.level); if(spawn == null) continue;
                     spawn.moveTo(pos.getX(), pos.getY(), pos.getZ()); //TODO: Randomize spawn a bit more
                     if(spawn instanceof Monster mob) mob.finalizeSpawn(this.level, this.level.getCurrentDifficultyAt(mob.blockPosition()), MobSpawnType.REINFORCEMENT, null, null);
-                    spawn.setOnGround(true);
 
                     if(List.of(EntityType.ZOMBIE, EntityType.SKELETON, EntityType.STRAY).contains(entityEntry.getKey()))
                         spawn.setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.LEATHER_HELMET));
@@ -133,18 +147,16 @@ public abstract class RaidMixin
 
                         if(raidDifficulty.is(RaidDifficulty.GRANDMASTER))
                         {
-                            List<Item> armors = List.of(Items.DIAMOND_HELMET, Items.DIAMOND_CHESTPLATE, Items.DIAMOND_LEGGINGS, Items.DIAMOND_BOOTS);
+                            monster.setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.DIAMOND_HELMET));
+                            monster.setItemSlot(EquipmentSlot.CHEST, new ItemStack(Items.DIAMOND_CHESTPLATE));
+                            monster.setItemSlot(EquipmentSlot.LEGS, new ItemStack(Items.DIAMOND_LEGGINGS));
+                            monster.setItemSlot(EquipmentSlot.FEET, new ItemStack(Items.DIAMOND_BOOTS));
 
-                            monster.setItemSlot(EquipmentSlot.HEAD, new ItemStack(armors.get(0)));
-                            monster.setItemSlot(EquipmentSlot.CHEST, new ItemStack(armors.get(1)));
-                            monster.setItemSlot(EquipmentSlot.LEGS, new ItemStack(armors.get(2)));
-                            monster.setItemSlot(EquipmentSlot.FEET, new ItemStack(armors.get(3)));
+                            monster.setDropChance(EquipmentSlot.HEAD, 0);
+                            monster.setDropChance(EquipmentSlot.CHEST, 0);
+                            monster.setDropChance(EquipmentSlot.LEGS, 0);
+                            monster.setDropChance(EquipmentSlot.FEET, 0);
                         }
-                    }
-                    else if(spawn instanceof Animal animal)
-                    {
-                        Path path = animal.getNavigation().createPath(this.center, 15);
-                        animal.getNavigation().moveTo(path, 0.5);
                     }
 
                     this.level.addFreshEntity(spawn);
@@ -165,9 +177,9 @@ public abstract class RaidMixin
             //TODO: Remove when reworking waves
             if(raidDifficulty.is(RaidDifficulty.LEGEND) && eliteTier == 2) eliteTier = 1;
 
-            if(eliteTier != -1)
+            if(true || eliteTier != -1) //TODO: Remove after Elite Testing is done
             {
-                EntityType<?> eliteType = RaidEnemyRegistry.getRandomElite(eliteTier);
+                EntityType<?> eliteType = DifficultRaidsEntityTypes.NUAOS_ELITE.get(); //RaidEnemyRegistry.getRandomElite(eliteTier);
                 Entity elite = eliteType.create(this.level);
                 if(elite instanceof Raider raider) this.joinRaid(wave, raider, spawnPos, false);
                 else LOGGER.error("Failed to spawn Raid Elite! {EntityType: " + eliteType.toShortString() + "}, Wave {" + wave + "}, Elite Tier: {" + eliteTier + "}, Difficulty {" + this.level.getDifficulty() + "}");
@@ -203,7 +215,7 @@ public abstract class RaidMixin
     }
 
     @Inject(at = @At("HEAD"), method = "getPotentialBonusSpawns", cancellable = true)
-    private void difficultraids_getPotentialBonusSpawns(Raid.RaiderType raiderType, Random random, int groupsSpawned, DifficultyInstance difficultyInstance, boolean shouldSpawnBonusGroup, CallbackInfoReturnable<Integer> callbackInfoReturnable)
+    private void difficultraids_getPotentialBonusSpawns(Raid.RaiderType raiderType, RandomSource random, int groupsSpawned, DifficultyInstance difficultyInstance, boolean shouldSpawnBonusGroup, CallbackInfoReturnable<Integer> callbackInfoReturnable)
     {
         if(!RaidDifficulty.get(this.getBadOmenLevel()).isDefault()) callbackInfoReturnable.setReturnValue(0);
     }
@@ -287,17 +299,14 @@ public abstract class RaidMixin
 
             //Notify players
             this.heroesOfTheVillage.stream().map(uuid -> this.level.getPlayerByUUID(uuid)).filter(Objects::nonNull).forEach(p -> {
-                p.sendMessage(
-                        new TextComponent("Raid Rewards have spawned at X: %s Y: %s Z: %s!".formatted(rewardPos.getX(), rewardPos.getY(), rewardPos.getZ())),
-                        p.getUUID()
-                );
+                p.sendSystemMessage(Component.literal("Raid Rewards have spawned at X: %s Y: %s Z: %s!".formatted(rewardPos.getX(), rewardPos.getY(), rewardPos.getZ())));
             });
         }
-        else if(this.isLoss() && raidDifficulty.is(RaidDifficulty.GRANDMASTER))
+        else if(false && this.isLoss() && raidDifficulty.is(RaidDifficulty.GRANDMASTER)) //TODO: Add config option or rework
         {
             WitherBoss wither = EntityType.WITHER.create(this.level);
 
-            wither.setCustomName(new TextComponent("The Apocalypse"));
+            wither.setCustomName(Component.literal("The Apocalypse"));
             wither.setPos(this.center.getX(), this.center.getY() + 10, this.center.getZ());
 
             this.level.addFreshEntity(wither);

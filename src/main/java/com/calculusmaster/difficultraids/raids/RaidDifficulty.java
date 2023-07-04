@@ -29,7 +29,7 @@ public enum RaidDifficulty
             case HERO -> DifficultRaidsConfig.HERO_CONFIG;
             case LEGEND -> DifficultRaidsConfig.LEGEND_CONFIG;
             case MASTER -> DifficultRaidsConfig.MASTER_CONFIG;
-            case GRANDMASTER -> DifficultRaidsConfig.APOCALYPSE_CONFIG;
+            case GRANDMASTER -> DifficultRaidsConfig.GRANDMASTER_CONFIG;
             default -> DifficultRaidsConfig.DEFAULT_CONFIG;
         };
     }

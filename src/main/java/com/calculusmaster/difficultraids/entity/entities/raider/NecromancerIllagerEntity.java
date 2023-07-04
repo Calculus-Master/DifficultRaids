@@ -14,8 +14,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
@@ -49,14 +47,6 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
     public NecromancerIllagerEntity(EntityType<? extends AbstractEvokerVariant> p_33724_, Level p_33725_)
     {
         super(p_33724_, p_33725_);
-    }
-
-    public static AttributeSupplier.Builder createAttributes()
-    {
-        return Monster.createMonsterAttributes()
-                .add(Attributes.MOVEMENT_SPEED, 0.30F)
-                .add(Attributes.FOLLOW_RANGE, 16.0D)
-                .add(Attributes.MAX_HEALTH, 30.0D);
     }
 
     @Override
@@ -367,7 +357,7 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
                     case HARD -> 18;
                 };
 
-                NecromancerIllagerEntity.this.playSound(SoundEvents.ENDERMAN_DEATH, 10.0F, 1.0F);
+                NecromancerIllagerEntity.this.playSound(SoundEvents.ENDERMAN_DEATH, 7.0F, 1.0F);
 
                 BlockPos currentPos = NecromancerIllagerEntity.this.blockPosition();
                 for(int i = 0; i < size; i++)
@@ -468,7 +458,7 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
                 //Bury Logic
                 target.playSound(SoundEvents.DROWNED_AMBIENT_WATER, 5.0F, 0.75F);
 
-                int buryDistance = 1;
+                int buryDistance = 2;
                 int fullBuryChance = switch(level.getDifficulty()) {
                     case PEACEFUL -> 0;
                     case EASY -> 20;
@@ -482,7 +472,7 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
 
                 target.moveTo(target.getBlockX(), target.getBlockY() - buryDistance, target.getBlockZ());
 
-                if(!level.getBlockState(target.eyeBlockPosition()).isAir() && target instanceof AbstractVillager villager)
+                if(!level.getBlockState(new BlockPos(target.getEyePosition())).isAir() && target instanceof AbstractVillager villager)
                     villager.addEffect(new MobEffectInstance(MobEffects.GLOWING, 200, 1));
             }
         }
@@ -492,7 +482,7 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
         {
             Level level = NecromancerIllagerEntity.this.getLevel();
             LivingEntity target = NecromancerIllagerEntity.this.getTarget();
-            return super.canUse() && level.getBlockState(target.eyeBlockPosition()).isAir() && Math.pow(NecromancerIllagerEntity.this.blockPosition().distSqr(target.blockPosition()), 0.5) < 4;
+            return super.canUse() && level.getBlockState(new BlockPos(target.getEyePosition())).isAir() && Math.pow(NecromancerIllagerEntity.this.blockPosition().distSqr(target.blockPosition()), 0.5) < 4;
         }
 
         @Override

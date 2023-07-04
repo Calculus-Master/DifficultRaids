@@ -20,7 +20,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 public class DifficultRaidsEntityTypes
 {
-    public static DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITIES, DifficultRaids.MODID);
+    public static DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, DifficultRaids.MODID);
 
     public static final RegistryObject<EntityType<WarriorIllagerEntity>> WARRIOR_ILLAGER =
             registerIllager("warrior_illager", WarriorIllagerEntity::new);

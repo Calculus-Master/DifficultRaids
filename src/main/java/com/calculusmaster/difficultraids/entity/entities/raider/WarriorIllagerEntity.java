@@ -2,14 +2,11 @@ package com.calculusmaster.difficultraids.entity.entities.raider;
 
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractVindicatorVariant;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
-import com.mojang.logging.LogUtils;
+import com.calculusmaster.difficultraids.setup.DifficultRaidsEnchantments;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
@@ -18,7 +15,6 @@ import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.monster.AbstractIllager;
-import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raider;
@@ -41,15 +37,6 @@ public class WarriorIllagerEntity extends AbstractVindicatorVariant
     public WarriorIllagerEntity(EntityType<? extends AbstractIllager> entityType, Level level)
     {
         super(entityType, level);
-    }
-
-    public static AttributeSupplier.Builder createAttributes()
-    {
-        return Monster.createMonsterAttributes()
-                .add(Attributes.MOVEMENT_SPEED, 0.35F)
-                .add(Attributes.FOLLOW_RANGE, 12.0D)
-                .add(Attributes.MAX_HEALTH, 20.0D)
-                .add(Attributes.ATTACK_DAMAGE, 5.0D);
     }
 
     @Override
@@ -77,7 +64,14 @@ public class WarriorIllagerEntity extends AbstractVindicatorVariant
     {
         RaidDifficulty raidDifficulty = this.getRaidDifficulty();
 
-        List<Item> swordPool = raidDifficulty.config().warrior().possibleSwords();
+        List<Item> swordPool = switch(raidDifficulty) {
+            case DEFAULT -> List.of(Items.STONE_SWORD);
+            case HERO -> List.of(Items.IRON_SWORD);
+            case LEGEND -> List.of(Items.IRON_SWORD, Items.DIAMOND_SWORD);
+            case MASTER -> List.of(Items.IRON_SWORD, Items.DIAMOND_SWORD, Items.NETHERITE_SWORD);
+            case GRANDMASTER -> List.of(Items.NETHERITE_SWORD);
+        };
+
         ItemStack sword = new ItemStack(swordPool.get(this.random.nextInt(swordPool.size())));
 
         if(!raidDifficulty.isDefault())
@@ -85,31 +79,42 @@ public class WarriorIllagerEntity extends AbstractVindicatorVariant
             Map<Enchantment, Integer> enchants = new HashMap<>();
 
             //Sharpness
-            if(this.random.nextInt(100) < raidDifficulty.config().warrior().sharpnessChance())
+            if(this.random.nextInt() < 0.75)
             {
-                Tuple<Integer, Integer> minMaxLevel = raidDifficulty.config().warrior().sharpnessLevel();
-
-                if(minMaxLevel.getB() > minMaxLevel.getA())
-                {
-                    minMaxLevel.setA(1);
-                    minMaxLevel.setB(1);
-                    LogUtils.getLogger().warn("Invalid config option for Warrior Illager Sharpness Level! Minimum is greater than the maximum! Defaulting to a Sharpness Level of 1.");
-                }
-
-                int sharpnessLevel = minMaxLevel.getA().equals(minMaxLevel.getB()) ? minMaxLevel.getA() : this.random.nextInt(minMaxLevel.getA(), minMaxLevel.getB() + 1);
-
-                enchants.put(Enchantments.SHARPNESS, sharpnessLevel);
+                enchants.put(Enchantments.SHARPNESS, switch(raidDifficulty) {
+                    case DEFAULT -> 0;
+                    case HERO, LEGEND -> 1;
+                    case MASTER -> 2;
+                    case GRANDMASTER -> 3;
+                });
             }
 
             //Fire Aspect
-            if(this.random.nextInt(100) < raidDifficulty.config().warrior().fireAspectChance())
-                enchants.put(Enchantments.FIRE_ASPECT, raidDifficulty.config().warrior().fireAspectLevel());
+            if(raidDifficulty.is(RaidDifficulty.LEGEND, RaidDifficulty.MASTER, RaidDifficulty.GRANDMASTER))
+            {
+                enchants.put(Enchantments.FIRE_ASPECT, switch(raidDifficulty) {
+                    case LEGEND -> 1;
+                    case MASTER -> 2;
+                    case GRANDMASTER -> 3;
+                    default -> 0;
+                });
+            }
 
             //Knockback
-            if(this.random.nextInt(100) < raidDifficulty.config().warrior().knockbackChance())
-                enchants.put(Enchantments.KNOCKBACK, raidDifficulty.config().warrior().knockbackLevel());
+            if(raidDifficulty.is(RaidDifficulty.LEGEND, RaidDifficulty.MASTER, RaidDifficulty.GRANDMASTER))
+            {
+                enchants.put(Enchantments.KNOCKBACK, switch(raidDifficulty) {
+                    case LEGEND -> 1;
+                    case MASTER -> 2;
+                    case GRANDMASTER -> 3;
+                    default -> 0;
+                });
+            }
 
-            if(!sword.is(Items.IRON_SWORD) && !sword.is(Items.STONE_SWORD)) enchants.put(Enchantments.VANISHING_CURSE, 1);
+            //Critical Strike
+            if(raidDifficulty.is(RaidDifficulty.MASTER, RaidDifficulty.GRANDMASTER)) enchants.put(DifficultRaidsEnchantments.CRITICAL_STRIKE.get(), raidDifficulty.is(RaidDifficulty.MASTER) ? 1 : 2);
+
+            enchants.put(Enchantments.VANISHING_CURSE, 1);
 
             EnchantmentHelper.setEnchantments(enchants, sword);
         }

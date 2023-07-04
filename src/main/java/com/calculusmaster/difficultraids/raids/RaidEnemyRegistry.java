@@ -75,12 +75,12 @@ public class RaidEnemyRegistry
     {
         //TODO: Change these when reworking the wave system
         RaidEnemyRegistry.registerTierElites(1,
-                DifficultRaidsEntityTypes.NUAOS_ELITE.get(),
-                DifficultRaidsEntityTypes.XYDRAX_ELITE.get()
+                DifficultRaidsEntityTypes.NUAOS_ELITE.get()
         );
 
         RaidEnemyRegistry.registerTierElites(2,
                 DifficultRaidsEntityTypes.MODUR_ELITE.get(),
+                DifficultRaidsEntityTypes.XYDRAX_ELITE.get(),
                 DifficultRaidsEntityTypes.VOLDON_ELITE.get()
         );
     }

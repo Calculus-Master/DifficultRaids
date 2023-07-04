@@ -16,7 +16,7 @@ public abstract class AbstractEvokerVariantRenderer<T extends AbstractEvokerVari
     {
         super(entityRenderProvider, path, ModelLayers.EVOKER);
 
-        this.addLayer(new ItemInHandLayer<>(this)
+        this.addLayer(new ItemInHandLayer<>(this, entityRenderProvider.getItemInHandRenderer())
         {
             @Override
             public void render(PoseStack pMatrixStack, MultiBufferSource pBuffer, int pPackedLight, T pLivingEntity, float pLimbSwing, float pLimbSwingAmount, float pPartialTicks, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch)

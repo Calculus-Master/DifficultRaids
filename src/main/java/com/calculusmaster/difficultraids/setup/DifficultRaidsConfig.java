@@ -5,7 +5,6 @@ import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.raids.RaidEnemyRegistry;
 import com.mojang.logging.LogUtils;
 import net.minecraft.util.Tuple;
-import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -22,9 +21,9 @@ public class DifficultRaidsConfig
 {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public static Map<String, ForgeConfigSpec.BooleanValue> ENABLED_RAIDERS;
+    public static Map<String, ForgeConfigSpec.BooleanValue> ENABLED_RAIDERS = new HashMap<>();
 
-    public static RaidDifficultyConfig DEFAULT_CONFIG, HERO_CONFIG, LEGEND_CONFIG, MASTER_CONFIG, APOCALYPSE_CONFIG;
+    public static RaidDifficultyConfig DEFAULT_CONFIG, HERO_CONFIG, LEGEND_CONFIG, MASTER_CONFIG, GRANDMASTER_CONFIG;
 
     public static void register()
     {
@@ -34,7 +33,6 @@ public class DifficultRaidsConfig
         //Disable mobs
 
         SERVER.push("Illagers");
-        ENABLED_RAIDERS = new HashMap<>();
 
         ENABLED_RAIDERS.put(RaidEnemyRegistry.VINDICATOR, SERVER.comment("Determines if Vindicators will show up in Raids.").define("enableVindicators", true));
         ENABLED_RAIDERS.put(RaidEnemyRegistry.EVOKER, SERVER.comment("Determines if Evokers will show up in Raids.").define("enableEvokers", true));
@@ -67,7 +65,7 @@ public class DifficultRaidsConfig
 
             //Elites
             config.elitesEnabled = BUILDER
-                    .comment("Toggle whether Elite Raiders will spawn in Raids or not. On Hero, Elites will not spawn regardless of this, and on Legend, only Tier 1 elites will spawn if enabled.")
+                    .comment("Toggle whether Elite Raiders will spawn in Raids or not.")
                     .define("elitesEnabled", true);
 
             //Reinforcement Chance
@@ -82,73 +80,6 @@ public class DifficultRaidsConfig
             config.reinforcementChance = BUILDER
                     .comment("Determines the chance that Reinforcements will spawn on any wave of a Raid.")
                     .defineInRange("reinforcementChance", default_reinforcementChance, 0, 100);
-
-            //Armor Chance
-            int default_armorChance = switch(raidDifficulty) {
-                case HERO -> 10;
-                case LEGEND -> 25;
-                case MASTER -> 40;
-                case GRANDMASTER -> 80;
-                default -> 0;
-            };
-
-            config.armorChance = BUILDER
-                    .comment("Determines the chance that an individual Raider will be wearing some armor during a Raid.")
-                    .defineInRange("armorChance", default_armorChance, 0, 100);
-
-            //Max Armor Pieces
-            int default_maxArmorPieces = switch(raidDifficulty) {
-                case HERO, LEGEND, MASTER -> 1;
-                case GRANDMASTER -> 4;
-                default -> 0;
-            };
-
-            config.maxArmorPieces = BUILDER
-                    .comment("Determines the maximum pieces of armor Raiders can have equipped.")
-                    .defineInRange("maxArmorPieces", default_maxArmorPieces, 0, 4);
-
-            //Valid Armor Tiers
-            List<String> default_validArmorTiers = switch(raidDifficulty) {
-                case HERO -> List.of("LEATHER", "CHAIN", "IRON");
-                case LEGEND -> List.of("CHAIN", "IRON", "DIAMOND");
-                case MASTER -> List.of("IRON", "DIAMOND", "NETHERITE");
-                case GRANDMASTER -> List.of("DIAMOND", "NETHERITE");
-                default -> List.of();
-            };
-
-            config.validArmorTiers = BUILDER
-                    .comment("Valid tiers of armor that Raiders can have equipped during Raids. Valid values: LEATHER, CHAIN, IRON, DIAMOND, NETHERITE (Case-Sensitive!).")
-                    .defineList("validArmorTiers", default_validArmorTiers, o -> List.of("LEATHER", "CHAIN", "IRON", "DIAMOND", "NETHERITE").contains(o.toString()));
-
-            //Protection Chance
-            int default_protectionChance = switch(raidDifficulty) {
-                case HERO -> 5;
-                case LEGEND -> 10;
-                case MASTER -> 15;
-                case GRANDMASTER -> 40;
-                default -> 0;
-            };
-
-            config.protectionChance = BUILDER
-                    .comment("Determines the chance that Raider armor will be enchanted with Protection.")
-                    .defineInRange("protectionChance", default_protectionChance, 0, 100);
-
-            //Protection Level
-            Tuple<Integer, Integer> default_protectionLevel = switch(raidDifficulty) {
-                case HERO -> new Tuple<>(1, 2);
-                case LEGEND -> new Tuple<>(1, 4);
-                case MASTER -> new Tuple<>(3, 4);
-                case GRANDMASTER -> new Tuple<>(4, 5);
-                default -> new Tuple<>(0, 0);
-            };
-
-            config.minProtectionLevel = BUILDER
-                    .comment("The maximum level of Protection that any Raider's armor will be enchanted with.")
-                    .defineInRange("minProtectionLevel", default_protectionLevel.getA(), 0, 10);
-
-            config.maxProtectionLevel = BUILDER
-                    .comment("The minimum level of Protection that any Raider's armor will be enchanted with.")
-                    .defineInRange("maxProtectionLevel", default_protectionLevel.getB(), 0, 10);
 
             //Mob-Based Config
 
@@ -501,32 +432,32 @@ public class DifficultRaidsConfig
 
             BUILDER.pop();
 
-            //Tank
+            //Tank TODO - No properties
             BUILDER.comment("Change settings regarding the Tank Illager Entity during Raids.").push("Tank Illager");
-            config.tankConfig = new TankIllagerConfig();
-
-                int default_tank_protectionLevel = switch(raidDifficulty) {
-                    case HERO -> 2;
-                    case LEGEND -> 3;
-                    case MASTER -> 4;
-                    case GRANDMASTER -> 5;
-                    default -> 1;
-                };
-
-                config.tankConfig.protectionLevel = BUILDER
-                        .comment("Determines the level of Protection that Tank Illager armor will be enchanted with. 0 to disable.")
-                        .defineInRange("tankProtectionLevel", default_tank_protectionLevel, 0, 10);
-
-                int default_tank_thornsLevel = switch(raidDifficulty) {
-                    case LEGEND -> 1;
-                    case MASTER -> 2;
-                    case GRANDMASTER -> 3;
-                    default -> 0;
-                };
-
-                config.tankConfig.thornsLevel = BUILDER
-                        .comment("Determines the level of Thorns that Tank Illager armor will be enchanted with. 0 to disable.")
-                        .defineInRange("tankThornsLevel", default_tank_thornsLevel, 0, 10);
+//            config.tankConfig = new TankIllagerConfig();
+//
+//                int default_tank_protectionLevel = switch(raidDifficulty) {
+//                    case HERO -> 2;
+//                    case LEGEND -> 3;
+//                    case MASTER -> 4;
+//                    case GRANDMASTER -> 5;
+//                    default -> 1;
+//                };
+//
+//                config.tankConfig.protectionLevel = BUILDER
+//                        .comment("Determines the level of Protection that Tank Illager armor will be enchanted with. 0 to disable.")
+//                        .defineInRange("tankProtectionLevel", default_tank_protectionLevel, 0, 10);
+//
+//                int default_tank_thornsLevel = switch(raidDifficulty) {
+//                    case LEGEND -> 1;
+//                    case MASTER -> 2;
+//                    case GRANDMASTER -> 3;
+//                    default -> 0;
+//                };
+//
+//                config.tankConfig.thornsLevel = BUILDER
+//                        .comment("Determines the level of Thorns that Tank Illager armor will be enchanted with. 0 to disable.")
+//                        .defineInRange("tankThornsLevel", default_tank_thornsLevel, 0, 10);
 
             BUILDER.pop();
 
@@ -629,7 +560,7 @@ public class DifficultRaidsConfig
                 case HERO -> HERO_CONFIG = config;
                 case LEGEND -> LEGEND_CONFIG = config;
                 case MASTER -> MASTER_CONFIG = config;
-                case GRANDMASTER -> APOCALYPSE_CONFIG = config;
+                case GRANDMASTER -> GRANDMASTER_CONFIG = config;
             }
 
             ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, BUILDER.build(), DifficultRaids.MODID + "/difficulty-" + raidDifficulty.toString().toLowerCase() + ".toml");
@@ -652,44 +583,6 @@ public class DifficultRaidsConfig
             return this.reinforcementChance.get();
         }
 
-        private ForgeConfigSpec.IntValue armorChance;
-        public int armorChance()
-        {
-            return this.armorChance.get();
-        }
-
-        private ForgeConfigSpec.IntValue maxArmorPieces;
-        public int maxArmorPieces()
-        {
-            return this.maxArmorPieces.get();
-        }
-
-        private ForgeConfigSpec.ConfigValue<List<? extends String>> validArmorTiers;
-        public List<ArmorMaterials> validArmorTiers()
-        {
-            return this.validArmorTiers.get().stream().map(String::toString).map(s -> switch(s) {
-                case "LEATHER" -> ArmorMaterials.LEATHER;
-                case "CHAIN" -> ArmorMaterials.CHAIN;
-                case "IRON" -> ArmorMaterials.IRON;
-                case "DIAMOND" -> ArmorMaterials.DIAMOND;
-                case "NETHERITE" -> ArmorMaterials.NETHERITE;
-                default -> null;
-            }).filter(Objects::nonNull).toList();
-        }
-
-        private ForgeConfigSpec.IntValue protectionChance;
-        public int protectionChance()
-        {
-            return this.protectionChance.get();
-        }
-
-        private ForgeConfigSpec.IntValue minProtectionLevel;
-        private ForgeConfigSpec.IntValue maxProtectionLevel;
-        public Tuple<Integer, Integer> protectionLevel()
-        {
-            return new Tuple<>(this.minProtectionLevel.get(), this.maxProtectionLevel.get());
-        }
-
         //Mob Configs
         private AssassinIllagerConfig assassinConfig;
         public AssassinIllagerConfig assassin() { return this.assassinConfig; }
@@ -708,9 +601,6 @@ public class DifficultRaidsConfig
 
         private ShamanIllagerConfig shamanConfig;
         public ShamanIllagerConfig shaman() { return this.shamanConfig; }
-
-        private TankIllagerConfig tankConfig;
-        public TankIllagerConfig tank() { return this.tankConfig; }
 
         private WarriorIllagerConfig warriorConfig;
         public WarriorIllagerConfig warrior() { return this.warriorConfig; }
@@ -899,21 +789,6 @@ public class DifficultRaidsConfig
         public int allyStrengthAmplifier()
         {
             return this.allyStrengthAmplifier.get();
-        }
-    }
-
-    public static class TankIllagerConfig
-    {
-        private ForgeConfigSpec.IntValue protectionLevel;
-        public int protectionLevel()
-        {
-            return this.protectionLevel.get();
-        }
-
-        private ForgeConfigSpec.IntValue thornsLevel;
-        public int thornsLevel()
-        {
-            return this.thornsLevel.get();
         }
     }
 

@@ -10,8 +10,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
@@ -20,7 +18,6 @@ import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.*;
 import net.minecraft.world.entity.monster.AbstractIllager;
-import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raider;
@@ -40,19 +37,11 @@ import java.util.Map;
 public class AssassinIllagerEntity extends AbstractPillagerVariant
 {
     private int invisibilityCooldown = 0;
+    private int teleportCooldown = 0;
 
     public AssassinIllagerEntity(EntityType<? extends AbstractIllager> p_32105_, Level p_32106_)
     {
         super(p_32105_, p_32106_);
-    }
-
-    public static AttributeSupplier.Builder createAttributes()
-    {
-        return Monster.createMonsterAttributes()
-                .add(Attributes.MOVEMENT_SPEED, 0.40F)
-                .add(Attributes.FOLLOW_RANGE, 30.0D)
-                .add(Attributes.MAX_HEALTH, 5.0D)
-                .add(Attributes.ATTACK_DAMAGE, 10.0D);
     }
 
     @Override
@@ -63,7 +52,7 @@ public class AssassinIllagerEntity extends AbstractPillagerVariant
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new RaiderOpenDoorGoal(this));
         this.goalSelector.addGoal(2, new HoldGroundAttackGoal(this, 10.0F));
-        this.goalSelector.addGoal(3, new MeleeAttackGoal(this, 1.6D, true));
+        this.goalSelector.addGoal(3, new MeleeAttackGoal(this, 1.2D, true));
 
         this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, Raider.class)).setAlertOthers());
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractVillager.class, true));
@@ -72,6 +61,7 @@ public class AssassinIllagerEntity extends AbstractPillagerVariant
         this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(this, Sheep.class, true));
         this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(this, Pig.class, true));
         this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(this, Chicken.class, true));
+        if(DifficultRaidsUtil.isGuardVillagersLoaded()) this.targetSelector.addGoal(8, new NearestAttackableTargetGoal<>(this, Guard.class, true));
 
         this.goalSelector.addGoal(8, new RandomStrollGoal(this, 0.9D));
         this.goalSelector.addGoal(9, new LookAtPlayerGoal(this, Player.class, 3.0F, 1.0F));
@@ -81,8 +71,10 @@ public class AssassinIllagerEntity extends AbstractPillagerVariant
     @Override
     public boolean hurt(DamageSource pSource, float pAmount)
     {
-        if(pSource.getDirectEntity() instanceof IronGolem) pAmount *= 0.1;
-        else if(DifficultRaidsUtil.isGuardVillagersLoaded() && pSource.getEntity() instanceof Guard) pAmount *= 0.25;
+        if(pSource.getDirectEntity() instanceof IronGolem) pAmount *= 0.25;
+        else if(DifficultRaidsUtil.isGuardVillagersLoaded() && pSource.getEntity() instanceof Guard) pAmount *= 0.5;
+
+        if(!this.hasEffect(MobEffects.MOVEMENT_SLOWDOWN)) this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20 * 10, 1, false, true, true));
 
         return super.hurt(pSource, pAmount);
     }
@@ -92,6 +84,7 @@ public class AssassinIllagerEntity extends AbstractPillagerVariant
     {
         super.aiStep();
 
+        //Cooldowns
         if(this.invisibilityCooldown > 0)
         {
             this.invisibilityCooldown--;
@@ -99,17 +92,24 @@ public class AssassinIllagerEntity extends AbstractPillagerVariant
             if(this.invisibilityCooldown == 0) this.addInvisibilityEffect();
         }
 
+        if(this.teleportCooldown > 0) this.teleportCooldown--;
+
         LivingEntity target = this.getTarget();
 
+        //Teleport Attack
         if(target != null)
         {
-            //TODO: Balancing pass on Assassin Teleport
-            if(this.distanceTo(target) > 5 && this.random.nextInt(100) < 25)
+            if(this.distanceTo(target) > 8 && this.canTeleport() && this.random.nextInt(100) < 25)
             {
-                target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 40, 1));
-
-                BlockPos targetPos = target.eyeBlockPosition();
+                BlockPos targetPos = new BlockPos(target.getEyePosition()).offset(this.random.nextInt(5) - 2, 0, this.random.nextInt(5) - 2);
                 this.randomTeleport(targetPos.getX(), targetPos.getY(), targetPos.getZ(), true);
+
+                this.teleportCooldown = switch(this.level.getDifficulty()) {
+                    case PEACEFUL -> 0;
+                    case EASY -> 20 * 60;
+                    case NORMAL -> 20 * 30;
+                    case HARD -> 20 * 15;
+                };
             }
 
             if(this.hasEffect(MobEffects.INVISIBILITY))
@@ -125,6 +125,11 @@ public class AssassinIllagerEntity extends AbstractPillagerVariant
         }
     }
 
+    private boolean canTeleport()
+    {
+        return this.teleportCooldown == 0;
+    }
+
     private void addInvisibilityEffect()
     {
         this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 20 * 60 * 60 * 24));
@@ -133,13 +138,19 @@ public class AssassinIllagerEntity extends AbstractPillagerVariant
     @Override
     public void applyRaidBuffs(int p_37844_, boolean p_37845_)
     {
-        ItemStack sword = new ItemStack(Items.IRON_SWORD);
+        ItemStack sword = new ItemStack(Items.STONE_SWORD);
 
         if(this.isInDifficultRaid())
         {
             Map<Enchantment, Integer> enchants = new HashMap<>();
 
-            enchants.put(Enchantments.SHARPNESS, this.getRaidDifficulty().config().assassin().sharpnessLevel());
+            enchants.put(Enchantments.SHARPNESS, switch(this.getRaidDifficulty()) {
+                case LEGEND -> 1;
+                case MASTER -> 2;
+                case GRANDMASTER -> 5;
+                default -> 0;
+            });
+
             enchants.put(Enchantments.VANISHING_CURSE, 1);
 
             EnchantmentHelper.setEnchantments(enchants, sword);

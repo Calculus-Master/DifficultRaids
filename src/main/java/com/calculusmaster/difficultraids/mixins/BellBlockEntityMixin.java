@@ -18,7 +18,7 @@ public class BellBlockEntityMixin
     @Inject(at = @At("HEAD"), method = "isRaiderWithinRange", cancellable = true)
     private static void difficultraids_largerBellSearchRange(BlockPos p_155197_, LivingEntity p_155198_, CallbackInfoReturnable<Boolean> callback)
     {
-        callback.setReturnValue(p_155198_.isAlive() && !p_155198_.isRemoved() && p_155197_.closerToCenterThan(p_155198_.position(), 128.0D) && p_155198_.getType().is(EntityTypeTags.RAIDERS));
+        callback.setReturnValue(p_155198_.isAlive() && !p_155198_.isRemoved() && p_155197_.closerToCenterThan(p_155198_.position(), 256.0D) && p_155198_.getType().is(EntityTypeTags.RAIDERS));
     }
 
     @Inject(at = @At("HEAD"), method = "glow", cancellable = true)

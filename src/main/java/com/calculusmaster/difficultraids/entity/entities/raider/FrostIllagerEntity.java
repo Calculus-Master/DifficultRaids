@@ -14,8 +14,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
@@ -23,7 +21,6 @@ import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.IronGolem;
-import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raider;
@@ -32,9 +29,6 @@ import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 import tallestegg.guardvillagers.entities.Guard;
 
-import java.util.List;
-import java.util.function.Supplier;
-
 public class FrostIllagerEntity extends AbstractEvokerVariant
 {
     private int barrageTicks = 0;
@@ -42,14 +36,6 @@ public class FrostIllagerEntity extends AbstractEvokerVariant
     public FrostIllagerEntity(EntityType<? extends AbstractEvokerVariant> p_33724_, Level p_33725_)
     {
         super(p_33724_, p_33725_);
-    }
-
-    public static AttributeSupplier.Builder createAttributes()
-    {
-        return Monster.createMonsterAttributes()
-                .add(Attributes.MOVEMENT_SPEED, 0.35F)
-                .add(Attributes.FOLLOW_RANGE, 16.0D)
-                .add(Attributes.MAX_HEALTH, 30.0D);
     }
 
     @Override
@@ -84,9 +70,7 @@ public class FrostIllagerEntity extends AbstractEvokerVariant
     @Override
     public boolean hurt(DamageSource pSource, float pAmount)
     {
-        if(pSource.isProjectile()) pAmount *= 2;
-
-        return super.hurt(pSource, pAmount);
+        return super.hurt(pSource, pSource.isProjectile() ? pAmount * 2 : pAmount);
     }
 
     @Override
@@ -111,38 +95,32 @@ public class FrostIllagerEntity extends AbstractEvokerVariant
         super.tick();
 
         //Slowness Aura
-        final AABB checkRadius = new AABB(this.blockPosition()).inflate(6.0D);
-        List<Player> nearbyPlayers = this.level.getEntitiesOfClass(Player.class, checkRadius, p -> !p.hasEffect(MobEffects.MOVEMENT_SLOWDOWN) && (!p.isCreative() && !p.isSpectator()));
-        List<AbstractVillager> nearbyVillagers = this.level.getEntitiesOfClass(AbstractVillager.class, checkRadius, v -> !v.hasEffect(MobEffects.MOVEMENT_SLOWDOWN));
-        List<IronGolem> nearbyGolems = this.level.getEntitiesOfClass(IronGolem.class, checkRadius, g -> !g.hasEffect(MobEffects.MOVEMENT_SLOWDOWN));
-
-        Supplier<MobEffectInstance> slowness = () -> new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 3);
-        nearbyPlayers.forEach(p -> p.addEffect(slowness.get()));
-        nearbyVillagers.forEach(v -> v.addEffect(slowness.get()));
-        nearbyGolems.forEach(g -> g.addEffect(slowness.get()));
-
-        if(DifficultRaidsUtil.isGuardVillagersLoaded())
+        if(this.random.nextFloat() < 0.25F)
         {
-            List<Guard> nearbyGuards = this.level.getEntitiesOfClass(Guard.class, checkRadius, g -> !g.hasEffect(MobEffects.MOVEMENT_SLOWDOWN));
-            nearbyGuards.forEach(g -> g.addEffect(slowness.get()));
+            final AABB aabb = this.getBoundingBox().inflate(4.0D);
+
+            this.level.getEntitiesOfClass(LivingEntity.class, aabb, e -> !e.isAlliedTo(this) && !e.hasEffect(MobEffects.MOVEMENT_SLOWDOWN) && (!(e instanceof Player p) || !p.isSpectator() && !p.isCreative())).forEach(e -> e.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 3)));
         }
 
         //Barrage
-        if(this.barrageTicks > 0)
+        if(this.barrageTicks > 0 && this.barrageTicks-- % 10 == 0)
         {
-            this.barrageTicks--;
-
             LivingEntity target = this.getTarget();
 
             if(target != null)
             {
                 int size = this.random.nextInt(15, 31);
 
+                double targetY = target.getEyeY() - 1.1D;
+                double targetX = target.getX() - this.getX();
+                double targetZ = target.getZ() - this.getZ();
+                double distanceY = Math.sqrt(targetX * targetX + targetZ * targetZ) * (double)0.2F;
+
                 for(int i = 0; i < size; i++)
                 {
                     FrostSnowballEntity snowball = DifficultRaidsEntityTypes.FROST_SNOWBALL.get().create(this.level);
                     snowball.setOwner(this);
-                    snowball.setPos(this.eyeBlockPosition().getX(), this.eyeBlockPosition().getY() - 0.2, this.eyeBlockPosition().getZ());
+                    snowball.setPos(this.getEyePosition().x(), this.getEyePosition().y() - 0.2, this.getEyePosition().z());
                     snowball.setDamage(switch(this.level.getDifficulty()) {
                         case PEACEFUL -> 0.0F;
                         case EASY -> 1.8F;
@@ -153,13 +131,9 @@ public class FrostIllagerEntity extends AbstractEvokerVariant
                     //Helps with client lag a little
                     if(this.random.nextInt(100) < 40) snowball.setInvisible(true);
 
-                    double targetY = target.getEyeY() - 1.1D;
-                    double targetX = target.getX() - this.getX();
                     double targetSnowballY = targetY - snowball.getY();
-                    double targetZ = target.getZ() - this.getZ();
-                    double distanceY = Math.sqrt(targetX * targetX + targetZ * targetZ) * (double)0.2F;
-
                     snowball.shoot(targetX, targetSnowballY + distanceY, targetZ, 1.6F, 14.0F);
+
                     this.level.addFreshEntity(snowball);
                 }
 
@@ -210,7 +184,7 @@ public class FrostIllagerEntity extends AbstractEvokerVariant
                 {
                     FrostSnowballEntity snowball = DifficultRaidsEntityTypes.FROST_SNOWBALL.get().create(FrostIllagerEntity.this.level);
                     snowball.setOwner(FrostIllagerEntity.this);
-                    snowball.setPos(FrostIllagerEntity.this.eyeBlockPosition().getX(), FrostIllagerEntity.this.eyeBlockPosition().getY() - 0.2, FrostIllagerEntity.this.eyeBlockPosition().getZ());
+                    snowball.setPos(FrostIllagerEntity.this.getEyePosition().x(), FrostIllagerEntity.this.getEyePosition().y() - 0.2, FrostIllagerEntity.this.getEyePosition().z());
                     snowball.setDamage(damage);
 
                     double targetY = target.getEyeY() - 1.1D;

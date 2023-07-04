@@ -5,7 +5,7 @@ import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -16,8 +16,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
@@ -25,7 +23,6 @@ import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.IronGolem;
-import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raider;
@@ -42,14 +39,6 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
     public ElectroIllagerEntity(EntityType<? extends AbstractEvokerVariant> p_32105_, Level p_32106_)
     {
         super(p_32105_, p_32106_);
-    }
-
-    public static AttributeSupplier.Builder createAttributes()
-    {
-        return Monster.createMonsterAttributes()
-                .add(Attributes.MOVEMENT_SPEED, 0.50F)
-                .add(Attributes.FOLLOW_RANGE, 12.0D)
-                .add(Attributes.MAX_HEALTH, 25.0D);
     }
 
     @Override
@@ -98,12 +87,6 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
     }
 
     @Override
-    public float getBrightness()
-    {
-        return 1.2F;
-    }
-
-    @Override
     public void applyRaidBuffs(int p_37844_, boolean p_37845_)
     {
 
@@ -136,7 +119,7 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
                 BlockPos targetPos = target.blockPosition();
 
                 LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level);
-                lightning.setCustomName(new TextComponent(DifficultRaidsUtil.ELECTRO_ILLAGER_CUSTOM_BOLT_TAG));
+                lightning.setCustomName(Component.literal(DifficultRaidsUtil.ELECTRO_ILLAGER_CUSTOM_BOLT_TAG));
                 lightning.setDamage(2.0F);
                 lightning.moveTo(targetPos, 0.0F, 0.0F);
 
@@ -221,7 +204,7 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
                 BlockPos targetPos = target.blockPosition();
 
                 LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level);
-                lightning.setCustomName(new TextComponent(DifficultRaidsUtil.ELECTRO_ILLAGER_CUSTOM_BOLT_TAG));
+                lightning.setCustomName(Component.literal(DifficultRaidsUtil.ELECTRO_ILLAGER_CUSTOM_BOLT_TAG));
 
                 float damage = raid
                         ? ElectroIllagerEntity.this.getRaidDifficulty().config().electro().concentratedBoltDamage()
@@ -324,7 +307,7 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
                     BlockPos offsetPos = targetPos.offset(-2 + random.nextInt(5), 0, -2 + random.nextInt(5));
 
                     LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level);
-                    lightning.setCustomName(new TextComponent(DifficultRaidsUtil.ELECTRO_ILLAGER_CUSTOM_BOLT_TAG));
+                    lightning.setCustomName(Component.literal(DifficultRaidsUtil.ELECTRO_ILLAGER_CUSTOM_BOLT_TAG));
 
                     float damage = switch(level.getDifficulty()) {
                         case PEACEFUL -> 0.0F;
@@ -417,7 +400,7 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
 
                 offsets.forEach(pos -> {
                     LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level);
-                    lightning.setCustomName(new TextComponent(DifficultRaidsUtil.ELECTRO_ILLAGER_CUSTOM_BOLT_TAG));
+                    lightning.setCustomName(Component.literal(DifficultRaidsUtil.ELECTRO_ILLAGER_CUSTOM_BOLT_TAG));
                     lightning.moveTo(pos, 0, 0);
                     lightning.setDamage(thunder ? 3.0F : 1.0F);
 

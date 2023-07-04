@@ -1,8 +1,7 @@
 package com.calculusmaster.difficultraids.mixins;
 
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
+import com.calculusmaster.difficultraids.setup.DifficultRaidsEnchantments;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.monster.AbstractIllager;
@@ -52,64 +51,36 @@ public abstract class VindicatorMixin extends AbstractIllager
             Map<Enchantment, Integer> enchants = new HashMap<>();
 
             //Sharpness
-            int sharpnessChance = switch(raidDifficulty) {
+            enchants.put(Enchantments.SHARPNESS, switch(raidDifficulty) {
                 case DEFAULT -> 0;
-                case HERO -> 20;
-                case LEGEND -> 40;
-                case MASTER -> 60;
-                case GRANDMASTER -> 90;
-            };
+                case HERO -> 2;
+                case LEGEND -> 3;
+                case MASTER -> 4;
+                case GRANDMASTER -> 5;
+            });
 
-            if(this.random.nextInt(100) < sharpnessChance)
+            //Critical Burst
+            if(raidDifficulty.is(RaidDifficulty.LEGEND, RaidDifficulty.MASTER, RaidDifficulty.GRANDMASTER))
             {
-                int sharpnessLevel = switch(raidDifficulty) {
-                    case DEFAULT -> 0;
-                    case HERO -> this.random.nextInt(1, 3);
-                    case LEGEND -> this.random.nextInt(2, 4);
-                    case MASTER -> this.random.nextInt(3, 6);
-                    case GRANDMASTER -> this.random.nextInt(5, 7);
-                };
-
-                enchants.put(Enchantments.SHARPNESS, sharpnessLevel);
-            }
-
-            //Fire Aspect
-            int fireAspectChance = switch(raidDifficulty) {
-                case DEFAULT -> 0;
-                case HERO -> 5;
-                case LEGEND -> 10;
-                case MASTER -> 15;
-                case GRANDMASTER -> 50;
-            };
-
-            if(this.random.nextInt(100) < fireAspectChance)
-            {
-                int fireAspectLevel = switch(raidDifficulty) {
-                    case DEFAULT -> 0;
-                    case HERO, LEGEND -> 1;
+                enchants.put(DifficultRaidsEnchantments.CRITICAL_BURST.get(), switch(raidDifficulty) {
+                    case LEGEND -> 1;
                     case MASTER -> 2;
                     case GRANDMASTER -> 3;
-                };
-
-                enchants.put(Enchantments.FIRE_ASPECT, fireAspectLevel);
+                    default -> 0;
+                });
             }
 
-            if(!axe.is(Items.IRON_AXE)) enchants.put(Enchantments.VANISHING_CURSE, 1);
+            //Critical Strike
+            enchants.put(DifficultRaidsEnchantments.CRITICAL_STRIKE.get(), switch(raidDifficulty) {
+                case HERO, LEGEND -> 1;
+                case MASTER, GRANDMASTER -> 2;
+                default -> 0;
+            });
+
+            enchants.put(Enchantments.VANISHING_CURSE, 1);
 
             EnchantmentHelper.setEnchantments(enchants, axe);
             this.setItemSlot(EquipmentSlot.MAINHAND, axe);
-
-            //Vindicator Swiftness
-            int swiftnessChance = switch(raidDifficulty) {
-                case DEFAULT -> 0;
-                case HERO -> 2;
-                case LEGEND -> 5;
-                case MASTER -> 7;
-                case GRANDMASTER -> 25;
-            };
-
-            if(this.random.nextInt(100) < swiftnessChance)
-                this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 20 * 20, 3));
         }
     }
 }

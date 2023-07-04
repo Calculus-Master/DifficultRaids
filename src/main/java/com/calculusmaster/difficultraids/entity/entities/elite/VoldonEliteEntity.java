@@ -4,11 +4,10 @@ import com.calculusmaster.difficultraids.entity.entities.component.VoldonFamilia
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsItems;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
-import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -18,11 +17,8 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -32,45 +28,30 @@ import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.SmallFireball;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.EntityHitResult;
 import org.jetbrains.annotations.Nullable;
 import tallestegg.guardvillagers.entities.Guard;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 
 public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAttackMob
 {
-    private final TextComponent ELITE_NAME = new TextComponent("Voldon, The Protected");
+    private final Component ELITE_NAME = Component.translatable("com.calculusmaster.difficultraids.elite_event.voldon");
     private final ServerBossEvent ELITE_EVENT = new ServerBossEvent(ELITE_NAME, BossEvent.BossBarColor.WHITE, BossEvent.BossBarOverlay.PROGRESS);
 
     private int totalFamiliars = 0;
     private List<LivingEntity> familiars = new ArrayList<>();
+    private int familiarCooldown = 0;
 
     public VoldonEliteEntity(EntityType<? extends AbstractEvokerVariant> p_33724_, Level p_33725_)
     {
         super(p_33724_, p_33725_);
-    }
-
-    public static AttributeSupplier.Builder createEliteAttributes()
-    {
-        return Monster.createMonsterAttributes()
-                .add(Attributes.MOVEMENT_SPEED, 0.42F)
-                .add(Attributes.FOLLOW_RANGE, 15.0D)
-                .add(Attributes.MAX_HEALTH, 90.0D)
-                .add(Attributes.ATTACK_DAMAGE, 5.0D)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 0.3D);
     }
 
     @Override
@@ -84,10 +65,9 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
         this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Player.class, 4.0F, 0.6D, 0.75D));
         this.goalSelector.addGoal(3, new VoldonSummonFamiliarsSpellGoal());
         this.goalSelector.addGoal(4, new VoldonTeleportFamiliarSpellGoal());
-        this.goalSelector.addGoal(5, new VoldonSacrificeFamiliarSpellGoal());
-        this.goalSelector.addGoal(5, new RangedAttackGoal(this, 0.5, 40, 5.0F));
+        this.goalSelector.addGoal(4, new VoldonSacrificeFamiliarSpellGoal());
+        this.goalSelector.addGoal(5, new RangedAttackGoal(this, 0.5, 120, 9.0F));
 
-        //TODO: Voldon (and Necromancer maybe) Void Blast Spell as a basic attack
         this.goalSelector.addGoal(8, new RandomStrollGoal(this, 0.5D));
         this.goalSelector.addGoal(9, new LookAtPlayerGoal(this, Player.class, 3.0F, 1.0F));
         this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Mob.class, 8.0F));
@@ -125,25 +105,7 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
     @Override
     public void applyRaidBuffs(int p_37844_, boolean p_37845_)
     {
-        //Armor
-        Map<Enchantment, Integer> generalEnchants = new HashMap<>();
-        generalEnchants.put(Enchantments.ALL_DAMAGE_PROTECTION, 1);
-        generalEnchants.put(Enchantments.VANISHING_CURSE, 1);
 
-        ItemStack helm = new ItemStack(Items.DIAMOND_HELMET);
-        ItemStack chest = new ItemStack(Items.DIAMOND_CHESTPLATE);
-        ItemStack legs = new ItemStack(Items.IRON_LEGGINGS);
-        ItemStack boots = new ItemStack(Items.IRON_BOOTS);
-
-        EnchantmentHelper.setEnchantments(generalEnchants, helm);
-        EnchantmentHelper.setEnchantments(generalEnchants, chest);
-        EnchantmentHelper.setEnchantments(generalEnchants, legs);
-        EnchantmentHelper.setEnchantments(generalEnchants, boots);
-
-        this.setItemSlot(EquipmentSlot.HEAD, helm);
-        this.setItemSlot(EquipmentSlot.CHEST, chest);
-        this.setItemSlot(EquipmentSlot.LEGS, legs);
-        this.setItemSlot(EquipmentSlot.FEET, boots);
     }
 
     public boolean areFamiliarsDead()
@@ -154,6 +116,8 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
     public void removeFamiliar(VoldonFamiliarEntity familiar)
     {
         this.familiars.remove(familiar);
+
+        if(this.areFamiliarsDead()) this.familiarCooldown = 20 * 15;
     }
 
     @Override
@@ -161,6 +125,8 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
     {
         super.customServerAiStep();
         this.ELITE_EVENT.setProgress(this.getHealth() / this.getMaxHealth());
+
+        if(this.familiarCooldown > 0) this.familiarCooldown--;
     }
 
     @Override
@@ -170,10 +136,7 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
             pAmount *= 0.5;
 
         if(!this.areFamiliarsDead())
-        {
-            //TODO: Rework after making the custom familiar entities
-            pAmount *= (1 - ((double)this.familiars.size()) / this.totalFamiliars) + 0.1F;
-        }
+            pAmount *= 0.025F;
 
         return super.hurt(pSource, pAmount);
     }
@@ -191,12 +154,17 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
             BlockPos spawnPos = pos.offset(5 - this.random.nextInt(1, 10), 1, 5 - this.random.nextInt(1, 10));
 
             Monster zombie = EntityType.ZOMBIE.create(this.level);
-            zombie.moveTo(spawnPos, 0.0F, 0.0F);
+            zombie.moveTo(spawnPos, this.getYHeadRot(), this.getXRot());
+
             zombie.targetSelector.removeAllGoals();
             zombie.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(zombie, Villager.class, true));
             zombie.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(zombie, Player.class, true));
             zombie.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(zombie, IronGolem.class, true));
             if(DifficultRaidsUtil.isGuardVillagersLoaded()) zombie.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(zombie, Guard.class, true));
+
+            if(pCause.getEntity() instanceof LivingEntity living) zombie.setTarget(living);
+
+            this.level.addFreshEntity(zombie);
         }
     }
 
@@ -220,15 +188,36 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
     @Override
     public void performRangedAttack(LivingEntity pTarget, float pDistanceFactor)
     {
-        BlockPos shootingTargetPos = pTarget.eyeBlockPosition();
+        double d0 = this.distanceToSqr(pTarget);
+        double d1 = pTarget.getX() - this.getX();
+        double d2 = pTarget.getY(0.5D) - this.getY(0.5D);
+        double d3 = pTarget.getZ() - this.getZ();
+        double d4 = Math.sqrt(Math.sqrt(d0)) * 0.5D;
 
-        //TODO: Void blast, also this code for the fireball doesn't work lol
-        Projectile fireball = new SmallFireball(EntityType.SMALL_FIREBALL, this.level);
-        fireball.setPos(this.position().add(0.0, this.getEyeHeight(), 0.0));
-        fireball.shoot(shootingTargetPos.getX(), shootingTargetPos.getY(), shootingTargetPos.getZ(), 2.0F, 4.2F);
+        int count = !this.isInDifficultRaid() ? 3 : switch(this.getRaidDifficulty()) {
+            case HERO, LEGEND -> 4;
+            case MASTER -> 5;
+            case GRANDMASTER -> 6;
+            default -> 3;
+        };
 
-        this.level.addFreshEntity(fireball);
-        if(this.level.isClientSide) this.level.addParticle(ParticleTypes.SMALL_FLAME, this.getX(), this.getEyeY() + 0.4, this.getZ(), 0.2, 0.0, 0.3);
+        for(int i = 0; i < count; i++)
+        {
+            SmallFireball fireball = new SmallFireball(this.level, this, this.random.triangle(d1, 2.297D * d4), d2, this.random.triangle(d3, 2.297D * d4))
+            {
+                @Override
+                protected void onHitEntity(EntityHitResult pResult)
+                {
+                    if(pResult.getEntity() instanceof Raider) this.discard();
+                    else super.onHitEntity(pResult);
+                }
+            };
+
+            fireball.setPos(fireball.getX(), this.getY(0.5D) + 0.5D, fireball.getZ());
+            this.level.addFreshEntity(fireball);
+        }
+
+        this.level.addParticle(ParticleTypes.SMALL_FLAME, this.getX(), this.getEyeY() + 0.4, this.getZ(), 0.2, 0.0, 0.3);
     }
 
     private class VoldonCastSpellGoal extends SpellcastingIllagerCastSpellGoal
@@ -243,39 +232,51 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
 
     private class VoldonSacrificeFamiliarSpellGoal extends SpellcastingIllagerUseSpellGoal
     {
-        private VoldonSacrificeFamiliarSpellGoal() { super(Flag.LOOK); }
+        private VoldonSacrificeFamiliarSpellGoal() {}
 
         @Override
         protected void castSpell()
         {
-            List<LivingEntity> familiars = VoldonEliteEntity.this.familiars.stream().filter(LivingEntity::isAlive).toList();
+            List<LivingEntity> familiars = new ArrayList<>(VoldonEliteEntity.this.familiars);
+            LivingEntity sacrifice = null;
+            for(LivingEntity e : familiars)
+                if(e.getHealth() <= e.getMaxHealth() * 0.25F)
+                {
+                    sacrifice = e;
+                    break;
+                }
 
-            boolean last = familiars.size() == 1;
-
-            if(!familiars.isEmpty())
+            if(!familiars.isEmpty() && sacrifice != null)
             {
-                LivingEntity target = familiars.get(VoldonEliteEntity.this.random.nextInt(familiars.size()));
+                VoldonEliteEntity.this.getLookControl().setLookAt(sacrifice);
+                ((Mob)sacrifice).getLookControl().setLookAt(VoldonEliteEntity.this);
 
-                VoldonEliteEntity.this.getLookControl().setLookAt(target);
-                ((Mob)target).getLookControl().setLookAt(VoldonEliteEntity.this);
+                int effectDuration = VoldonEliteEntity.this.isInDifficultRaid() ? switch(VoldonEliteEntity.this.getRaidDifficulty()) {
+                    case HERO -> 20 * 20;
+                    case LEGEND -> 20 * 25;
+                    case MASTER -> 20 * 40;
+                    case GRANDMASTER -> 20 * 60;
+                    default -> 20 * 10;
+                } : 20 * 20;
 
-                int health = (int)target.getHealth();
+                familiars.forEach(f ->
+                {
+                    f.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, effectDuration, 1, false, false));
+                    f.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, effectDuration, 3, false, false));
+                    f.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, effectDuration / 4, 1, false, false));
+                });
 
-                int resistanceDuration = health * 10 + (last ? 20 * 5 : 0);
-                int regenerationDuration = health * 5 + (last ? 20 * 4 : 0);
-
-                VoldonEliteEntity.this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, resistanceDuration, 1));
-                VoldonEliteEntity.this.addEffect(new MobEffectInstance(MobEffects.REGENERATION, regenerationDuration, 1));
-
-                VoldonEliteEntity.this.playSound(SoundEvents.WITCH_DRINK, 1.0F, 1.0F);
-                target.hurt(DamageSource.STARVE, health + 1.0F);
+                sacrifice.hurt(DamageSource.STARVE, sacrifice.getHealth() + 1.0F);
             }
         }
 
         @Override
         public boolean canUse()
         {
-            return VoldonEliteEntity.this.tickCount >= this.spellCooldown && !VoldonEliteEntity.this.areFamiliarsDead();
+            return VoldonEliteEntity.this.tickCount >= this.spellCooldown
+                    && !VoldonEliteEntity.this.areFamiliarsDead()
+                    && VoldonEliteEntity.this.familiars.stream().anyMatch(e -> e.getHealth() <= e.getMaxHealth() * 0.25F)
+                    && VoldonEliteEntity.this.familiars.size() > 2;
         }
 
         @Override
@@ -300,7 +301,7 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
         @Override
         protected SoundEvent getSpellPrepareSound()
         {
-            return SoundEvents.ENDERMAN_DEATH;
+            return SoundEvents.WITCH_DRINK;
         }
 
         @Override
@@ -312,7 +313,7 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
 
     private class VoldonTeleportFamiliarSpellGoal extends SpellcastingIllagerUseSpellGoal
     {
-        private VoldonTeleportFamiliarSpellGoal() { super(Flag.MOVE, Flag.LOOK); }
+        private VoldonTeleportFamiliarSpellGoal() {}
 
         @Override
         protected void castSpell()
@@ -331,13 +332,15 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
 
                 VoldonEliteEntity.this.teleportToWithTicket(targetPos.getX(), targetPos.getY(), targetPos.getZ());
                 target.teleportToWithTicket(thisPos.getX(), thisPos.getY(), thisPos.getZ());
+
+                target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 20 * 7, 2, false, true));
             }
         }
 
         @Override
         public boolean canUse()
         {
-            return VoldonEliteEntity.this.tickCount >= this.spellCooldown && !VoldonEliteEntity.this.areFamiliarsDead() && VoldonEliteEntity.this.getHealth() < VoldonEliteEntity.this.getMaxHealth() * 2 / 3;
+            return VoldonEliteEntity.this.tickCount >= this.spellCooldown && !VoldonEliteEntity.this.areFamiliarsDead();
         }
 
         @Override
@@ -349,7 +352,7 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
         @Override
         protected int getCastingInterval()
         {
-            return 700;
+            return 400;
         }
 
         @Override
@@ -398,15 +401,15 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
             VoldonEliteEntity.this.totalFamiliars = familiarCount;
 
             BlockPos sourcePos = VoldonEliteEntity.this.blockPosition();
-            Supplier<BlockPos> familiarPos = () -> sourcePos.offset(VoldonEliteEntity.this.random.nextInt(2, 6), VoldonEliteEntity.this.random.nextInt(2, 6), VoldonEliteEntity.this.random.nextInt(2, 6));
+            Supplier<BlockPos> familiarPos = () -> sourcePos.offset(VoldonEliteEntity.this.random.nextInt(2, 10), VoldonEliteEntity.this.random.nextInt(2, 4), VoldonEliteEntity.this.random.nextInt(2, 10));
             for(int i = 0; i < familiarCount; i++)
             {
                 Monster familiar = new VoldonFamiliarEntity(VoldonEliteEntity.this.level, VoldonEliteEntity.this);
                 familiar.moveTo(familiarPos.get(), 0.0F, 0.0F);
                 familiar.setOnGround(true);
 
-                LogUtils.getLogger().info("Spawning Voldon Familiar!");
-                familiar.addEffect(new MobEffectInstance(MobEffects.GLOWING, 10000, 1));
+                familiar.addEffect(new MobEffectInstance(MobEffects.GLOWING, 10000, 1, false, false));
+
                 VoldonEliteEntity.this.level.addFreshEntity(familiar);
                 VoldonEliteEntity.this.familiars.add(familiar);
             }
@@ -415,19 +418,19 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
         @Override
         public boolean canUse()
         {
-            return super.canUse() && VoldonEliteEntity.this.areFamiliarsDead();
+            return super.canUse() && VoldonEliteEntity.this.areFamiliarsDead() && VoldonEliteEntity.this.familiarCooldown <= 0;
         }
 
         @Override
         protected int getCastingTime()
         {
-            return 70;
+            return 40;
         }
 
         @Override
         protected int getCastingInterval()
         {
-            return 1800;
+            return 100;
         }
 
         @Override

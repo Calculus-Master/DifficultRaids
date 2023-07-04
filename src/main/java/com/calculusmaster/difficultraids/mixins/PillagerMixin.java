@@ -31,53 +31,39 @@ public abstract class PillagerMixin extends AbstractIllager
     @Inject(at = @At("TAIL"), method = "applyRaidBuffs", cancellable = true)
     public void applyRaidBuffs(int p_37844_, boolean p_37845_, CallbackInfo callbackInfo)
     {
-        RaidDifficulty raidDifficulty = RaidDifficulty.get(this.getCurrentRaid().getBadOmenLevel());
+        boolean inRaid = this.getCurrentRaid() != null;
+        RaidDifficulty raidDifficulty = inRaid ? RaidDifficulty.get(this.getCurrentRaid().getBadOmenLevel()) : null;
 
-        if(!raidDifficulty.isDefault() && this.getItemBySlot(EquipmentSlot.MAINHAND).is(Items.CROSSBOW))
+        if(inRaid && !raidDifficulty.isDefault() && this.getItemBySlot(EquipmentSlot.MAINHAND).is(Items.CROSSBOW))
         {
             ItemStack crossbow = new ItemStack(Items.CROSSBOW);
 
             Map<Enchantment, Integer> enchants = new HashMap<>();
 
             //Quick Charge
-            int quickChargeChance = switch(raidDifficulty) {
-                case HERO -> 20;
-                case LEGEND -> 40;
-                case MASTER -> 50;
-                case GRANDMASTER -> 90;
+            enchants.put(Enchantments.QUICK_CHARGE, switch(raidDifficulty) {
+                case HERO -> 1;
+                case LEGEND -> 2;
+                case MASTER -> 3;
+                case GRANDMASTER -> 5;
                 default -> 0;
-            };
+            });
 
-            if(this.random.nextInt(100) < quickChargeChance)
+            //Multishot
+            if(raidDifficulty.is(RaidDifficulty.LEGEND, RaidDifficulty.MASTER, RaidDifficulty.GRANDMASTER))
             {
-                int quickChargeLevel = switch(raidDifficulty) {
-                    case HERO -> this.random.nextInt(1, 3);
-                    case LEGEND -> this.random.nextInt(1, 5);
-                    case MASTER -> this.random.nextInt(3, 6);
-                    case GRANDMASTER -> 5;
+                int chance = switch(raidDifficulty) {
+                    case LEGEND -> 33;
+                    case MASTER -> 50;
+                    case GRANDMASTER -> 90;
                     default -> 0;
                 };
 
-                enchants.put(Enchantments.QUICK_CHARGE, quickChargeLevel);
+                if(this.random.nextInt() < chance) enchants.put(Enchantments.MULTISHOT, 1);
             }
-
-            //Piercing or Multishot (or Nothing)
-            int piercingMultishotChance = switch(raidDifficulty) {
-                case HERO -> 25;
-                case LEGEND -> 30;
-                case MASTER -> 40;
-                case GRANDMASTER -> 50;
-                default -> 0;
-            };
-
-            int rand = this.random.nextInt(100);
-            if(rand < piercingMultishotChance) enchants.put(Enchantments.PIERCING, this.random.nextInt(1, 4));
-            else if(rand < piercingMultishotChance * 2) enchants.put(Enchantments.MULTISHOT, 1);
 
             EnchantmentHelper.setEnchantments(enchants, crossbow);
             this.setItemSlot(EquipmentSlot.MAINHAND, crossbow);
-
-            callbackInfo.cancel();
         }
     }
 }

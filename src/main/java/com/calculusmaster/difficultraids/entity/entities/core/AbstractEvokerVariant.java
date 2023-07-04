@@ -142,15 +142,17 @@ public abstract class AbstractEvokerVariant extends AbstractIllagerVariant
         XYDRAX_ARROW_BARRAGE(16, 0.3D, 0.0D, 0.1D),
         XYDRAX_HEAL(17, 0.9D, 0.3D, 0.2D),
         XYDRAX_WIND_COLUMN(18, 1.0D, 1.0D, 1.0D),
+        XYDRAX_VORTEX(19, 0.7D, 0.7D, 1.0D),
 
-        MODUR_SUMMON_THUNDER(19, 0.5D, 0.5D, 0.5D),
-        MODUR_LIGHTNING_STORM(20, 1.0D, 0.9D, 0.9D),
-        MODUR_LIGHTNING_ZAP(21, 1.0D, 0.2D, 1.0D),
-        MODUR_FIREBALL(22, 0.7D, 0.7D, 0.0D),
+        MODUR_SUMMON_THUNDER(20, 0.5D, 0.5D, 0.5D),
+        MODUR_LIGHTNING_STORM(21, 1.0D, 0.9D, 0.9D),
+        MODUR_LIGHTNING_ZAP(22, 1.0D, 0.2D, 1.0D),
+        MODUR_CHARGED_BOLT(23, 1.0D, 0.5D, 1.0D),
+        MODUR_HOMING_BOLT(24, 0.5D, 0.5D, 0.5D),
 
-        VOLDON_SUMMON_FAMILIARS(23, 0.05D, 0.05D, 0.05D),
-        VOLDON_TELEPORT_FAMILIAR(24, 0.8D, 0.1D, 0.5D),
-        VOLDON_SACRIFICE_FAMILIAR(25, 0.6D, 0.6D, 0.1D);
+        VOLDON_SUMMON_FAMILIARS(25, 0.05D, 0.05D, 0.05D),
+        VOLDON_TELEPORT_FAMILIAR(26, 0.8D, 0.1D, 0.5D),
+        VOLDON_SACRIFICE_FAMILIAR(27, 0.6D, 0.6D, 0.1D);
 
         final int ID;
         final double[] spellColor;

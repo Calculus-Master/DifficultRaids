@@ -6,6 +6,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.monster.AbstractIllager;
+import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.level.Level;
 
 public abstract class AbstractIllagerVariant extends AbstractIllager
@@ -24,11 +25,13 @@ public abstract class AbstractIllagerVariant extends AbstractIllager
             return true;
         else if(pEntity instanceof LivingEntity living && living.getMobType() == MobType.ILLAGER)
             return this.getTeam() == null && pEntity.getTeam() == null;
+        else if(pEntity instanceof Raider)
+            return this.getTeam() == null && pEntity.getTeam() == null;
         else
             return false;
     }
 
-    protected RaidDifficulty getRaidDifficulty()
+    public RaidDifficulty getRaidDifficulty()
     {
         if(this.getCurrentRaid() == null) return null;
         else return RaidDifficulty.get(this.getCurrentRaid().getBadOmenLevel());
@@ -39,7 +42,7 @@ public abstract class AbstractIllagerVariant extends AbstractIllager
         return this.getCurrentRaid() != null;
     }
 
-    protected boolean isInDifficultRaid()
+    public boolean isInDifficultRaid()
     {
         return this.isInRaid() && !this.getRaidDifficulty().isDefault();
     }

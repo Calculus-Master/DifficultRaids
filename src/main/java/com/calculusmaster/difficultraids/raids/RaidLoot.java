@@ -1,6 +1,7 @@
 package com.calculusmaster.difficultraids.raids;
 
 import com.calculusmaster.difficultraids.setup.DifficultRaidsEnchantments;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.item.*;
@@ -59,7 +60,7 @@ public class RaidLoot
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.RAIDERS_BANE.get(), 5, 1, 3),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.INVISIBILITY.get(), 4, 1, 2),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_STRIKE.get(), 2, 1, 1),
-                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_BURST.get(), 2, 1, 2),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_BURST.get(), 2, 1, 3),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_RESISTANCE.get(), 2, 1, 2),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.LIGHTNING_RESISTANCE.get(), 1, 1, 3),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.PROJECTILE_EVASION.get(), 3, 1, 2)
@@ -83,8 +84,8 @@ public class RaidLoot
                 .setEnchantmentsLoot(
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.RAIDERS_BANE.get(), 4, 2, 4),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.INVISIBILITY.get(), 2, 1, 3),
-                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_STRIKE.get(), 2, 1, 2),
-                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_BURST.get(), 2, 1, 3),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_STRIKE.get(), 2, 1, 3),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_BURST.get(), 2, 2, 5),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_RESISTANCE.get(), 2, 1, 3),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.LIGHTNING_RESISTANCE.get(), 2, 1, 5),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.PROJECTILE_EVASION.get(), 3, 1, 3)
@@ -108,8 +109,8 @@ public class RaidLoot
                 .setEnchantmentsLoot(
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.RAIDERS_BANE.get(), 1, 3, 5),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.INVISIBILITY.get(), 1, 2, 3),
-                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_STRIKE.get(), 1, 2, 2),
-                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_BURST.get(), 1, 2, 3),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_STRIKE.get(), 1, 2, 3),
+                        new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_BURST.get(), 1, 3, 6),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.CRITICAL_RESISTANCE.get(), 1, 2, 3),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.LIGHTNING_RESISTANCE.get(), 1, 3, 5),
                         new EnchantmentLootEntry(DifficultRaidsEnchantments.PROJECTILE_EVASION.get(), 1, 2, 3)
@@ -292,7 +293,7 @@ public class RaidLoot
         }
 
         //Getters
-        public final Item pullValuable(Random rand)
+        public final Item pullValuable(RandomSource rand)
         {
             float r = rand.nextFloat();
 
@@ -307,7 +308,7 @@ public class RaidLoot
             return null;
         }
 
-        public final ItemStack pullEnchantment(Random rand)
+        public final ItemStack pullEnchantment(RandomSource rand)
         {
             List<EnchantmentLootEntry> pool = new ArrayList<>();
             for(EnchantmentLootEntry e : this.enchantmentsPool) for(int i = 0; i < e.weight(); i++) pool.add(e);

@@ -4,6 +4,7 @@ import com.calculusmaster.difficultraids.entity.entities.component.ShamanDebuffB
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -14,15 +15,12 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.monster.AbstractIllager;
-import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raid;
@@ -40,14 +38,6 @@ public class ShamanIllagerEntity extends AbstractEvokerVariant
     public ShamanIllagerEntity(EntityType<? extends AbstractEvokerVariant> p_33724_, Level p_33725_)
     {
         super(p_33724_, p_33725_);
-    }
-
-    public static AttributeSupplier.Builder createAttributes()
-    {
-        return Monster.createMonsterAttributes()
-                .add(Attributes.MOVEMENT_SPEED, 0.30F)
-                .add(Attributes.FOLLOW_RANGE, 16.0D)
-                .add(Attributes.MAX_HEALTH, 30.0D);
     }
 
     @Override
@@ -283,7 +273,7 @@ public class ShamanIllagerEntity extends AbstractEvokerVariant
                     projectile.loadDebuff(new MobEffectInstance(effect, duration, amplifier));
                 });
 
-                projectile.moveTo(ShamanIllagerEntity.this.eyeBlockPosition().offset(0.0, ShamanIllagerEntity.this.getEyeHeight() + 1, 0.0), 0.0F, 0.0F);
+                projectile.moveTo(new BlockPos(ShamanIllagerEntity.this.getEyePosition()).offset(0.0, ShamanIllagerEntity.this.getEyeHeight() + 1, 0.0), 0.0F, 0.0F);
                 level.addFreshEntity(projectile);
                 ShamanIllagerEntity.this.playSound(SoundEvents.SHULKER_SHOOT, 2.0F, 1.0F);
             }

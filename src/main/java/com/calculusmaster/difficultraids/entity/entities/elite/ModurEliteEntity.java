@@ -4,54 +4,56 @@ import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVari
 import com.calculusmaster.difficultraids.setup.DifficultRaidsItems;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
-import net.minecraft.world.entity.ai.goal.FloatGoal;
-import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.IronGolem;
-import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.SmallFireball;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import tallestegg.guardvillagers.entities.Guard;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Supplier;
+import java.util.stream.Stream;
 
-public class ModurEliteEntity extends AbstractEvokerVariant
+public class ModurEliteEntity extends AbstractEvokerVariant implements RangedAttackMob
 {
-    private final TextComponent ELITE_NAME = new TextComponent("Modur, Harbinger of Thunder");
+    private final Component ELITE_NAME = Component.translatable("com.calculusmaster.difficultraids.elite_event.modur");
     private final ServerBossEvent ELITE_EVENT = new ServerBossEvent(ELITE_NAME, BossEvent.BossBarColor.WHITE, BossEvent.BossBarOverlay.PROGRESS);
 
     private int stormTicks;
     private AABB stormAABB;
+
+    private int chargedBoltWarmup;
+    private int chargedBoltWarmupTotal;
+    private BlockPos chargedBoltPos;
+
+    private int homingBoltTicks;
+    private BlockPos homingBoltPos;
 
     public ModurEliteEntity(EntityType<? extends AbstractEvokerVariant> p_33724_, Level p_33725_)
     {
@@ -59,16 +61,13 @@ public class ModurEliteEntity extends AbstractEvokerVariant
 
         this.stormTicks = 0;
         this.stormAABB = new AABB(BlockPos.ZERO);
-    }
 
-    public static AttributeSupplier.Builder createEliteAttributes()
-    {
-        return Monster.createMonsterAttributes()
-                .add(Attributes.MOVEMENT_SPEED, 0.45F)
-                .add(Attributes.FOLLOW_RANGE, 14.0D)
-                .add(Attributes.MAX_HEALTH, 60.0D)
-                .add(Attributes.ATTACK_DAMAGE, 10.0D)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
+        this.chargedBoltWarmup = 0;
+        this.chargedBoltWarmupTotal = 0;
+        this.chargedBoltPos = BlockPos.ZERO;
+
+        this.homingBoltTicks = 0;
+        this.homingBoltPos = BlockPos.ZERO;
     }
 
     @Override
@@ -79,11 +78,13 @@ public class ModurEliteEntity extends AbstractEvokerVariant
         this.goalSelector.addGoal(0, new FloatGoal(this));
 
         this.goalSelector.addGoal(1, new ModurCastSpellGoal());
-        this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Player.class, 4.0F, 0.6D, 0.75D));
-        this.goalSelector.addGoal(3, new ModurSummonThunderGoal());
-        this.goalSelector.addGoal(4, new ModurLightningStormGoal());
-        this.goalSelector.addGoal(4, new ModurLightningZapGoal());
-        this.goalSelector.addGoal(5, new ModurShootFireballGoal());
+        this.goalSelector.addGoal(2, new ModurSummonThunderSpellGoal());
+        this.goalSelector.addGoal(3, new ModurLightningStormSpellGoal());
+        this.goalSelector.addGoal(3, new ModurChargedBoltSpellGoal());
+        this.goalSelector.addGoal(3, new ModurHomingBoltSpellGoal());
+        this.goalSelector.addGoal(4, new ModurLightningZapSpellGoal());
+        this.goalSelector.addGoal(5, new AvoidEntityGoal<>(this, Player.class, 4.0F, 0.6D, 0.75D));
+        this.goalSelector.addGoal(6, new RangedAttackGoal(this, 0.7F, 130, 12.0F));
 
         this.goalSelector.addGoal(8, new RandomStrollGoal(this, 0.5D));
         this.goalSelector.addGoal(9, new LookAtPlayerGoal(this, Player.class, 3.0F, 1.0F));
@@ -100,27 +101,7 @@ public class ModurEliteEntity extends AbstractEvokerVariant
     @Override
     public void applyRaidBuffs(int p_37844_, boolean p_37845_)
     {
-        //Armor
-        Map<Enchantment, Integer> generalEnchants = new HashMap<>();
-        generalEnchants.put(Enchantments.ALL_DAMAGE_PROTECTION, 2);
-        generalEnchants.put(Enchantments.VANISHING_CURSE, 1);
-        generalEnchants.put(Enchantments.THORNS, 1);
-        generalEnchants.put(Enchantments.FIRE_PROTECTION, 5);
 
-        ItemStack helm = new ItemStack(Items.NETHERITE_HELMET);
-        ItemStack chest = new ItemStack(Items.DIAMOND_CHESTPLATE);
-        ItemStack legs = new ItemStack(Items.NETHERITE_LEGGINGS);
-        ItemStack boots = new ItemStack(Items.DIAMOND_BOOTS);
-
-        EnchantmentHelper.setEnchantments(generalEnchants, helm);
-        EnchantmentHelper.setEnchantments(generalEnchants, chest);
-        EnchantmentHelper.setEnchantments(generalEnchants, legs);
-        EnchantmentHelper.setEnchantments(generalEnchants, boots);
-
-        this.setItemSlot(EquipmentSlot.HEAD, helm);
-        this.setItemSlot(EquipmentSlot.CHEST, chest);
-        this.setItemSlot(EquipmentSlot.LEGS, legs);
-        this.setItemSlot(EquipmentSlot.FEET, boots);
     }
 
     @Override
@@ -128,9 +109,6 @@ public class ModurEliteEntity extends AbstractEvokerVariant
     {
         if(pSource.getEntity() instanceof IronGolem || (DifficultRaidsUtil.isGuardVillagersLoaded() && pSource.getEntity() instanceof Guard))
             pAmount *= 0.4;
-
-        if(pSource.getDirectEntity() instanceof LivingEntity living && this.isStormActive() && this.random.nextFloat() < 0.15F)
-            this.spawnCustomBolt(living.blockPosition().offset(0, 0.5, 0), this.random.nextFloat() * 3);
 
         if(pSource.getDirectEntity() instanceof Projectile) pAmount *= 0.8F;
 
@@ -140,13 +118,26 @@ public class ModurEliteEntity extends AbstractEvokerVariant
     }
 
     @Override
+    public void performRangedAttack(LivingEntity pTarget, float pVelocity)
+    {
+        ModurEliteEntity.this.spawnCustomBolt(pTarget.blockPosition(), this.isInDifficultRaid() ? switch(this.getRaidDifficulty())
+        {
+            case HERO -> 7.0F;
+            case LEGEND -> 12.0F;
+            case MASTER -> 16.0F;
+            case GRANDMASTER -> 20.0F;
+            default -> 5.0F;
+        } : 10.0F);
+    }
+
+    @Override
     public void die(DamageSource pCause)
     {
         super.die(pCause);
 
         this.spawnCustomBolt(this.blockPosition().offset(0, 0.2, 0), 15.0F);
 
-        if(!this.level.isClientSide) ((ServerLevel)ModurEliteEntity.this.level).setWeatherParameters(6000, 0, false, false);
+        if(!this.level.isClientSide && this.level.isThundering()) ((ServerLevel)ModurEliteEntity.this.level).setWeatherParameters(6000, 0, false, false);
     }
 
     @Override
@@ -156,6 +147,11 @@ public class ModurEliteEntity extends AbstractEvokerVariant
 
         pCompound.putInt("StormTicks", this.stormTicks);
         pCompound.putIntArray("StormAABB", new int[]{(int)this.stormAABB.minX, (int)this.stormAABB.maxX, (int)this.stormAABB.minY, (int)this.stormAABB.maxY, (int)this.stormAABB.minZ, (int)this.stormAABB.maxZ});
+        pCompound.putInt("ChargedBoltWarmup", this.chargedBoltWarmup);
+        pCompound.putInt("ChargedBoltWarmupTotal", this.chargedBoltWarmupTotal);
+        pCompound.putIntArray("ChargedBoltPos", new int[]{this.chargedBoltPos.getX(), this.chargedBoltPos.getY(), this.chargedBoltPos.getZ()});
+        pCompound.putInt("HomingBoltTicks", this.homingBoltTicks);
+        pCompound.putIntArray("HomingBoltPos", new int[]{this.homingBoltPos.getX(), this.homingBoltPos.getY(), this.homingBoltPos.getZ()});
     }
 
     @Override
@@ -167,6 +163,17 @@ public class ModurEliteEntity extends AbstractEvokerVariant
 
         int[] dataAABB = pCompound.getIntArray("StormAABB");
         this.stormAABB = dataAABB.length == 6 ? new AABB(dataAABB[0], dataAABB[1], dataAABB[2], dataAABB[3], dataAABB[4], dataAABB[5]) : new AABB(BlockPos.ZERO);
+
+        this.chargedBoltWarmup = pCompound.getInt("ChargedBoltWarmup");
+        this.chargedBoltWarmupTotal = pCompound.getInt("ChargedBoltWarmupTotal");
+
+        int[] dataBoltPos = pCompound.getIntArray("ChargedBoltPos");
+        this.chargedBoltPos = dataBoltPos.length == 3 ? new BlockPos(dataBoltPos[0], dataBoltPos[1], dataBoltPos[2]) : BlockPos.ZERO;
+
+        this.homingBoltTicks = pCompound.getInt("HomingBoltTicks");
+
+        int[] dataHomingBoltPos = pCompound.getIntArray("HomingBoltPos");
+        this.homingBoltPos = dataHomingBoltPos.length == 3 ? new BlockPos(dataHomingBoltPos[0], dataHomingBoltPos[1], dataHomingBoltPos[2]) : BlockPos.ZERO;
     }
 
     @Override
@@ -179,8 +186,12 @@ public class ModurEliteEntity extends AbstractEvokerVariant
     @Override
     protected void dropCustomDeathLoot(DamageSource pSource, int pLooting, boolean pRecentlyHit)
     {
-        //TODO: Modur Unique Raid Loot - the Totem reward is temporary
         this.spawnAtLocation(new ItemStack(DifficultRaidsItems.TOTEM_OF_LIGHTNING.get()));
+    }
+
+    public boolean isInExtendedSpellState()
+    {
+        return this.stormTicks > 0 || this.chargedBoltWarmup > 0 || this.homingBoltTicks > 0;
     }
 
     public boolean isStormActive()
@@ -192,7 +203,9 @@ public class ModurEliteEntity extends AbstractEvokerVariant
     {
         LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(this.level); if(bolt == null) return;
 
-        bolt.setCustomName(new TextComponent(DifficultRaidsUtil.ELECTRO_ILLAGER_CUSTOM_BOLT_TAG));
+        if(this.level.isThundering()) damage *= 1.25F;
+
+        bolt.setCustomName(Component.literal(DifficultRaidsUtil.ELECTRO_ILLAGER_CUSTOM_BOLT_TAG));
         bolt.setDamage(damage);
         bolt.moveTo(spawn, 0.0F, 0.0F);
 
@@ -208,12 +221,22 @@ public class ModurEliteEntity extends AbstractEvokerVariant
         {
             int strikes = this.level.getDifficulty().equals(Difficulty.HARD) ? 2 : 1;
 
-            for(int i = 0; i < strikes; i++)
+            if(this.stormTicks % 2 == 0) for(int i = 0; i < strikes; i++)
             {
-                BlockPos strikePos = new BlockPos(this.random.nextInt((int)this.stormAABB.minX, (int)(this.stormAABB.maxX + 1)), this.stormAABB.minY, this.random.nextInt((int)this.stormAABB.minZ, (int)this.stormAABB.maxZ));
+                int strikeX = this.random.nextInt((int)this.stormAABB.minX, (int)(this.stormAABB.maxX + 1));
+                int strikeY = (int)this.stormAABB.minY;
+                int strikeZ = this.random.nextInt((int)this.stormAABB.minZ, (int)(this.stormAABB.maxZ + 1));
+
+                BlockPos strikePos = new BlockPos(strikeX, strikeY, strikeZ);
                 int tries = 0; while(!this.level.getBlockState(strikePos).isAir() && tries++ < 20) strikePos = strikePos.above(1);
 
-                ModurEliteEntity.this.spawnCustomBolt(strikePos, switch(this.level.getDifficulty()) {
+                ModurEliteEntity.this.spawnCustomBolt(strikePos, this.isInDifficultRaid() ? switch(this.getRaidDifficulty()) {
+                    case HERO -> 10.0F;
+                    case LEGEND -> 15.0F;
+                    case MASTER -> 20.0F;
+                    case GRANDMASTER -> 30.0F;
+                    default -> 5.0F;
+                } : switch(this.level.getDifficulty()) {
                     case PEACEFUL -> 0.0F;
                     case EASY -> 3.0F;
                     case NORMAL -> 7.5F;
@@ -223,6 +246,63 @@ public class ModurEliteEntity extends AbstractEvokerVariant
 
             this.stormTicks--;
             if(this.stormTicks == 0) this.stormAABB = new AABB(BlockPos.ZERO);
+        }
+
+        if(this.chargedBoltWarmup > 0)
+        {
+            //Sounds
+            if(this.chargedBoltWarmup % 30 == 0) this.level.playLocalSound(this.chargedBoltPos.getX(), this.chargedBoltPos.getY(), this.chargedBoltPos.getZ(),
+                    SoundEvents.EVOKER_PREPARE_SUMMON, SoundSource.HOSTILE, 2.0F, 0.7F, false);
+
+            //Particles
+            int tiers = 2 + (this.chargedBoltWarmupTotal - this.chargedBoltWarmup) / 20;
+
+            for(int i = 0; i < tiers; i++)
+            {
+                Stream.of(
+                        this.chargedBoltPos.offset(0, i, 0),
+                        this.chargedBoltPos.offset(1, i, 0),
+                        this.chargedBoltPos.offset(0, i, 1),
+                        this.chargedBoltPos.offset(1, i, 1)
+                ).forEach(pos -> ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.FALLING_DUST, Blocks.WHITE_WOOL.defaultBlockState()), pos.getX(), pos.getY(), pos.getZ(), 2, 0.15, 0, 0.15, 2.0));
+            }
+
+            //Logic
+            this.chargedBoltWarmup--;
+
+            if(this.chargedBoltWarmup <= 0)
+            {
+                for(int i = 0; i < 10; i++) this.spawnCustomBolt(this.chargedBoltPos, this.isInDifficultRaid() ? switch(this.getRaidDifficulty()) {
+                    case HERO -> 25.0F;
+                    case LEGEND -> 40.0F;
+                    case MASTER -> 60.0F;
+                    case GRANDMASTER -> 100.0F;
+                    default -> 5.0F;
+                } : 25.0F);
+
+                this.chargedBoltWarmup = 0;
+                this.chargedBoltWarmupTotal = 0;
+            }
+        }
+
+        if(this.homingBoltTicks > 0 && this.homingBoltTicks-- % 10 == 0 && this.getTarget() != null)
+        {
+            LivingEntity target = this.getTarget();
+
+            double x = target.getX() - this.getX();
+            double z = target.getZ() - this.getZ();
+
+            this.homingBoltPos = this.homingBoltPos.offset(x == 0 ? 0 : x < 0 ? -1 : 1, 0, z == 0 ? 0 : z < 0 ? -1 : 1);
+
+            float damage = this.isInDifficultRaid() ? switch(this.getRaidDifficulty())
+            {
+                case DEFAULT, HERO -> 8.0F;
+                case LEGEND -> 11.0F;
+                case MASTER -> 15.0F;
+                case GRANDMASTER -> 20.0F;
+            } : 10.0F;
+
+            this.spawnCustomBolt(this.homingBoltPos, damage);
         }
     }
 
@@ -236,132 +316,29 @@ public class ModurEliteEntity extends AbstractEvokerVariant
         }
     }
 
-    private class ModurShootFireballGoal extends SpellcastingIllagerUseSpellGoal
+    private class ModurHomingBoltSpellGoal extends SpellcastingIllagerUseSpellGoal
     {
-        private ModurShootFireballGoal() {}
-
         @Override
         protected void castSpell()
         {
-            LivingEntity target = ModurEliteEntity.this.getTarget();
-            ServerLevel level = (ServerLevel)ModurEliteEntity.this.level;
             ModurEliteEntity modur = ModurEliteEntity.this;
 
-            if(target != null)
+            Vec3 v = ModurEliteEntity.this.getLookAngle();
+            modur.homingBoltPos = modur.blockPosition().offset(v.x, 0, v.z);
+
+            modur.homingBoltTicks = modur.isInDifficultRaid() ? switch(modur.getRaidDifficulty())
             {
-                int count = switch(level.getDifficulty()) {
-                    case PEACEFUL -> 0;
-                    case EASY -> 2;
-                    case NORMAL -> 4;
-                    case HARD -> 6;
-                };
-
-                double dX = target.getX() - modur.getX();
-                double dY = target.getY(0.5D) - modur.getY(0.5D);
-                double dZ = target.getZ() - modur.getZ();
-
-                for(int i = 0; i < count; i++)
-                {
-                    Supplier<Double> modifier_dX = () -> (Math.sqrt(Math.sqrt(dX)) * 0.5D) * modur.random.nextGaussian();
-                    SmallFireball fireball = new SmallFireball(level, modur, dX + modifier_dX.get(), dY, dZ + modifier_dX.get()) {
-                        private int life;
-
-                        @Override
-                        public void onAddedToWorld()
-                        {
-                            super.onAddedToWorld();
-                            this.life = 0;
-                        }
-
-                        @Override
-                        public void tick()
-                        {
-                            super.tick();
-
-                            if(this.life != -1 && this.life < 60) this.life++;
-                            if(this.life == 60 && !this.isRemoved())
-                            {
-                                this.life = -1;
-                                this.discard();
-                            }
-                        }
-
-                        @Override
-                        protected void onHitEntity(EntityHitResult pResult)
-                        {
-                            if(pResult.getEntity() instanceof Raider) this.discard();
-                            else super.onHitEntity(pResult);
-                        }
-                    };
-
-                    fireball.setPos(fireball.getX(), modur.getY(0.5D) + 0.5D, fireball.getZ());
-                    level.addFreshEntity(fireball);
-                }
-            }
+                case DEFAULT, HERO -> 10 * 8;
+                case LEGEND -> 10 * 14;
+                case MASTER -> 10 * 20;
+                case GRANDMASTER -> 10 * 30;
+            } : 10 * 8;
         }
 
         @Override
         public boolean canUse()
         {
-            LivingEntity target = ModurEliteEntity.this.getTarget();
-            return super.canUse() && target != null && target.distanceTo(ModurEliteEntity.this) > 3.0;
-        }
-
-        @Override
-        protected int getCastingTime()
-        {
-            return 20;
-        }
-
-        @Override
-        protected int getCastingInterval()
-        {
-            return 40;
-        }
-
-        @Override
-        protected int getCastWarmupTime()
-        {
-            return 5;
-        }
-
-        @Nullable
-        @Override
-        protected SoundEvent getSpellPrepareSound()
-        {
-            return SoundEvents.BLASTFURNACE_FIRE_CRACKLE;
-        }
-
-        @Override
-        protected SpellType getSpellType()
-        {
-            return SpellType.MODUR_FIREBALL;
-        }
-    }
-
-    private class ModurLightningZapGoal extends SpellcastingIllagerUseSpellGoal
-    {
-        private BlockPos targetPos;
-
-        private ModurLightningZapGoal() { this.targetPos = BlockPos.ZERO; }
-
-        @Override
-        protected void castSpell()
-        {
-            if(!this.targetPos.equals(BlockPos.ZERO))
-            {
-                BlockPos pos = this.targetPos.offset(ModurEliteEntity.this.random.nextInt(3) - 1, 0, ModurEliteEntity.this.random.nextInt(3) - 1);
-
-                int times = ModurEliteEntity.this.random.nextInt(2, 6);
-                for(int i = 0; i < times; i++) ModurEliteEntity.this.spawnCustomBolt(pos, 15.0F);
-            }
-        }
-
-        @Override
-        public void start()
-        {
-            super.start();
-            if(ModurEliteEntity.this.getTarget() != null) this.targetPos = new BlockPos(ModurEliteEntity.this.getTarget().blockPosition());
+            return super.canUse() && !ModurEliteEntity.this.isInExtendedSpellState();
         }
 
         @Override
@@ -386,6 +363,125 @@ public class ModurEliteEntity extends AbstractEvokerVariant
         @Override
         protected SoundEvent getSpellPrepareSound()
         {
+            return SoundEvents.EVOKER_PREPARE_SUMMON;
+        }
+
+        @Override
+        protected SpellType getSpellType()
+        {
+            return SpellType.MODUR_HOMING_BOLT;
+        }
+    }
+
+    private class ModurChargedBoltSpellGoal extends SpellcastingIllagerUseSpellGoal
+    {
+        @Override
+        protected void castSpell()
+        {
+            ModurEliteEntity.this.chargedBoltWarmup = 20 * 10;
+            ModurEliteEntity.this.chargedBoltWarmupTotal = ModurEliteEntity.this.chargedBoltWarmup;
+
+            if(ModurEliteEntity.this.getTarget() != null) ModurEliteEntity.this.chargedBoltPos = ModurEliteEntity.this.getTarget().blockPosition();
+            else ModurEliteEntity.this.chargedBoltPos = ModurEliteEntity.this.blockPosition().offset(5 - ModurEliteEntity.this.random.nextInt(1, 11), 0, 5 - ModurEliteEntity.this.random.nextInt(1, 11));
+        }
+
+        @Override
+        public boolean canUse()
+        {
+            return super.canUse() && !ModurEliteEntity.this.isInExtendedSpellState();
+        }
+
+        @Override
+        protected int getCastingTime()
+        {
+            return 60;
+        }
+
+        @Override
+        protected int getCastingInterval()
+        {
+            return 400;
+        }
+
+        @Override
+        protected int getCastWarmupTime()
+        {
+            return 15;
+        }
+
+        @Nullable
+        @Override
+        protected SoundEvent getSpellPrepareSound()
+        {
+            return SoundEvents.LIGHTNING_BOLT_THUNDER;
+        }
+
+        @Override
+        protected SpellType getSpellType()
+        {
+            return SpellType.MODUR_CHARGED_BOLT;
+        }
+    }
+
+    private class ModurLightningZapSpellGoal extends SpellcastingIllagerUseSpellGoal
+    {
+        private BlockPos targetPos;
+
+        private ModurLightningZapSpellGoal() { this.targetPos = BlockPos.ZERO; }
+
+        @Override
+        protected void castSpell()
+        {
+            if(!this.targetPos.equals(BlockPos.ZERO))
+            {
+                for(int i = 0; i < 3; i++) ModurEliteEntity.this.spawnCustomBolt(this.targetPos.offset(0.5 - Math.random(), 0, 0.5 - Math.random()), 15.0F);
+            }
+        }
+
+        @Override
+        public void start()
+        {
+            super.start();
+            if(ModurEliteEntity.this.getTarget() != null) this.targetPos = new BlockPos(ModurEliteEntity.this.getTarget().blockPosition());
+        }
+
+        @Override
+        public void tick()
+        {
+            //Capture position just before the cast
+            if(this.spellWarmup == 5 && ModurEliteEntity.this.getTarget() != null) this.targetPos = new BlockPos(ModurEliteEntity.this.getTarget().blockPosition());
+
+            super.tick();
+        }
+
+        @Override
+        public boolean canUse()
+        {
+            return super.canUse() && !ModurEliteEntity.this.isInExtendedSpellState();
+        }
+
+        @Override
+        protected int getCastingTime()
+        {
+            return 30;
+        }
+
+        @Override
+        protected int getCastingInterval()
+        {
+            return 160;
+        }
+
+        @Override
+        protected int getCastWarmupTime()
+        {
+            return 15;
+        }
+
+        @Nullable
+        @Override
+        protected SoundEvent getSpellPrepareSound()
+        {
             return SoundEvents.TRIDENT_THUNDER;
         }
 
@@ -396,35 +492,36 @@ public class ModurEliteEntity extends AbstractEvokerVariant
         }
     }
 
-    private class ModurLightningStormGoal extends SpellcastingIllagerUseSpellGoal
+    private class ModurLightningStormSpellGoal extends SpellcastingIllagerUseSpellGoal
     {
-        private ModurLightningStormGoal() {}
+        private ModurLightningStormSpellGoal() {}
 
         @Override
         protected void castSpell()
         {
             ModurEliteEntity modur = ModurEliteEntity.this;
 
-            modur.stormTicks = modur.random.nextInt(40, switch(modur.level.getDifficulty()) {
-                case PEACEFUL -> 41;
-                case EASY -> 81;
-                case NORMAL -> 101;
-                case HARD -> 161;
-            });
+            modur.stormTicks = modur.isInDifficultRaid() ? switch(modur.getRaidDifficulty()) {
+                case HERO -> 20 * 5;
+                case LEGEND -> 20 * 12;
+                case MASTER -> 20 * 16;
+                case GRANDMASTER -> 20 * 20;
+                default -> 20 * 3;
+            } : 20 * 5;
 
-            modur.stormAABB = new AABB(modur.blockPosition()).inflate(modur.isInRaid() ? switch(modur.getRaidDifficulty()) {
-                case HERO -> 18.0;
-                case LEGEND -> 24.0;
-                case MASTER -> 30.0;
-                case GRANDMASTER -> 50.0;
-                default -> 0.0;
-            } : 10.0).setMaxY(modur.getEyeY() + 4.0).setMinY(modur.blockPosition().getY() + 0.4);
+            modur.stormAABB = new AABB(modur.blockPosition()).inflate(modur.isInDifficultRaid() ? switch(modur.getRaidDifficulty()) {
+                case HERO -> 12.0;
+                case LEGEND -> 18.0;
+                case MASTER -> 20.0;
+                case GRANDMASTER -> 25.0;
+                default -> 10.0;
+            } : 10.0).setMaxY(modur.getEyeY() + modur.getBbHeight()).setMinY(modur.blockPosition().getY() + 0.4);
         }
 
         @Override
         public boolean canUse()
         {
-            return super.canUse() && ModurEliteEntity.this.level.getLevelData().isThundering() && !ModurEliteEntity.this.isStormActive();
+            return super.canUse() && ModurEliteEntity.this.level.isThundering() && !ModurEliteEntity.this.isInExtendedSpellState();
         }
 
         @Override
@@ -436,7 +533,7 @@ public class ModurEliteEntity extends AbstractEvokerVariant
         @Override
         protected int getCastingInterval()
         {
-            return 700;
+            return 1400;
         }
 
         @Override
@@ -459,9 +556,9 @@ public class ModurEliteEntity extends AbstractEvokerVariant
         }
     }
 
-    private class ModurSummonThunderGoal extends SpellcastingIllagerUseSpellGoal
+    private class ModurSummonThunderSpellGoal extends SpellcastingIllagerUseSpellGoal
     {
-        private ModurSummonThunderGoal() {}
+        private ModurSummonThunderSpellGoal() {}
 
         @Override
         protected void castSpell()
@@ -472,19 +569,19 @@ public class ModurEliteEntity extends AbstractEvokerVariant
         @Override
         public boolean canUse()
         {
-            return super.canUse() && !ModurEliteEntity.this.level.getLevelData().isThundering();
+            return !ModurEliteEntity.this.level.getLevelData().isThundering();
         }
 
         @Override
         protected int getCastingTime()
         {
-            return 70;
+            return 100;
         }
 
         @Override
         protected int getCastingInterval()
         {
-            return 300;
+            return 500;
         }
 
         @Override

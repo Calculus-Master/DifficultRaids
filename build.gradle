@@ -29,16 +29,16 @@ apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
 
 
-version = '1.7-release'
+version = '2.0-beta.1'
 group = 'com.calculusmaster.difficultraids'
-archivesBaseName = 'difficultraids'
+archivesBaseName = 'difficultraids-1.19.2'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 minecraft {
-    //mappings channel: 'official', version: '1.18.2'
-    mappings channel: 'parchment', version: '2022.03.13-1.18.2'
+    //mappings channel: 'official', version: '1.19.2'
+    mappings channel: 'parchment', version: '2022.11.27-1.19.2'
 
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg') // Currently, this location cannot be changed from the default.
 
@@ -145,7 +145,7 @@ repositories {
 
 dependencies {
     //Minecraft
-    minecraft 'net.minecraftforge:forge:1.18.2-40.1.0'
+    minecraft 'net.minecraftforge:forge:1.19.2-43.2.0'
 
     // Apply Mixin AP
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
@@ -162,21 +162,24 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
-    //Guard Villagers 1.18.2 1.4.1
-    implementation fg.deobf("curse.maven:guardvillagers-360203:3694899")
+    //Guard Villagers 1.19.2 1.5.2
+    implementation fg.deobf("curse.maven:guardvillagers-360203:3970122")
 
-    //Hunter Illager 1.18.2 4.0.1
-    implementation fg.deobf("curse.maven:hunterillager-318857:3752127")
+    //Hunter Illager 1.19.2 6.0.2
+    implementation fg.deobf("curse.maven:hunterillager-318857:4034397")
 
-    //Enchant with Mob 1.18.2 4.0.3
-    implementation fg.deobf("curse.maven:enchantwithmob-391187:3760042")
+    //Enchant with Mob 1.19.2 6.4.1
+    compileOnly fg.deobf("curse.maven:enchantwithmob-391187:4026539")
 
-    //Mob Entity Path Visualizer 1.18 1.0.0-release.2
-    runtimeOnly fg.deobf("curse.maven:mobentitypathvisualizer-590716:3680372")
+    //Mob Entity Path Visualizer 1.19.2 1.1.0-release.6
+    runtimeOnly fg.deobf("curse.maven:mob-entity-path-visualizer-590716:4063117")
 
-    //Enchantment Descriptions 1.18.2 10.0.4 + Bookshelf 1.18.2 13.2.21
-    runtimeOnly fg.deobf("curse.maven:enchantmentdescriptions-250419:3821023")
-    runtimeOnly fg.deobf("curse.maven:bookshelf-228525:3832270")
+    //Enchantment Descriptions 1.19.2 13.0.3 + Bookshelf 1.18.2 16.1.5
+    runtimeOnly fg.deobf("curse.maven:enchantmentdescriptions-250419:3955030")
+    runtimeOnly fg.deobf("curse.maven:bookshelf-228525:3964325")
+
+    //ToroHealth Damage Indicators 1.19.2 1.0.0
+    runtimeOnly fg.deobf("curse.maven:torohealth-damage-indicators-245733:3895068")
 }
 
 mixin {

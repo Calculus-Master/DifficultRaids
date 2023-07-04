@@ -5,7 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -34,13 +34,13 @@ public class AdvanceRaidWaveCommand
                         ServerLevel level = player.getLevel();
                         Raid raid = level.getRaidAt(player.blockPosition());
 
-                        if(raid == null) css.getSource().sendFailure(new TextComponent("You must be near a Raid to use this command!"));
+                        if(raid == null) css.getSource().sendFailure(Component.literal("You must be near a Raid to use this command!"));
                         else
                         {
                             List<Raider> alive = raid.getAllRaiders().stream().filter(LivingEntity::isAlive).toList();
 
                             alive.forEach(r -> r.hurt(DamageSource.STARVE, r.getHealth() + 1.0F));
-                            css.getSource().sendSuccess(new TextComponent("Wave successfully cleared!"), true);
+                            css.getSource().sendSuccess(Component.literal("Wave successfully cleared!"), true);
                         }
 
                         return 1;

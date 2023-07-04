@@ -1,7 +1,6 @@
 package com.calculusmaster.difficultraids.items;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -37,7 +36,7 @@ public class GMArmorItem extends ArmorItem
     @Override
     public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced)
     {
-        pTooltipComponents.add(new TextComponent("Reduces damage taken from Raiders by 10%.\nFull Set Bonus: Applies Regeneration II & Speed I constantly."));
+        pTooltipComponents.add(Component.literal("Reduces damage taken from Raiders by 10%.\nFull Set Bonus: Applies Regeneration II & Speed I constantly."));
     }
 
     public float getRaiderDamageReduction()

@@ -22,9 +22,8 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -43,7 +42,7 @@ public class DRForgeModEvents
     }
 
     @SubscribeEvent
-    public static void addSpawn(EntityJoinWorldEvent event)
+    public static void addSpawn(EntityJoinLevelEvent event)
     {
         final float defaultMaxDistance = 16.0F;
         final float defaultWalkSpeedModifier = 0.8F;
@@ -71,7 +70,7 @@ public class DRForgeModEvents
                     new AvoidEntityGoal<>(villager, TankIllagerEntity.class, defaultMaxDistance, defaultWalkSpeedModifier + 0.1F, defaultSprintSpeedModifier));
 
             villager.goalSelector.addGoal(1,
-                    new AvoidEntityGoal<>(villager, AssassinIllagerEntity.class, 2.0F, defaultWalkSpeedModifier + 0.5F, defaultSprintSpeedModifier + 0.9F));
+                    new AvoidEntityGoal<>(villager, AssassinIllagerEntity.class, 2.5F, defaultWalkSpeedModifier + 0.1F, defaultSprintSpeedModifier + 0.1F));
 
             villager.goalSelector.addGoal(1,
                     new AvoidEntityGoal<>(villager, FrostIllagerEntity.class, defaultMaxDistance, defaultWalkSpeedModifier - 0.2F, defaultSprintSpeedModifier - 0.1F));
@@ -117,7 +116,7 @@ public class DRForgeModEvents
         if(event.getEntity() instanceof LivingEntity living)
         {
             ItemStack stack = living.getItemBySlot(EquipmentSlot.HEAD);
-            int level = EnchantmentHelper.getItemEnchantmentLevel(DifficultRaidsEnchantments.LIGHTNING_RESISTANCE.get(), stack);
+            int level = stack.getEnchantmentLevel(DifficultRaidsEnchantments.LIGHTNING_RESISTANCE.get());
 
             float damageMultiplier = switch(level) {
                 case 1 -> 0.95F;
@@ -125,7 +124,7 @@ public class DRForgeModEvents
                 case 3 -> 0.7F;
                 case 4 -> 0.5F;
                 case 5 -> 0.25F;
-                default -> 0.0F;
+                default -> 1.0F;
             };
 
             if(isElectroIllagerBolt) damageMultiplier -= 0.05F;

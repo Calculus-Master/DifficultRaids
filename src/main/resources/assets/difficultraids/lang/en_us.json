@@ -33,13 +33,15 @@
     "enchantment.difficultraids.critical_strike": "Critical Strike",
     "enchantment.difficultraids.critical_strike.desc": "Increases the chance of a critical hit, which deals extra damage. Combine with Critical Burst to increase critical hit damage.",
     "enchantment.difficultraids.critical_burst": "Critical Burst",
-    "enchantment.difficultraids.critical_burst.desc": "Increases damage dealt by critical hits. Combine with Critical Strike to increase critical hit chance.",
+    "enchantment.difficultraids.critical_burst.desc": "Increases damage dealt by critical hits. Combine with Critical Strike to increase critical hit chance. Very powerful levels of this enchantment will slightly reduce the crit chance.",
     "enchantment.difficultraids.lightning_resistance": "Lightning Resistance",
     "enchantment.difficultraids.lightning_resistance.desc": "Reduces damage taken from lightning bolts.",
     "enchantment.difficultraids.critical_resistance": "Critical Resistance",
     "enchantment.difficultraids.critical_resistance.desc": "Any damage taken has a small chance to be heavily reduced.",
     "enchantment.difficultraids.projectile_evasion": "Projectile Evasion",
     "enchantment.difficultraids.projectile_evasion.desc": "Grants a small chance for projectiles to completely miss their target and deal no damage.",
+
+    "effect.difficultraids.winds_curse": "Curse of the Winds",
 
     "entity.difficultraids.warrior_illager": "Warrior",
     "entity.difficultraids.dart_illager": "Dart",
@@ -58,5 +60,10 @@
     "entity.difficultraids.modur_elite": "Modur",
     "entity.difficultraids.voldon_elite": "Voldon",
 
-    "entity.difficultraids.voldon_familiar": "Voldon Familiar"
+    "entity.difficultraids.voldon_familiar": "Voldon Familiar",
+
+    "com.calculusmaster.difficultraids.elite_event.nuaos": "Nuaos, the Honored",
+    "com.calculusmaster.difficultraids.elite_event.xydrax": "Xydrax, Windborne",
+    "com.calculusmaster.difficultraids.elite_event.modur": "Modur, Harbinger of Thunder",
+    "com.calculusmaster.difficultraids.elite_event.voldon": "Voldon, the Eternal"
 }

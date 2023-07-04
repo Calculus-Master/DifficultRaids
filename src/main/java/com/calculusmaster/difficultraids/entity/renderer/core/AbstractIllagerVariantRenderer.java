@@ -13,7 +13,7 @@ public class AbstractIllagerVariantRenderer<T extends AbstractIllagerVariant> ex
     {
         super(entityRenderProvider, path, bakeLayer);
 
-        this.addLayer(new ItemInHandLayer<>(this)
+        this.addLayer(new ItemInHandLayer<>(this, entityRenderProvider.getItemInHandRenderer())
         {
             @Override
             public void render(PoseStack pMatrixStack, MultiBufferSource pBuffer, int pPackedLight, T pLivingEntity, float pLimbSwing, float pLimbSwingAmount, float pPartialTicks, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch)

@@ -20,7 +20,7 @@ public class CriticalStrikeEnchantment extends Enchantment
     @Override
     public int getMaxLevel()
     {
-        return 2;
+        return 4;
     }
 
     @Override

@@ -6,7 +6,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
@@ -16,36 +17,26 @@ import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.monster.AbstractIllager;
-import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class TankIllagerEntity extends AbstractVindicatorVariant
 {
+    private static final Logger LOGGER = LogManager.getLogger();
+    private static final String TAG_TANK_ARMOR_MODIFIER = "DifficultRaids Tank Armor Modifier";
+    private static final String TAG_TANK_TOUGHNESS_MODIFIER = "DifficultRaids Tank Armor Toughness Modifier";
+
     public TankIllagerEntity(EntityType<? extends AbstractIllager> entityType, Level level)
     {
         super(entityType, level);
-    }
-
-    public static AttributeSupplier.Builder createAttributes()
-    {
-        return Monster.createMonsterAttributes()
-                .add(Attributes.MOVEMENT_SPEED, 0.25F)
-                .add(Attributes.FOLLOW_RANGE, 12.0D)
-                .add(Attributes.MAX_HEALTH, 36.0D)
-                .add(Attributes.ATTACK_DAMAGE, 2.0D);
     }
 
     @Override
@@ -74,30 +65,29 @@ public class TankIllagerEntity extends AbstractVindicatorVariant
         RaidDifficulty raidDifficulty = this.getRaidDifficulty();
         this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.STONE_SWORD));
 
-        ItemStack helmet = null, chestplate = null, leggings = null, boots = null;
+        AttributeInstance armor = this.getAttribute(Attributes.ARMOR);
+        AttributeInstance armorToughness = this.getAttribute(Attributes.ARMOR_TOUGHNESS);
 
-        if(raidDifficulty.is(RaidDifficulty.DEFAULT)) { helmet = new ItemStack(Items.LEATHER_HELMET); chestplate = new ItemStack(Items.LEATHER_CHESTPLATE); leggings = new ItemStack(Items.LEATHER_LEGGINGS); boots = new ItemStack(Items.LEATHER_BOOTS); }
-        else if(raidDifficulty.is(RaidDifficulty.HERO, RaidDifficulty.LEGEND)) { helmet = new ItemStack(Items.IRON_HELMET); chestplate = new ItemStack(Items.IRON_CHESTPLATE); leggings = new ItemStack(Items.IRON_LEGGINGS); boots = new ItemStack(Items.IRON_BOOTS); }
-        else if(raidDifficulty.is(RaidDifficulty.MASTER)) { helmet = new ItemStack(Items.DIAMOND_HELMET); chestplate = new ItemStack(Items.DIAMOND_CHESTPLATE); leggings = new ItemStack(Items.DIAMOND_LEGGINGS); boots = new ItemStack(Items.DIAMOND_BOOTS); }
-        else if(raidDifficulty.is(RaidDifficulty.GRANDMASTER)) { helmet = new ItemStack(Items.NETHERITE_HELMET); chestplate = new ItemStack(Items.NETHERITE_CHESTPLATE); leggings = new ItemStack(Items.NETHERITE_LEGGINGS); boots = new ItemStack(Items.NETHERITE_BOOTS); }
-
-        final Map<Enchantment, Integer> enchants = new HashMap<>();
-
-        enchants.put(Enchantments.ALL_DAMAGE_PROTECTION, raidDifficulty.config().tank().protectionLevel());
-        if(this.random.nextInt(100) < 10 && raidDifficulty.config().tank().thornsLevel() > 0) enchants.put(Enchantments.THORNS, raidDifficulty.config().tank().thornsLevel());
-
-        if(helmet != null && chestplate != null && leggings != null && boots != null)
+        if(armor != null)
         {
-            EnchantmentHelper.setEnchantments(Map.copyOf(enchants), helmet);
-            EnchantmentHelper.setEnchantments(Map.copyOf(enchants), chestplate);
-            EnchantmentHelper.setEnchantments(Map.copyOf(enchants), leggings);
-            EnchantmentHelper.setEnchantments(Map.copyOf(enchants), boots);
+            AttributeModifier armorModifier = new AttributeModifier(TAG_TANK_ARMOR_MODIFIER, switch(raidDifficulty) {
+                case DEFAULT -> 7.5;
+                case HERO -> 11.0;
+                case LEGEND -> 15.0;
+                case MASTER, GRANDMASTER -> 20.0;
+            }, AttributeModifier.Operation.ADDITION);
 
-            this.setItemSlot(EquipmentSlot.HEAD, helmet);
-            this.setItemSlot(EquipmentSlot.CHEST, chestplate);
-            this.setItemSlot(EquipmentSlot.LEGS, leggings);
-            this.setItemSlot(EquipmentSlot.FEET, boots);
+            armor.addPermanentModifier(armorModifier);
         }
+        else LOGGER.warn("DifficultRaids: Tank Illager has a null Armor Attribute!");
+
+
+        if(raidDifficulty.is(RaidDifficulty.GRANDMASTER) && armorToughness != null)
+        {
+            AttributeModifier toughnessModifier = new AttributeModifier(TAG_TANK_TOUGHNESS_MODIFIER, 15.0, AttributeModifier.Operation.ADDITION);
+            armorToughness.addPermanentModifier(toughnessModifier);
+        }
+        else if(armorToughness == null) LOGGER.warn("DifficultRaids: Tank Illager has a null Armor Toughness Attribute!");
     }
 
     @Nullable
