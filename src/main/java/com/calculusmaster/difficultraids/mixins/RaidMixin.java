@@ -1,6 +1,5 @@
 package com.calculusmaster.difficultraids.mixins;
 
-import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.raids.RaidEnemyRegistry;
 import com.calculusmaster.difficultraids.raids.RaidLoot;
@@ -177,9 +176,9 @@ public abstract class RaidMixin
             //TODO: Remove when reworking waves
             if(raidDifficulty.is(RaidDifficulty.LEGEND) && eliteTier == 2) eliteTier = 1;
 
-            if(true || eliteTier != -1) //TODO: Remove after Elite Testing is done
+            if(eliteTier != -1) //TODO: Remove after Elite Testing is done
             {
-                EntityType<?> eliteType = DifficultRaidsEntityTypes.NUAOS_ELITE.get(); //RaidEnemyRegistry.getRandomElite(eliteTier);
+                EntityType<?> eliteType = RaidEnemyRegistry.getRandomElite(eliteTier); //DifficultRaidsEntityTypes.NUAOS_ELITE.get();
                 Entity elite = eliteType.create(this.level);
                 if(elite instanceof Raider raider) this.joinRaid(wave, raider, spawnPos, false);
                 else LOGGER.error("Failed to spawn Raid Elite! {EntityType: " + eliteType.toShortString() + "}, Wave {" + wave + "}, Elite Tier: {" + eliteTier + "}, Difficulty {" + this.level.getDifficulty() + "}");
