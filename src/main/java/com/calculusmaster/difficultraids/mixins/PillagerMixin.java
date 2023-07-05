@@ -28,7 +28,7 @@ public abstract class PillagerMixin extends AbstractIllager
         super(p_33262_, p_33263_);
     }
 
-    @Inject(at = @At("TAIL"), method = "applyRaidBuffs", cancellable = true)
+    @Inject(at = @At("TAIL"), method = "applyRaidBuffs")
     public void applyRaidBuffs(int p_37844_, boolean p_37845_, CallbackInfo callbackInfo)
     {
         boolean inRaid = this.getCurrentRaid() != null;

@@ -63,9 +63,9 @@ public abstract class VindicatorMixin extends AbstractIllager
             if(raidDifficulty.is(RaidDifficulty.LEGEND, RaidDifficulty.MASTER, RaidDifficulty.GRANDMASTER))
             {
                 enchants.put(DifficultRaidsEnchantments.CRITICAL_BURST.get(), switch(raidDifficulty) {
-                    case LEGEND -> 1;
-                    case MASTER -> 2;
-                    case GRANDMASTER -> 3;
+                    case LEGEND -> 2;
+                    case MASTER -> 3;
+                    case GRANDMASTER -> 6;
                     default -> 0;
                 });
             }

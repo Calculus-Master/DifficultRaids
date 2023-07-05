@@ -3,34 +3,29 @@ package com.calculusmaster.difficultraids.mixins;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.raids.RaidEnemyRegistry;
 import com.calculusmaster.difficultraids.raids.RaidLoot;
-import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -81,6 +76,9 @@ public abstract class RaidMixin
     private void difficultraids_raidStart(Player p_37729_, CallbackInfo callbackInfo)
     {
         this.initializeValidRaidArea();
+        for (Raid.RaiderType value : Raid.RaiderType.values()) {
+            System.out.println(value);
+        }
     }
 
     @Inject(at = @At("TAIL"), method = "tick")
@@ -110,79 +108,22 @@ public abstract class RaidMixin
 
         List<Player> participants = this.level.getEntitiesOfClass(Player.class, this.validRaidArea);
         this.players = participants.size();
-
-        Difficulty levelDifficulty = this.level.getDifficulty();
-        RaidDifficulty raidDifficulty = RaidDifficulty.get(this.getBadOmenLevel());
-
-        //Entity Reinforcements (no Raiders)
-        if(this.random.nextInt(100) < raidDifficulty.config().reinforcementChance())
-        {
-            Map<EntityType<?>, Integer> reinforcements = RaidEnemyRegistry.getReinforcements(this.groupsSpawned, raidDifficulty, levelDifficulty);
-            final String sum = "(" + reinforcements.values().stream().mapToInt(i -> i).sum() + ")";
-            final List<String> messages = List.of("Reinforcements have arrived!", "Additional mobs have joined!", "An extra group of mobs has appeared!", "The Illagers have called in reinforcements!", "The Illagers have called for backup!");
-            participants.forEach(p -> p.sendSystemMessage(Component.literal(messages.get(this.random.nextInt(messages.size())) + " " + sum)));
-
-            for(Map.Entry<EntityType<?>, Integer> entityEntry : reinforcements.entrySet())
-            {
-                for(int i = 0; i < entityEntry.getValue(); i++)
-                {
-                    EntityType<?> type = entityEntry.getKey();
-                    LivingEntity spawn = (LivingEntity)type.create(this.level); if(spawn == null) continue;
-                    spawn.moveTo(pos.getX(), pos.getY(), pos.getZ()); //TODO: Randomize spawn a bit more
-                    if(spawn instanceof Monster mob) mob.finalizeSpawn(this.level, this.level.getCurrentDifficultyAt(mob.blockPosition()), MobSpawnType.REINFORCEMENT, null, null);
-
-                    if(List.of(EntityType.ZOMBIE, EntityType.SKELETON, EntityType.STRAY).contains(entityEntry.getKey()))
-                        spawn.setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.LEATHER_HELMET));
-
-                    if(spawn instanceof Monster monster)
-                    {
-                        Path path = monster.getNavigation().createPath(this.center, 10);
-                        monster.getNavigation().moveTo(path, 1.3);
-
-                        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, Villager.class, true));
-                        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, IronGolem.class, true));
-                        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, Player.class, true));
-                        //TODO: Reenable this: if(DifficultRaidsUtil.isGuardVillagersLoaded()) monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, Guard.class, true));
-
-                        if(raidDifficulty.is(RaidDifficulty.GRANDMASTER))
-                        {
-                            monster.setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.DIAMOND_HELMET));
-                            monster.setItemSlot(EquipmentSlot.CHEST, new ItemStack(Items.DIAMOND_CHESTPLATE));
-                            monster.setItemSlot(EquipmentSlot.LEGS, new ItemStack(Items.DIAMOND_LEGGINGS));
-                            monster.setItemSlot(EquipmentSlot.FEET, new ItemStack(Items.DIAMOND_BOOTS));
-
-                            monster.setDropChance(EquipmentSlot.HEAD, 0);
-                            monster.setDropChance(EquipmentSlot.CHEST, 0);
-                            monster.setDropChance(EquipmentSlot.LEGS, 0);
-                            monster.setDropChance(EquipmentSlot.FEET, 0);
-                        }
-                    }
-
-                    this.level.addFreshEntity(spawn);
-                }
-            }
-        }
     }
 
     @Inject(at = @At("TAIL"), method = "spawnGroup")
     private void difficultraids_spawnElite(BlockPos spawnPos, CallbackInfo callback)
     {
         RaidDifficulty raidDifficulty = RaidDifficulty.get(this.getBadOmenLevel());
-        if(raidDifficulty.config().areElitesEnabled() && raidDifficulty.is(RaidDifficulty.LEGEND, RaidDifficulty.MASTER, RaidDifficulty.GRANDMASTER))
+        int wave = this.getGroupsSpawned();
+
+        if(raidDifficulty.config().areElitesEnabled() && RaidEnemyRegistry.isEliteWave(raidDifficulty, wave))
         {
-            int wave = this.getGroupsSpawned();
-            int eliteTier = RaidEnemyRegistry.getEliteWaveTier(this.level.getDifficulty(), wave);
+            EntityType<?> eliteType = RaidEnemyRegistry.getRandomElite(raidDifficulty, wave); //DifficultRaidsEntityTypes.NUAOS_ELITE.get();
 
-            //TODO: Remove when reworking waves
-            if(raidDifficulty.is(RaidDifficulty.LEGEND) && eliteTier == 2) eliteTier = 1;
+            Entity elite = eliteType.create(this.level);
 
-            if(eliteTier != -1) //TODO: Remove after Elite Testing is done
-            {
-                EntityType<?> eliteType = RaidEnemyRegistry.getRandomElite(eliteTier); //DifficultRaidsEntityTypes.NUAOS_ELITE.get();
-                Entity elite = eliteType.create(this.level);
-                if(elite instanceof Raider raider) this.joinRaid(wave, raider, spawnPos, false);
-                else LOGGER.error("Failed to spawn Raid Elite! {EntityType: " + eliteType.toShortString() + "}, Wave {" + wave + "}, Elite Tier: {" + eliteTier + "}, Difficulty {" + this.level.getDifficulty() + "}");
-            }
+            if(elite instanceof Raider raider) this.joinRaid(wave, raider, spawnPos, false);
+            else LOGGER.error("Failed to spawn Raid Elite! {EntityType: " + eliteType.toShortString() + "}, Wave {" + wave + "}, Difficulty {" + this.level.getDifficulty() + "}");
         }
     }
 
@@ -196,7 +137,7 @@ public abstract class RaidMixin
         boolean isEnabled = RaidEnemyRegistry.isRaiderTypeEnabled(raiderType.toString());
 
         //Disable GuardVillagers Illusioner spawns
-        if(!isDefault && DifficultRaidsUtil.isGuardVillagersLoaded() && raiderType.toString().equalsIgnoreCase("thebluemengroup"))
+        if(!isDefault && raiderType.toString().equalsIgnoreCase("thebluemengroup"))
             callbackInfoReturnable.setReturnValue(0);
         //Check if the Raider Type is enabled
         else if(isRegistered && !isEnabled) callbackInfoReturnable.setReturnValue(0);

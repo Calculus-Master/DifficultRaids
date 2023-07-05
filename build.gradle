@@ -29,7 +29,7 @@ apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
 
 
-version = '2.0-beta.1'
+version = '2.0-beta.2'
 group = 'com.calculusmaster.difficultraids'
 archivesBaseName = 'difficultraids-1.19.2'
 
@@ -162,19 +162,25 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
-    //Guard Villagers 1.19.2 1.5.2
+    //Guard Villagers 1.5.2
     implementation fg.deobf("curse.maven:guardvillagers-360203:3970122")
 
-    //Hunter Illager 1.19.2 6.0.2
+    //Hunter Illager 6.0.2
     implementation fg.deobf("curse.maven:hunterillager-318857:4034397")
 
-    //Enchant with Mob 1.19.2 6.4.1
+    //Enchant with Mob 6.4.1
     compileOnly fg.deobf("curse.maven:enchantwithmob-391187:4026539")
 
-    //Mob Entity Path Visualizer 1.19.2 1.1.0-release.6
+    //Illage & Spillage 1.2.4
+    implementation fg.deobf("curse.maven:illage-and-spillage-576368:4263798")
+
+    //It Takes a Pillage 1.0.3
+    implementation fg.deobf("curse.maven:it-takes-a-pillage-635843:4388334")
+
+    //Mob Entity Path Visualizer 1.1.0-release.6
     runtimeOnly fg.deobf("curse.maven:mob-entity-path-visualizer-590716:4063117")
 
-    //Enchantment Descriptions 1.19.2 13.0.3 + Bookshelf 1.18.2 16.1.5
+    //Enchantment Descriptions 13.0.3 + Bookshelf 16.1.5
     runtimeOnly fg.deobf("curse.maven:enchantmentdescriptions-250419:3955030")
     runtimeOnly fg.deobf("curse.maven:bookshelf-228525:3964325")
 

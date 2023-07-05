@@ -14,8 +14,11 @@
     "VexMixin",
     "VillagerMixin",
     "VindicatorMixin",
+    "compat.ArcherMixin",
     "compat.GuardMixin",
     "compat.HunterIllagerMixin",
+    "compat.LegionerMixin",
+    "compat.SkirmisherMixin",
     "illusioner.IllusionerBlindnessSpellGoalMixin",
     "illusioner.IllusionerMirrorSpellGoalMixin"
   ],

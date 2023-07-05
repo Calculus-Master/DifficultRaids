@@ -63,8 +63,6 @@ public class DifficultRaids
     {
         RaidEnemyRegistry.registerRaiders();
         RaidEnemyRegistry.registerWaves();
-        RaidEnemyRegistry.registerReinforcements();
-        RaidEnemyRegistry.registerElites();
 
         RaidLoot.registerLoot();
 
