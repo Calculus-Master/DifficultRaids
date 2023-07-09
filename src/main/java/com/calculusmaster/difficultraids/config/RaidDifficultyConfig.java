@@ -33,6 +33,9 @@ public class RaidDifficultyConfig
     public RaiderConfigs.Archer archer;
     public RaiderConfigs.Skirmisher skirmisher;
     public RaiderConfigs.Legioner legioner;
+    public RaiderConfigs.Executioner executioner;
+    public RaiderConfigs.Mountaineer mountaineer;
+    public RaiderConfigs.RoyalGuard royalguard;
 
     //Translate ForgeConfigSpec values into usable variables
     public void init()
@@ -62,5 +65,8 @@ public class RaidDifficultyConfig
         this.archer.initialize();
         this.skirmisher.initialize();
         this.legioner.initialize();
+        this.executioner.initialize();
+        this.mountaineer.initialize();
+        this.royalguard.initialize();
     }
 }

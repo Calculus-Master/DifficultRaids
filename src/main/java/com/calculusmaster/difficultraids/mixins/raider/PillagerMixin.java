@@ -1,4 +1,4 @@
-package com.calculusmaster.difficultraids.mixins;
+package com.calculusmaster.difficultraids.mixins.raider;
 
 import com.calculusmaster.difficultraids.config.RaidDifficultyConfig;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;

@@ -2,6 +2,9 @@ package com.calculusmaster.difficultraids.raids;
 
 import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
+import com.calculusmaster.difficultraids.util.Compat;
+import com.infamous.dungeons_mobs.mod.ModEntityTypes;
+import com.teamabnormals.savage_and_ravage.core.registry.SREntityTypes;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.entity.raid.Raider;
@@ -49,11 +52,39 @@ public class RaidEnemyRegistry
     public static final String SKIRMISHER = "SKIRMISHER";
     public static final String LEGIONER = "LEGIONER";
 
+    //Illage & Spillage
+    public static final String IGNITER = "entity.illageandspillage.igniter".toUpperCase();
+    public static final String TWITTOLLAGER = "entity.illageandspillage.twittollager".toUpperCase();
+    public static final String PRESERVER = "entity.illageandspillage.preserver".toUpperCase();
+    public static final String ABSORBER = "entity.illageandspillage.absorber".toUpperCase();
+    public static final String CROCOFANG = "entity.illageandspillage.crocofang".toUpperCase();
+    public static final String MAGISPELLER = "entity.illageandspillage.magispeller".toUpperCase();
+    public static final String SPIRITCALLER = "entity.illageandspillage.spiritcaller".toUpperCase();
+    public static final String FREAKAGER = "entity.illageandspillage.freakager".toUpperCase();
+    public static final String BOSS_RANDOMIZER = "entity.illageandspillage.boss_randomizer".toUpperCase();
+
+    //Savage and Ravage
+    public static final String GRIEFER = "GRIEFER";
+    public static final String EXECUTIONER = "EXECUTIONER";
+    public static final String TRICKSTER = "TRICKSTER";
+    public static final String ICEOLOGER_SR = "SR_ICEOLOGER";
+
+    //Dungeons Mobs
+    public static final String MOUNTAINEER = "mountaineer".toUpperCase();
+    public static final String ROYAL_GUARD = "royal_guard".toUpperCase();
+    public static final String GEOMANCER = "geomancer".toUpperCase();
+    public static final String ILLUSIONER_DM = "DM_ILLUSIONER";
+    public static final String MAGE = "mage".toUpperCase();
+    public static final String ICEOLOGER_DM = "iceologer".toUpperCase();
+    public static final String WINDCALLER = "windcaller".toUpperCase();
+    public static final String SQUALL_GOLEM = "squall_golem".toUpperCase();
+    public static final String REDSTONE_GOLEM = "redstone_golem".toUpperCase();
+
     private static final int[] BLANK = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
 
     public static boolean isRaiderTypeEnabled(String raiderType)
     {
-        return !DifficultRaidsConfig.ENABLED_RAIDERS.containsKey(raiderType.toUpperCase()) || DifficultRaidsConfig.ENABLED_RAIDERS.get(raiderType.toUpperCase()).get();
+        return DifficultRaidsConfig.ENABLED_RAIDERS.containsKey(raiderType.toUpperCase()) && DifficultRaidsConfig.ENABLED_RAIDERS.get(raiderType.toUpperCase()).get();
     }
 
     public static boolean isRaiderTypeRegistered(String raiderType)
@@ -77,6 +108,10 @@ public class RaidEnemyRegistry
         RaidEnemyRegistry.createRaiderType(XYDRAX, XYDRAX_ELITE.get());
         RaidEnemyRegistry.createRaiderType(MODUR, MODUR_ELITE.get());
         RaidEnemyRegistry.createRaiderType(VOLDON, VOLDON_ELITE.get());
+
+        //Compatibility
+        if(Compat.SAVAGE_AND_RAVAGE.isLoaded()) RaidEnemyRegistry.createRaiderType(ICEOLOGER_SR, SREntityTypes.ICEOLOGER.get());
+        if(Compat.DUNGEONS_MOBS.isLoaded()) RaidEnemyRegistry.createRaiderType(ILLUSIONER_DM, ModEntityTypes.ILLUSIONER.get());
     }
 
     private static void createRaiderType(String typeName, EntityType<? extends Raider> type)
@@ -106,6 +141,28 @@ public class RaidEnemyRegistry
                 .withRaider(FROSTMAGE,          new int[]{0, 0, 0, 0, 0, 0, 0, 0})
                 .withRaider(SHAMAN,             new int[]{0, 0, 0, 0, 0, 0, 0, 0})
                 .withRaider(ENCHANTER,          new int[]{0, 0, 1, 0, 1, 1, 2, 1})
+                .withRaider(IGNITER,            new int[]{0, 0, 1, 2, 0, 2, 1, 4})
+                .withRaider(TWITTOLLAGER,       new int[]{0, 0, 0, 0, 1, 0, 2, 1})
+                .withRaider(PRESERVER,          new int[]{0, 0, 0, 1, 2, 0, 3, 4})
+                .withRaider(ABSORBER,           new int[]{0, 0, 0, 0, 1, 0, 0, 2})
+                .withRaider(CROCOFANG,          new int[]{0, 0, 1, 0, 1, 2, 1, 3})
+                .withRaider(MAGISPELLER,        new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(SPIRITCALLER,       new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(FREAKAGER,          new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(BOSS_RANDOMIZER,    new int[]{0, 0, 0, 0, 1, 0, 0, 1})
+                .withRaider(GRIEFER,            new int[]{0, 1, 0, 1, 2, 2, 3, 2})
+                .withRaider(EXECUTIONER,        new int[]{0, 0, 1, 0, 0, 1, 2, 2})
+                .withRaider(TRICKSTER,          new int[]{0, 0, 0, 0, 0, 1, 1, 2})
+                .withRaider(ICEOLOGER_SR,       new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(MOUNTAINEER,        new int[]{0, 0, 2, 0, 1, 4, 2, 5})
+                .withRaider(ROYAL_GUARD,        new int[]{0, 0, 1, 0, 0, 2, 1, 2})
+                .withRaider(GEOMANCER,          new int[]{0, 0, 0, 0, 0, 1, 1, 2})
+                .withRaider(ILLUSIONER_DM,      new int[]{0, 0, 0, 0, 0, 1, 1, 2})
+                .withRaider(MAGE,               new int[]{0, 0, 1, 0, 0, 1, 0, 2})
+                .withRaider(ICEOLOGER_DM,       new int[]{0, 0, 0, 0, 0, 1, 1, 2})
+                .withRaider(WINDCALLER,         new int[]{0, 0, 0, 0, 0, 1, 1, 2})
+                .withRaider(SQUALL_GOLEM,       new int[]{0, 0, 0, 1, 0, 1, 0, 2})
+                .withRaider(REDSTONE_GOLEM,     new int[]{0, 0, 0, 0, 0, 0, 0, 1})
                 .register();
 
         RaidEnemyRegistry.createWavesFor(RaidDifficulty.HERO)
@@ -128,6 +185,28 @@ public class RaidEnemyRegistry
                 .withRaider(FROSTMAGE,          new int[]{0, 0, 0, 0, 0, 1, 0, 0})
                 .withRaider(SHAMAN,             new int[]{0, 0, 0, 1, 0, 0, 1, 1})
                 .withRaider(ENCHANTER,          new int[]{0, 0, 1, 1, 1, 1, 0, 1})
+                .withRaider(IGNITER,            new int[]{0, 0, 1, 2, 2, 2, 2, 4})
+                .withRaider(TWITTOLLAGER,       new int[]{0, 0, 1, 1, 2, 0, 2, 2})
+                .withRaider(PRESERVER,          new int[]{0, 1, 0, 1, 2, 1, 3, 4})
+                .withRaider(ABSORBER,           new int[]{0, 0, 1, 0, 1, 0, 0, 2})
+                .withRaider(CROCOFANG,          new int[]{0, 0, 1, 1, 2, 3, 1, 3})
+                .withRaider(MAGISPELLER,        new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(SPIRITCALLER,       new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(FREAKAGER,          new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(BOSS_RANDOMIZER,    new int[]{0, 0, 0, 1, 0, 1, 0, 1})
+                .withRaider(GRIEFER,            new int[]{0, 1, 1, 2, 2, 2, 3, 3})
+                .withRaider(EXECUTIONER,        new int[]{0, 1, 1, 1, 0, 1, 2, 2})
+                .withRaider(TRICKSTER,          new int[]{0, 0, 1, 0, 1, 1, 1, 2})
+                .withRaider(ICEOLOGER_SR,       new int[]{0, 0, 0, 1, 0, 1, 0, 1})
+                .withRaider(MOUNTAINEER,        new int[]{0, 1, 3, 1, 1, 4, 2, 5})
+                .withRaider(ROYAL_GUARD,        new int[]{0, 1, 1, 1, 1, 2, 1, 2})
+                .withRaider(GEOMANCER,          new int[]{0, 0, 1, 1, 0, 2, 1, 2})
+                .withRaider(ILLUSIONER_DM,      new int[]{0, 0, 1, 0, 1, 1, 1, 2})
+                .withRaider(MAGE,               new int[]{0, 0, 1, 1, 0, 2, 0, 2})
+                .withRaider(ICEOLOGER_DM,       new int[]{0, 0, 0, 1, 0, 1, 0, 1})
+                .withRaider(WINDCALLER,         new int[]{0, 0, 1, 1, 0, 2, 1, 2})
+                .withRaider(SQUALL_GOLEM,       new int[]{0, 0, 1, 1, 1, 1, 0, 2})
+                .withRaider(REDSTONE_GOLEM,     new int[]{0, 0, 0, 1, 0, 1, 0, 1})
                 .withEliteWave(5, NUAOS_ELITE.get())
                 .withEliteWave(7, NUAOS_ELITE.get(), VOLDON_ELITE.get())
                 .register();
@@ -152,6 +231,28 @@ public class RaidEnemyRegistry
                 .withRaider(FROSTMAGE,          new int[]{0, 0, 0, 0, 2, 2, 0, 1})
                 .withRaider(SHAMAN,             new int[]{0, 0, 1, 1, 1, 2, 2, 3})
                 .withRaider(ENCHANTER,          new int[]{0, 1, 2, 0, 0, 2, 0, 2})
+                .withRaider(IGNITER,            new int[]{0, 2, 2, 3, 2, 3, 2, 5})
+                .withRaider(TWITTOLLAGER,       new int[]{0, 1, 2, 1, 2, 1, 2, 3})
+                .withRaider(PRESERVER,          new int[]{0, 1, 1, 2, 2, 2, 4, 4})
+                .withRaider(ABSORBER,           new int[]{0, 0, 1, 1, 2, 0, 1, 2})
+                .withRaider(CROCOFANG,          new int[]{0, 1, 2, 1, 2, 3, 2, 4})
+                .withRaider(MAGISPELLER,        new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(SPIRITCALLER,       new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(FREAKAGER,          new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(BOSS_RANDOMIZER,    new int[]{0, 0, 1, 0, 0, 1, 1, 1})
+                .withRaider(GRIEFER,            new int[]{0, 1, 2, 2, 3, 2, 3, 3})
+                .withRaider(EXECUTIONER,        new int[]{0, 1, 2, 1, 1, 2, 2, 3})
+                .withRaider(TRICKSTER,          new int[]{0, 0, 1, 0, 1, 2, 2, 3})
+                .withRaider(ICEOLOGER_SR,       new int[]{0, 0, 1, 2, 0, 2, 0, 2})
+                .withRaider(MOUNTAINEER,        new int[]{0, 2, 3, 2, 2, 5, 2, 6})
+                .withRaider(ROYAL_GUARD,        new int[]{0, 1, 2, 2, 1, 4, 1, 4})
+                .withRaider(GEOMANCER,          new int[]{0, 1, 1, 2, 1, 2, 1, 3})
+                .withRaider(ILLUSIONER_DM,      new int[]{0, 0, 1, 2, 1, 3, 1, 3})
+                .withRaider(MAGE,               new int[]{0, 1, 1, 1, 0, 2, 1, 3})
+                .withRaider(ICEOLOGER_DM,       new int[]{0, 0, 1, 2, 0, 2, 0, 2})
+                .withRaider(WINDCALLER,         new int[]{0, 1, 1, 2, 1, 2, 1, 3})
+                .withRaider(SQUALL_GOLEM,       new int[]{0, 1, 1, 2, 1, 2, 1, 2})
+                .withRaider(REDSTONE_GOLEM,     new int[]{0, 1, 1, 1, 1, 1, 1, 1})
                 .withEliteWave(3, NUAOS_ELITE.get(), VOLDON_ELITE.get())
                 .withEliteWave(5, VOLDON_ELITE.get(), XYDRAX_ELITE.get(), MODUR_ELITE.get())
                 .withEliteWave(7, NUAOS_ELITE.get(), VOLDON_ELITE.get(), XYDRAX_ELITE.get(), MODUR_ELITE.get())
@@ -169,7 +270,7 @@ public class RaidEnemyRegistry
                 .withRaider(ARCHER,             new int[]{0, 3, 3, 5, 4, 5, 5, 7})
                 .withRaider(WITCH,              new int[]{0, 1, 3, 5, 4, 5, 3, 3})
                 .withRaider(RAVAGER,            new int[]{0, 1, 1, 1, 0, 3, 1, 3})
-                .withRaider(ILLUSIONER,         new int[]{0, 0, 1, 2, 1, 0, 2, 0})
+                .withRaider(ILLUSIONER,         new int[]{0, 1, 1, 2, 1, 1, 2, 3})
                 .withRaider(ASSASSIN,           new int[]{0, 2, 2, 2, 2, 2, 2, 2})
                 .withRaider(EVOKER,             new int[]{0, 1, 2, 3, 4, 1, 1, 3})
                 .withRaider(CONDUCTOR,          new int[]{0, 1, 2, 0, 1, 2, 2, 3})
@@ -177,6 +278,28 @@ public class RaidEnemyRegistry
                 .withRaider(FROSTMAGE,          new int[]{0, 1, 0, 0, 1, 2, 4, 3})
                 .withRaider(SHAMAN,             new int[]{0, 2, 2, 2, 2, 3, 3, 3})
                 .withRaider(ENCHANTER,          new int[]{0, 1, 1, 1, 1, 1, 1, 3})
+                .withRaider(IGNITER,            new int[]{0, 3, 2, 4, 3, 4, 3, 6})
+                .withRaider(TWITTOLLAGER,       new int[]{0, 1, 3, 1, 3, 2, 2, 3})
+                .withRaider(PRESERVER,          new int[]{0, 2, 2, 2, 2, 2, 4, 4})
+                .withRaider(ABSORBER,           new int[]{0, 1, 1, 1, 2, 1, 1, 3})
+                .withRaider(CROCOFANG,          new int[]{0, 2, 2, 3, 2, 4, 2, 5})
+                .withRaider(MAGISPELLER,        new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(SPIRITCALLER,       new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(FREAKAGER,          new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(BOSS_RANDOMIZER,    new int[]{0, 0, 1, 1, 0, 1, 1, 1})
+                .withRaider(GRIEFER,            new int[]{0, 2, 3, 2, 3, 3, 3, 4})
+                .withRaider(EXECUTIONER,        new int[]{0, 2, 2, 2, 3, 2, 3, 4})
+                .withRaider(TRICKSTER,          new int[]{0, 1, 2, 1, 2, 2, 2, 3})
+                .withRaider(ICEOLOGER_SR,       new int[]{0, 1, 2, 3, 1, 3, 1, 3})
+                .withRaider(MOUNTAINEER,        new int[]{0, 3, 4, 5, 2, 7, 4, 7})
+                .withRaider(ROYAL_GUARD,        new int[]{0, 2, 2, 3, 2, 4, 3, 5})
+                .withRaider(GEOMANCER,          new int[]{0, 2, 1, 3, 2, 3, 1, 3})
+                .withRaider(ILLUSIONER_DM,      new int[]{0, 1, 2, 2, 2, 3, 2, 3})
+                .withRaider(MAGE,               new int[]{0, 1, 2, 2, 1, 3, 1, 3})
+                .withRaider(ICEOLOGER_DM,       new int[]{0, 1, 2, 3, 1, 3, 1, 3})
+                .withRaider(WINDCALLER,         new int[]{0, 1, 2, 3, 2, 3, 2, 3})
+                .withRaider(SQUALL_GOLEM,       new int[]{0, 1, 2, 2, 2, 3, 2, 3})
+                .withRaider(REDSTONE_GOLEM,     new int[]{0, 1, 1, 2, 1, 2, 1, 2})
                 .withEliteWave(1, NUAOS_ELITE.get(), VOLDON_ELITE.get())
                 .withEliteWave(3, NUAOS_ELITE.get(), VOLDON_ELITE.get(), XYDRAX_ELITE.get(), MODUR_ELITE.get())
                 .withEliteWave(5, XYDRAX_ELITE.get(), MODUR_ELITE.get())
@@ -196,7 +319,7 @@ public class RaidEnemyRegistry
                 .withRaider(ARCHER,             new int[]{0, 3, 3, 5, 4, 5, 5, 7})
                 .withRaider(WITCH,              new int[]{0, 1, 3, 5, 4, 5, 3, 3})
                 .withRaider(RAVAGER,            new int[]{0, 1, 1, 1, 0, 3, 1, 3})
-                .withRaider(ILLUSIONER,         new int[]{0, 0, 1, 2, 1, 0, 2, 0})
+                .withRaider(ILLUSIONER,         new int[]{0, 0, 1, 2, 1, 1, 2, 3})
                 .withRaider(ASSASSIN,           new int[]{0, 2, 2, 2, 2, 2, 2, 2})
                 .withRaider(EVOKER,             new int[]{0, 1, 2, 3, 4, 1, 1, 3})
                 .withRaider(CONDUCTOR,          new int[]{0, 1, 2, 0, 1, 2, 2, 3})
@@ -204,6 +327,28 @@ public class RaidEnemyRegistry
                 .withRaider(FROSTMAGE,          new int[]{0, 1, 0, 0, 1, 2, 4, 3})
                 .withRaider(SHAMAN,             new int[]{0, 2, 2, 2, 2, 3, 3, 3})
                 .withRaider(ENCHANTER,          new int[]{0, 1, 1, 1, 1, 1, 1, 3})
+                .withRaider(IGNITER,            new int[]{0, 3, 2, 4, 3, 4, 3, 6})
+                .withRaider(TWITTOLLAGER,       new int[]{0, 1, 3, 1, 3, 2, 2, 3})
+                .withRaider(PRESERVER,          new int[]{0, 2, 2, 2, 2, 2, 4, 4})
+                .withRaider(ABSORBER,           new int[]{0, 1, 1, 1, 2, 1, 1, 3})
+                .withRaider(CROCOFANG,          new int[]{0, 2, 2, 3, 2, 4, 2, 5})
+                .withRaider(MAGISPELLER,        new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(SPIRITCALLER,       new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(FREAKAGER,          new int[]{0, 0, 0, 0, 0, 0, 0, 0})
+                .withRaider(BOSS_RANDOMIZER,    new int[]{0, 1, 1, 1, 1, 1, 1, 1})
+                .withRaider(GRIEFER,            new int[]{0, 2, 3, 2, 3, 3, 3, 4})
+                .withRaider(EXECUTIONER,        new int[]{0, 2, 2, 2, 3, 2, 3, 4})
+                .withRaider(TRICKSTER,          new int[]{0, 1, 2, 1, 2, 2, 2, 3})
+                .withRaider(ICEOLOGER_SR,       new int[]{0, 1, 2, 3, 1, 3, 1, 3})
+                .withRaider(MOUNTAINEER,        new int[]{0, 3, 4, 5, 2, 7, 4, 7})
+                .withRaider(ROYAL_GUARD,        new int[]{0, 2, 2, 3, 2, 4, 3, 5})
+                .withRaider(GEOMANCER,          new int[]{0, 2, 1, 3, 2, 3, 1, 3})
+                .withRaider(ILLUSIONER_DM,      new int[]{0, 1, 2, 2, 2, 3, 2, 3})
+                .withRaider(MAGE,               new int[]{0, 1, 2, 2, 1, 3, 1, 3})
+                .withRaider(ICEOLOGER_DM,       new int[]{0, 1, 2, 3, 1, 3, 1, 3})
+                .withRaider(WINDCALLER,         new int[]{0, 1, 2, 3, 2, 3, 2, 3})
+                .withRaider(SQUALL_GOLEM,       new int[]{0, 1, 2, 2, 2, 3, 2, 3})
+                .withRaider(REDSTONE_GOLEM,     new int[]{0, 1, 1, 3, 1, 3, 1, 3})
                 .withEliteWave(1, NUAOS_ELITE.get(), VOLDON_ELITE.get(), XYDRAX_ELITE.get(), MODUR_ELITE.get())
                 .withEliteWave(2, NUAOS_ELITE.get(), VOLDON_ELITE.get(), XYDRAX_ELITE.get(), MODUR_ELITE.get())
                 .withEliteWave(3, NUAOS_ELITE.get(), VOLDON_ELITE.get(), XYDRAX_ELITE.get(), MODUR_ELITE.get())

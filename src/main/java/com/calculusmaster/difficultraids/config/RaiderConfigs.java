@@ -1845,6 +1845,164 @@ public class RaiderConfigs
         }
     }
 
+    public static class Executioner extends RaiderConfig
+    {
+        private final ForgeConfigSpec.IntValue cleaverSharpnessLevel_config;
+        public int cleaverSharpnessLevel;
+
+        private final ForgeConfigSpec.IntValue cleaverCriticalBurstLevel_config;
+        public int cleaverCriticalBurstLevel;
+
+        private final ForgeConfigSpec.DoubleValue cleaverDropChance_config;
+        public float cleaverDropChance;
+
+        public Executioner(RaidDifficulty rd, ForgeConfigSpec.Builder spec)
+        {
+            super(rd);
+
+            this.cleaverSharpnessLevel_config = spec
+                    .comment("Level of Sharpness that Executioner cleavers will be enchanted with. 0 to disable.")
+                    .defineInRange("executioner_cleaverSharpnessLevel", switch(rd)
+                    {
+                        case DEFAULT, HERO -> 3;
+                        case LEGEND, MASTER -> 4;
+                        case GRANDMASTER -> 5;
+                    }, 0, Integer.MAX_VALUE);
+
+            this.cleaverCriticalBurstLevel_config = spec
+                    .comment("Level of Critical Burst that Executioner cleavers will be enchanted with. 0 to disable.")
+                    .defineInRange("executioner_cleaverCriticalBurstLevel", switch(rd)
+                    {
+                        case DEFAULT, HERO -> 5;
+                        case LEGEND -> 6;
+                        case MASTER -> 8;
+                        case GRANDMASTER -> 10;
+                    }, 0, Integer.MAX_VALUE);
+
+            this.cleaverDropChance_config = spec
+                    .comment("Chance that Executioners will drop their cleaver when killed.")
+                    .defineInRange("executioner_cleaverDropChance", 0.15F, 0., 1.);
+        }
+
+        @Override
+        public void initialize()
+        {
+            this.cleaverSharpnessLevel = this.cleaverSharpnessLevel_config.get();
+            this.cleaverCriticalBurstLevel = this.cleaverCriticalBurstLevel_config.get();
+            this.cleaverDropChance = this.cleaverDropChance_config.get().floatValue();
+        }
+    }
+
+    public static class Mountaineer extends RaiderConfig
+    {
+        private final ForgeConfigSpec.IntValue pickSharpnessLevel_config;
+        public int pickSharpnessLevel;
+
+        private final ForgeConfigSpec.IntValue pickCriticalBurstLevel_config;
+        public int pickCriticalBurstLevel;
+
+        private final ForgeConfigSpec.DoubleValue pickDropChance_config;
+        public float pickDropChance;
+
+        public Mountaineer(RaidDifficulty rd, ForgeConfigSpec.Builder spec)
+        {
+            super(rd);
+
+            this.pickSharpnessLevel_config = spec
+                    .comment("Level of Sharpness that Mountaineer picks will be enchanted with. 0 to disable.")
+                    .defineInRange("mountaineer_pickSharpnessLevel", switch(rd)
+                    {
+                        case DEFAULT, HERO -> 1;
+                        case LEGEND -> 2;
+                        case MASTER -> 3;
+                        case GRANDMASTER -> 4;
+                    }, 0, Integer.MAX_VALUE);
+
+            this.pickCriticalBurstLevel_config = spec
+                    .comment("Level of Critical Burst that Mountaineer picks will be enchanted with. 0 to disable.")
+                    .defineInRange("mountaineer_pickCriticalBurstLevel", switch(rd)
+                    {
+                        case DEFAULT, HERO -> 3;
+                        case LEGEND -> 5;
+                        case MASTER -> 6;
+                        case GRANDMASTER -> 8;
+                    }, 0, Integer.MAX_VALUE);
+
+            this.pickDropChance_config = spec
+                    .comment("Chance that Mountaineers will drop their pick when killed.")
+                    .defineInRange("mountaineer_pickDropChance", 0.25F, 0., 1.);
+        }
+
+        @Override
+        public void initialize()
+        {
+            this.pickSharpnessLevel = this.pickSharpnessLevel_config.get();
+            this.pickCriticalBurstLevel = this.pickCriticalBurstLevel_config.get();
+            this.pickDropChance = this.pickDropChance_config.get().floatValue();
+        }
+    }
+
+    public static class RoyalGuard extends RaiderConfig
+    {
+        private final ForgeConfigSpec.IntValue axeSharpnessLevel_config;
+        public int axeSharpnessLevel;
+
+        private final ForgeConfigSpec.IntValue axeCriticalBurstLevel_config;
+        public int axeCriticalBurstLevel;
+
+        private final ForgeConfigSpec.IntValue axeCriticalStrikeLevel_config;
+        public int axeCriticalStrikeLevel;
+
+        private final ForgeConfigSpec.DoubleValue axeDropChance_config;
+        public float axeDropChance;
+
+        public RoyalGuard(RaidDifficulty rd, ForgeConfigSpec.Builder spec)
+        {
+            super(rd);
+
+            this.axeSharpnessLevel_config = spec
+                    .comment("Level of Sharpness that Royal Guard axes will be enchanted with. 0 to disable.")
+                    .defineInRange("royalguard_axeSharpnessLevel", switch(rd)
+                    {
+                        case DEFAULT, HERO -> 3;
+                        case LEGEND, MASTER -> 4;
+                        case GRANDMASTER -> 5;
+                    }, 0, Integer.MAX_VALUE);
+
+            this.axeCriticalBurstLevel_config = spec
+                    .comment("Level of Critical Burst that Royal Guard axes will be enchanted with. 0 to disable.")
+                    .defineInRange("royalguard_axeCriticalBurstLevel", switch(rd)
+                    {
+                        case DEFAULT, HERO -> 5;
+                        case LEGEND -> 6;
+                        case MASTER -> 8;
+                        case GRANDMASTER -> 10;
+                    }, 0, Integer.MAX_VALUE);
+
+            this.axeCriticalStrikeLevel_config = spec
+                    .comment("Level of Critical Strike that Royal Guard axes will be enchanted with. 0 to disable.")
+                    .defineInRange("royalguard_axeCriticalStrikeLevel", switch(rd)
+                    {
+                        case DEFAULT, HERO -> 2;
+                        case LEGEND -> 3;
+                        case MASTER, GRANDMASTER -> 4;
+                    }, 0, Integer.MAX_VALUE);
+
+            this.axeDropChance_config = spec
+                    .comment("Chance that Royal Guards will drop their axe when killed.")
+                    .defineInRange("royalguard_axeDropChance", 0.085F, 0., 1.);
+        }
+
+        @Override
+        public void initialize()
+        {
+            this.axeSharpnessLevel = this.axeSharpnessLevel_config.get();
+            this.axeCriticalBurstLevel = this.axeCriticalBurstLevel_config.get();
+            this.axeCriticalStrikeLevel = this.axeCriticalStrikeLevel_config.get();
+            this.axeDropChance = this.axeDropChance_config.get().floatValue();
+        }
+    }
+
     private static abstract class RaiderConfig
     {
         protected RaidDifficulty rd;

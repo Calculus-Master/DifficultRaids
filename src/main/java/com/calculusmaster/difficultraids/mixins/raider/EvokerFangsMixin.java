@@ -1,4 +1,4 @@
-package com.calculusmaster.difficultraids.mixins;
+package com.calculusmaster.difficultraids.mixins.raider;
 
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import net.minecraft.world.damagesource.DamageSource;

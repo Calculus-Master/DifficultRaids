@@ -1,4 +1,4 @@
-package com.calculusmaster.difficultraids.mixins;
+package com.calculusmaster.difficultraids.mixins.raider;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.DifficultyInstance;

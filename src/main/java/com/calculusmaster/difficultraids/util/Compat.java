@@ -10,6 +10,7 @@ public enum Compat
     IT_TAKES_A_PILLAGE("takesapillage"),
     ILLAGE_AND_SPILLAGE("illageandspillage"),
     SAVAGE_AND_RAVAGE("savage_and_ravage"),
+    DUNGEONS_MOBS("dungeons_mobs"),
 
     ;
 

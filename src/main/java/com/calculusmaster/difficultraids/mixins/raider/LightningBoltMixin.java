@@ -1,4 +1,4 @@
-package com.calculusmaster.difficultraids.mixins;
+package com.calculusmaster.difficultraids.mixins.raider;
 
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import net.minecraft.world.entity.Entity;

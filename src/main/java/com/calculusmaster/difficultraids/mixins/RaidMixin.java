@@ -127,6 +127,7 @@ public abstract class RaidMixin
     private void difficultraids_getDefaultNumSpawns(Raid.RaiderType raiderType, int groupsSpawned, boolean spawnBonusGroup, CallbackInfoReturnable<Integer> callbackInfoReturnable)
     {
         RaidDifficulty raidDifficulty = RaidDifficulty.get(this.getBadOmenLevel());
+        LogUtils.getLogger().info("Checking spawn count for " + raiderType.toString());
 
         boolean isDefault = raidDifficulty.isDefault();
         boolean isRegistered = RaidEnemyRegistry.isRaiderTypeRegistered(raiderType.toString());
@@ -135,6 +136,10 @@ public abstract class RaidMixin
         //Disable GuardVillagers Illusioner spawns
         if(!isDefault && raiderType.toString().equalsIgnoreCase("thebluemengroup"))
             callbackInfoReturnable.setReturnValue(0);
+        //Disable the regular Dungeons Mobs Illusioner spawns (replaced by a custom re-registration of the RaiderType)
+        else if(!isDefault && raiderType.toString().equals("illusioner"))
+            callbackInfoReturnable.setReturnValue(0);
+
         //Check if the Raider Type is enabled
         else if(isRegistered && !isEnabled) callbackInfoReturnable.setReturnValue(0);
         //Add default compatibility with other mods, so if a new raider type isn't in the registry the game won't crash

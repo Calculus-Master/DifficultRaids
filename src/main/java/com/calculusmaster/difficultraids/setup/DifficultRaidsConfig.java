@@ -72,6 +72,28 @@ public class DifficultRaidsConfig
         ENABLED_RAIDERS.put(RaidEnemyRegistry.ARCHER, GENERAL.comment("If It Takes a Pillage is installed.").define("enableArchers", true));
         ENABLED_RAIDERS.put(RaidEnemyRegistry.SKIRMISHER, GENERAL.comment("If It Takes a Pillage is installed.").define("enableSkirmishers", true));
         ENABLED_RAIDERS.put(RaidEnemyRegistry.LEGIONER, GENERAL.comment("If It Takes a Pillage is installed.").define("enableLegioners", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.IGNITER, GENERAL.comment("If Illage & Spillage is installed.").define("enableIgniters", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.TWITTOLLAGER, GENERAL.comment("If Illage & Spillage is installed.").define("enableTwittollagers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.PRESERVER, GENERAL.comment("If Illage & Spillage is installed.").define("enablePreservers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.ABSORBER, GENERAL.comment("If Illage & Spillage is installed.").define("enableAbsorbers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.CROCOFANG, GENERAL.comment("If Illage & Spillage is installed.").define("enableCrocofangs", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.MAGISPELLER, GENERAL.comment("If Illage & Spillage is installed.").define("enableMagispellers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.SPIRITCALLER, GENERAL.comment("If Illage & Spillage is installed.").define("enableSpiritcallers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.FREAKAGER, GENERAL.comment("If Illage & Spillage is installed.").define("enableFreakagers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.BOSS_RANDOMIZER, GENERAL.comment("If Illage & Spillage is installed.").define("enableBossRandomizers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.GRIEFER, GENERAL.comment("If Savage and Ravage is installed.").define("enableGriefers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.EXECUTIONER, GENERAL.comment("If Savage and Ravage is installed.").define("enableExecutioners", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.TRICKSTER, GENERAL.comment("If Savage and Ravage is installed.").define("enableTricksters", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.ICEOLOGER_SR, GENERAL.comment("If Savage and Ravage is installed.").define("enableSavageRavageIceologers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.MOUNTAINEER, GENERAL.comment("If Dungeon Mobs is installed.").define("enableMountaineers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.ROYAL_GUARD, GENERAL.comment("If Dungeon Mobs is installed.").define("enableRoyalGuards", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.GEOMANCER, GENERAL.comment("If Dungeon Mobs is installed.").define("enableGeomancers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.ILLUSIONER_DM, GENERAL.comment("If Dungeon Mobs is installed.").define("enableDungeonMobsIllusioners", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.MAGE, GENERAL.comment("If Dungeon Mobs is installed.").define("enableMages", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.ICEOLOGER_DM, GENERAL.comment("If Dungeon Mobs is installed.").define("enableDungeonMobsIceologers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.WINDCALLER, GENERAL.comment("If Dungeon Mobs is installed.").define("enableWindcallers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.SQUALL_GOLEM, GENERAL.comment("If Dungeon Mobs is installed.").define("enableSquallGolems", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.REDSTONE_GOLEM, GENERAL.comment("If Dungeon Mobs is installed.").define("enableRedstoneGolems", true));
 
         GENERAL.pop();
 
@@ -203,6 +225,21 @@ public class DifficultRaidsConfig
             //Legioner
             spec.comment("REQUIRES 'It Takes a Pillage'").push("Legioner Settings");
             config.legioner = new RaiderConfigs.Legioner(rd, spec);
+            spec.pop();
+
+            //Executioner
+            spec.comment("REQUIRES 'Savage and Ravage'").push("Executioner Settings");
+            config.executioner = new RaiderConfigs.Executioner(rd, spec);
+            spec.pop();
+
+            //Mountaineer
+            spec.comment("REQUIRES 'Dungeon Mobs'").push("Mountaineer Settings");
+            config.mountaineer = new RaiderConfigs.Mountaineer(rd, spec);
+            spec.pop();
+
+            //Royal Guard
+            spec.comment("REQUIRES 'Dungeon Mobs'").push("Royal Guard Settings");
+            config.royalguard = new RaiderConfigs.RoyalGuard(rd, spec);
             spec.pop();
 
             spec.pop();
