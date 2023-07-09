@@ -1,5 +1,6 @@
 package com.calculusmaster.difficultraids.entity.entities.raider;
 
+import com.calculusmaster.difficultraids.config.RaidDifficultyConfig;
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractVindicatorVariant;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsEnchantments;
@@ -18,19 +19,12 @@ import net.minecraft.world.entity.monster.AbstractIllager;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raider;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class WarriorIllagerEntity extends AbstractVindicatorVariant
 {
@@ -63,60 +57,27 @@ public class WarriorIllagerEntity extends AbstractVindicatorVariant
     public void applyRaidBuffs(int p_37844_, boolean p_37845_)
     {
         RaidDifficulty raidDifficulty = this.getRaidDifficulty();
+        RaidDifficultyConfig cfg = raidDifficulty.config();
 
-        List<Item> swordPool = switch(raidDifficulty) {
-            case DEFAULT -> List.of(Items.STONE_SWORD);
-            case HERO -> List.of(Items.IRON_SWORD);
-            case LEGEND -> List.of(Items.IRON_SWORD, Items.DIAMOND_SWORD);
-            case MASTER -> List.of(Items.IRON_SWORD, Items.DIAMOND_SWORD, Items.NETHERITE_SWORD);
-            case GRANDMASTER -> List.of(Items.NETHERITE_SWORD);
-        };
-
-        ItemStack sword = new ItemStack(swordPool.get(this.random.nextInt(swordPool.size())));
+        ItemStack sword = new ItemStack(cfg.warrior.getSword());
 
         if(!raidDifficulty.isDefault())
         {
-            Map<Enchantment, Integer> enchants = new HashMap<>();
-
             //Sharpness
-            if(this.random.nextInt() < 0.75)
-            {
-                enchants.put(Enchantments.SHARPNESS, switch(raidDifficulty) {
-                    case DEFAULT -> 0;
-                    case HERO, LEGEND -> 1;
-                    case MASTER -> 2;
-                    case GRANDMASTER -> 3;
-                });
-            }
+            sword.enchant(Enchantments.SHARPNESS, cfg.warrior.sharpnessLevel);
 
             //Fire Aspect
-            if(raidDifficulty.is(RaidDifficulty.LEGEND, RaidDifficulty.MASTER, RaidDifficulty.GRANDMASTER))
-            {
-                enchants.put(Enchantments.FIRE_ASPECT, switch(raidDifficulty) {
-                    case LEGEND -> 1;
-                    case MASTER -> 2;
-                    case GRANDMASTER -> 3;
-                    default -> 0;
-                });
-            }
+            if(this.random.nextFloat() < cfg.warrior.fireAspectChance)
+                sword.enchant(Enchantments.FIRE_ASPECT, cfg.warrior.fireAspectLevel);
 
             //Knockback
-            if(raidDifficulty.is(RaidDifficulty.LEGEND, RaidDifficulty.MASTER, RaidDifficulty.GRANDMASTER))
-            {
-                enchants.put(Enchantments.KNOCKBACK, switch(raidDifficulty) {
-                    case LEGEND -> 1;
-                    case MASTER -> 2;
-                    case GRANDMASTER -> 3;
-                    default -> 0;
-                });
-            }
+            if(this.random.nextFloat() < cfg.warrior.knockbackChance)
+                sword.enchant(Enchantments.KNOCKBACK, cfg.warrior.knockbackLevel);
 
             //Critical Strike
-            if(raidDifficulty.is(RaidDifficulty.MASTER, RaidDifficulty.GRANDMASTER)) enchants.put(DifficultRaidsEnchantments.CRITICAL_STRIKE.get(), raidDifficulty.is(RaidDifficulty.MASTER) ? 1 : 2);
+            sword.enchant(DifficultRaidsEnchantments.CRITICAL_STRIKE.get(), cfg.warrior.criticalStrikeLevel);
 
-            enchants.put(Enchantments.VANISHING_CURSE, 1);
-
-            EnchantmentHelper.setEnchantments(enchants, sword);
+            this.setDropChance(EquipmentSlot.MAINHAND, cfg.warrior.swordDropChance);
         }
 
         this.setItemSlot(EquipmentSlot.MAINHAND, sword);

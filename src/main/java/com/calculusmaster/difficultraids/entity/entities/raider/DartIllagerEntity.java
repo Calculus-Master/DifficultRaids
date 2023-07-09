@@ -25,19 +25,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class DartIllagerEntity extends AbstractVindicatorVariant
 {
-    //TODO: Remove Dart Illagers
     private static final AttributeModifier LAST_RESORT_MOVEMENT_BOOST = new AttributeModifier("last_resort_movement_boost", 1.5, AttributeModifier.Operation.MULTIPLY_BASE);
     private static final AttributeModifier CONDUCTOR_LIGHTNING_MOVEMENT_BOOST = new AttributeModifier("conductor_lightining_movement_boost", 1.2, AttributeModifier.Operation.MULTIPLY_TOTAL);
 
@@ -103,17 +97,10 @@ public class DartIllagerEntity extends AbstractVindicatorVariant
     {
         ItemStack sword = new ItemStack(Items.GOLDEN_SWORD);
 
-        if(this.isInDifficultRaid())
-        {
-            Map<Enchantment, Integer> enchants = new HashMap<>();
-
-            enchants.put(Enchantments.SHARPNESS, this.getRaidDifficulty().config().dart().sharpnessLevel());
-            enchants.put(Enchantments.VANISHING_CURSE, 1);
-
-            EnchantmentHelper.setEnchantments(enchants, sword);
-        }
+        sword.enchant(Enchantments.SHARPNESS, this.config().dart.sharpnessLevel);
 
         this.setItemSlot(EquipmentSlot.MAINHAND, sword);
+        this.setDropChance(EquipmentSlot.MAINHAND, this.config().dart.swordDropChance);
     }
 
     @Nullable

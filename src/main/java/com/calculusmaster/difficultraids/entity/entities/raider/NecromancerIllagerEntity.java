@@ -1,15 +1,13 @@
 package com.calculusmaster.difficultraids.entity.entities.raider;
 
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
-import com.calculusmaster.difficultraids.raids.RaidDifficulty;
-import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
+import com.calculusmaster.difficultraids.util.Compat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
-import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -69,7 +67,7 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
         this.targetSelector.addGoal(3, (new NearestAttackableTargetGoal<>(this, AbstractVillager.class, true)).setUnseenMemoryTicks(300));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
 
-        if(DifficultRaidsUtil.isGuardVillagersLoaded()) this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Guard.class, 8.0F, 0.7D, 1.0D));
+        if(Compat.GUARD_VILLAGERS.isLoaded()) this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Guard.class, 8.0F, 0.7D, 1.0D));
     }
 
     @Override
@@ -124,7 +122,7 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
     {
         if(pSource.getEntity() instanceof LivingEntity && !this.activeMinions.isEmpty() && pAmount > 1.0F && this.random.nextFloat() < 0.33F)
         {
-            float deflectedDamage = pAmount * 0.4F;
+            float deflectedDamage = pAmount * this.config().necromancer.reflectedDamagePercentage;
             Monster target = this.activeMinions.get(this.random.nextInt(this.activeMinions.size()));
 
             if(target.getHealth() > deflectedDamage)
@@ -206,59 +204,30 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
             {
                 Random random = new Random();
 
-                int summons = switch(level.getDifficulty()) {
-                    case PEACEFUL -> 0;
-                    case EASY -> 2;
-                    case NORMAL -> 3;
-                    case HARD -> 4;
-                };
-
-                List<EntityType<? extends Monster>> minionPool = switch(level.getDifficulty()) {
-                    case PEACEFUL -> new ArrayList<>();
-                    case EASY -> new ArrayList<>(List.of(EntityType.ZOMBIE));
-                    case NORMAL -> new ArrayList<>(List.of(EntityType.ZOMBIE, EntityType.SKELETON));
-                    case HARD -> new ArrayList<>(List.of(EntityType.ZOMBIE, EntityType.SKELETON, EntityType.HUSK, EntityType.STRAY));
-                };
-
-                if(raid)
-                {
-                    RaidDifficulty raidDifficulty = NecromancerIllagerEntity.this.getRaidDifficulty();
-
-                    summons = raidDifficulty.config().necromancer().minionSummonCount();
-                    if(level.getDifficulty().equals(Difficulty.EASY)) summons--;
-                    else if(level.getDifficulty().equals(Difficulty.HARD)) summons++;
-
-                    switch(raidDifficulty)
-                    {
-                        case HERO -> minionPool.add(EntityType.DROWNED);
-                        case LEGEND -> minionPool.addAll(List.of(EntityType.DROWNED, EntityType.WITHER_SKELETON));
-                        case MASTER -> minionPool.addAll(List.of(EntityType.DROWNED, EntityType.WITHER_SKELETON, EntityType.ZOMBIE_VILLAGER));
-                    }
-                }
+                int summons = NecromancerIllagerEntity.this.config().necromancer.minionSummonCount;
 
                 for(int i = 0; i < summons; i++)
                 {
-                    EntityType<? extends Monster> type = minionPool.get(random.nextInt(minionPool.size()));
-                    Monster minion = type.create(level); if(minion == null) continue;
+                    Entity entity = NecromancerIllagerEntity.this.config().necromancer.getMinionType().create(level);
+                    if(!(entity instanceof Mob minion)) continue;
+
                     BlockPos summonPos = target.blockPosition().offset(-4 + random.nextInt(9), 0, -4 + random.nextInt(9));
 
-                    List<Item> armor = switch(level.getDifficulty()) {
+                    List<Item> armor = switch(level.getDifficulty())
+                    {
                         case PEACEFUL -> List.of();
                         case EASY -> List.of(Items.CHAINMAIL_HELMET, Items.CHAINMAIL_CHESTPLATE, Items.CHAINMAIL_LEGGINGS, Items.CHAINMAIL_BOOTS);
                         case NORMAL -> List.of(Items.IRON_HELMET, Items.IRON_CHESTPLATE, Items.IRON_LEGGINGS, Items.IRON_BOOTS);
                         case HARD -> List.of(Items.DIAMOND_HELMET, Items.DIAMOND_CHESTPLATE, Items.DIAMOND_LEGGINGS, Items.DIAMOND_BOOTS);
                     };
 
-                    int protectionLevel = 0;
-                    if(raid) protectionLevel = NecromancerIllagerEntity.this.getRaidDifficulty().config().necromancer().minionProtectionLevel();
+                    int protectionLevel = NecromancerIllagerEntity.this.config().necromancer.minionMaxProtectionLevel;
 
                     List<EquipmentSlot> slots = List.of(EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET);
                     for(Item item : armor)
                     {
                         ItemStack armorStack = new ItemStack(item);
-
                         if(protectionLevel != 0) armorStack.enchant(Enchantments.ALL_DAMAGE_PROTECTION, protectionLevel == 1 ? 1 : random.nextInt(1, protectionLevel));
-
                         minion.setItemSlot(slots.get(armor.indexOf(item)), armorStack);
                     }
 
@@ -270,10 +239,10 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
                     minion.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(minion, Player.class, true));
                     minion.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(minion, AbstractVillager.class, true));
                     minion.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(minion, IronGolem.class, true));
-                    if(DifficultRaidsUtil.isGuardVillagersLoaded()) minion.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(minion, Guard.class, true));
+                    if(Compat.GUARD_VILLAGERS.isLoaded()) minion.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(minion, Guard.class, true));
 
                     level.addFreshEntity(minion);
-                    NecromancerIllagerEntity.this.activeMinions.add(minion);
+                    if(minion instanceof Monster monster) NecromancerIllagerEntity.this.activeMinions.add(monster);
                 }
             }
         }
@@ -281,11 +250,7 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
         @Override
         public boolean canUse()
         {
-            int minionThreshold = switch(NecromancerIllagerEntity.this.getLevel().getDifficulty()) {
-                case PEACEFUL -> 0;
-                case EASY -> 1;
-                case NORMAL, HARD -> 2;
-            };
+            int minionThreshold = 2;
 
             return super.canUse() && NecromancerIllagerEntity.this.activeMinions.size() <= minionThreshold && NecromancerIllagerEntity.this.hordeLifetimeTicks < 20 * 2;
         }
@@ -337,35 +302,20 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
             {
                 Random random = new Random();
 
-                int size;
+                int size = NecromancerIllagerEntity.this.config().necromancer.hordeSize;
+                if(size > 6) size = NecromancerIllagerEntity.this.random.nextInt(size - 4, size + 5);
 
-                if(raid)
-                {
-                    RaidDifficulty raidDifficulty = NecromancerIllagerEntity.this.getRaidDifficulty();
-
-                    size = raidDifficulty.config().necromancer().hordeSize() + switch(level.getDifficulty()) {
-                        case PEACEFUL -> -raidDifficulty.config().necromancer().hordeSize();
-                        case EASY -> -5;
-                        case NORMAL -> 0;
-                        case HARD -> 5;
-                    };
-                }
-                else size = switch(level.getDifficulty()) {
-                    case PEACEFUL -> 0;
-                    case EASY -> 5;
-                    case NORMAL -> 10;
-                    case HARD -> 18;
-                };
+                int life = NecromancerIllagerEntity.this.config().necromancer.hordeLifetime;
 
                 NecromancerIllagerEntity.this.playSound(SoundEvents.ENDERMAN_DEATH, 7.0F, 1.0F);
 
                 BlockPos currentPos = NecromancerIllagerEntity.this.blockPosition();
                 for(int i = 0; i < size; i++)
                 {
-                    Skeleton hordeMember = EntityType.SKELETON.create(level);
+                    Skeleton hordeMember = EntityType.SKELETON.create(level); if(hordeMember == null) continue;
 
-                    hordeMember.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 500, 3));
-                    hordeMember.addEffect(new MobEffectInstance(MobEffects.POISON, 500, 1));
+                    hordeMember.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, life, 2));
+                    hordeMember.setHealth(hordeMember.getMaxHealth() / 2);
 
                     hordeMember.setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.LEATHER_HELMET));
                     hordeMember.setTarget(target);
@@ -375,7 +325,7 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
                     hordeMember.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(hordeMember, Player.class, true));
                     hordeMember.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(hordeMember, AbstractVillager.class, true));
                     hordeMember.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(hordeMember, IronGolem.class, true));
-                    if(DifficultRaidsUtil.isGuardVillagersLoaded()) hordeMember.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(hordeMember, Guard.class, true));
+                    if(Compat.GUARD_VILLAGERS.isLoaded()) hordeMember.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(hordeMember, Guard.class, true));
 
                     BlockPos summonPos = currentPos.offset(-10 + random.nextInt(21), 0, -10 + random.nextInt(21));
                     hordeMember.moveTo(summonPos, 0, 0);
@@ -384,24 +334,14 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
                     NecromancerIllagerEntity.this.activeHorde.add(hordeMember);
                 }
 
-                NecromancerIllagerEntity.this.hordeLifetimeTicks = raid ? NecromancerIllagerEntity.this.getRaidDifficulty().config().necromancer().hordeLifetime() : switch(level.getDifficulty()) {
-                    case PEACEFUL -> 1;
-                    case EASY -> 20 * 15;
-                    case NORMAL -> 20 * 30;
-                    case HARD -> 20 * 45;
-                };
+                NecromancerIllagerEntity.this.hordeLifetimeTicks = life;
             }
         }
 
         @Override
         public boolean canUse()
         {
-            int minionThreshold = switch(NecromancerIllagerEntity.this.getLevel().getDifficulty()) {
-                case PEACEFUL -> 0;
-                case EASY -> 1;
-                case NORMAL -> 2;
-                case HARD -> 3;
-            };
+            int minionThreshold = 2;
 
             return super.canUse() && NecromancerIllagerEntity.this.activeMinions.size() <= minionThreshold && NecromancerIllagerEntity.this.activeHorde.isEmpty();
         }
@@ -448,7 +388,6 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
             LivingEntity target = NecromancerIllagerEntity.this.getTarget();
             ServerLevel level = (ServerLevel)NecromancerIllagerEntity.this.getLevel();
             boolean raid = NecromancerIllagerEntity.this.isInRaid();
-            Random random = new Random();
 
             if(target != null)
             {
@@ -458,17 +397,7 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
                 //Bury Logic
                 target.playSound(SoundEvents.DROWNED_AMBIENT_WATER, 5.0F, 0.75F);
 
-                int buryDistance = 2;
-                int fullBuryChance = switch(level.getDifficulty()) {
-                    case PEACEFUL -> 0;
-                    case EASY -> 20;
-                    case NORMAL -> 35;
-                    case HARD -> 50;
-                };
-
-                if(random.nextInt(100) < fullBuryChance)
-                    buryDistance = 1 + Mth.ceil(target.getBbHeight()) * (target.isOnGround() ? 1 : 2);
-                else buryDistance *= target.isOnGround() ? 1 : 2;
+                int buryDistance = 2 + Mth.ceil(target.getBbHeight()) * (target.isOnGround() ? 1 : 2);
 
                 target.moveTo(target.getBlockX(), target.getBlockY() - buryDistance, target.getBlockZ());
 

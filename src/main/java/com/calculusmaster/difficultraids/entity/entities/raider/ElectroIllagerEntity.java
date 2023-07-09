@@ -2,6 +2,7 @@ package com.calculusmaster.difficultraids.entity.entities.raider;
 
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
+import com.calculusmaster.difficultraids.util.Compat;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -10,8 +11,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
@@ -49,10 +48,9 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new ElectroIllagerCastingSpellGoal());
         this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Player.class, 8.0F, 0.6D, 1.0D));
-        this.goalSelector.addGoal(4, new ElectroIllagerSummonLightningSpellGoal());
-        this.goalSelector.addGoal(4, new ElectroIllagerSlownessLightningBoltSpellGoal());
-        this.goalSelector.addGoal(5, new ElectroIllagerConcentratedLightningBoltSpellGoal());
-        this.goalSelector.addGoal(5, new ElectroIllagerRingLightningSpellGoal());
+        this.goalSelector.addGoal(3, new ElectroIllagerSummonLightningSpellGoal());
+        this.goalSelector.addGoal(3, new ElectroIllagerConcentratedLightningBoltSpellGoal());
+        this.goalSelector.addGoal(3, new ElectroIllagerRingLightningSpellGoal());
         this.goalSelector.addGoal(8, new RandomStrollGoal(this, 0.6D));
         this.goalSelector.addGoal(9, new LookAtPlayerGoal(this, Player.class, 3.0F, 1.0F));
         this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Mob.class, 8.0F));
@@ -62,7 +60,7 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
         this.targetSelector.addGoal(3, (new NearestAttackableTargetGoal<>(this, AbstractVillager.class, true)).setUnseenMemoryTicks(300));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
 
-        if(DifficultRaidsUtil.isGuardVillagersLoaded()) this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Guard.class, 8.0F, 0.7D, 1.0D));
+        if(Compat.GUARD_VILLAGERS.isLoaded()) this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Guard.class, 8.0F, 0.7D, 1.0D));
     }
 
     @Override
@@ -104,88 +102,6 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
         }
     }
 
-    private class ElectroIllagerSlownessLightningBoltSpellGoal extends SpellcastingIllagerUseSpellGoal
-    {
-        private ElectroIllagerSlownessLightningBoltSpellGoal() {}
-
-        @Override
-        protected void castSpell()
-        {
-            LivingEntity target = ElectroIllagerEntity.this.getTarget();
-            ServerLevel level = (ServerLevel)ElectroIllagerEntity.this.getLevel();
-
-            if(target != null)
-            {
-                BlockPos targetPos = target.blockPosition();
-
-                LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level);
-                lightning.setCustomName(Component.literal(DifficultRaidsUtil.ELECTRO_ILLAGER_CUSTOM_BOLT_TAG));
-                lightning.setDamage(2.0F);
-                lightning.moveTo(targetPos, 0.0F, 0.0F);
-
-                level.addFreshEntity(lightning);
-                //System.out.println("Spell Cast! Summon Lightning Slowness");
-
-                if(target.isAlive())
-                {
-                    //TODO: Only apply if the bolt strikes the target
-                    boolean rain = level.isRainingAt(ElectroIllagerEntity.this.blockPosition());
-                    boolean thunder = level.isThundering();
-
-                    int slownessLevel = 2 + (rain ? 1 : 0) + (thunder ? 2 : 0);
-                    int miningFatigueLevel = 1 + (rain ? 1 : 0);
-
-                    MobEffectInstance slowness = new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, slownessLevel);
-                    MobEffectInstance miningFatigue = new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 100, miningFatigueLevel);
-
-                    target.addEffect(slowness);
-                    target.addEffect(miningFatigue);
-                }
-            }
-        }
-
-        @Override
-        public boolean canUse()
-        {
-            LivingEntity target = ElectroIllagerEntity.this.getTarget();
-            boolean hasSlowness = target != null && target.hasEffect(MobEffects.MOVEMENT_SLOWDOWN);
-            boolean hasMiningFatigue = target != null && target.hasEffect(MobEffects.DIG_SLOWDOWN);
-            boolean hasWeakness = target != null && target.hasEffect(MobEffects.WEAKNESS);
-            return super.canUse() && (!hasSlowness || !hasMiningFatigue || !hasWeakness);
-        }
-
-        @Override
-        protected int getCastingTime()
-        {
-            return 100;
-        }
-
-        @Override
-        protected int getCastingInterval()
-        {
-            return 400;
-        }
-
-        @Override
-        protected int getCastWarmupTime()
-        {
-            return 15;
-        }
-
-        @Nullable
-        @Override
-        protected SoundEvent getSpellPrepareSound()
-        {
-            return SoundEvents.ILLUSIONER_PREPARE_BLINDNESS;
-        }
-
-        @Override
-        protected SpellType getSpellType()
-        {
-            return SpellType.ELECTRO_SLOWNESS_BOLT;
-        }
-    }
-
     private class ElectroIllagerConcentratedLightningBoltSpellGoal extends SpellcastingIllagerUseSpellGoal
     {
         private ElectroIllagerConcentratedLightningBoltSpellGoal() {}
@@ -195,7 +111,6 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
         {
             LivingEntity target = ElectroIllagerEntity.this.getTarget();
             ServerLevel level = (ServerLevel)ElectroIllagerEntity.this.getLevel();
-            boolean raid = ElectroIllagerEntity.this.isInRaid();
             boolean rain = level.isRainingAt(ElectroIllagerEntity.this.blockPosition());
             boolean thunder = level.isThundering();
 
@@ -206,20 +121,12 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
                 LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level);
                 lightning.setCustomName(Component.literal(DifficultRaidsUtil.ELECTRO_ILLAGER_CUSTOM_BOLT_TAG));
 
-                float damage = raid
-                        ? ElectroIllagerEntity.this.getRaidDifficulty().config().electro().concentratedBoltDamage()
-                        : RaidDifficulty.DEFAULT.config().electro().concentratedBoltDamage();
-
-                damage += switch(level.getDifficulty()) {
-                    case PEACEFUL -> -damage;
-                    case EASY -> -2.0F;
-                    case NORMAL -> 0.0F;
-                    case HARD -> 2.0F;
-                };
+                float damage = ElectroIllagerEntity.this.config().conductor.concentratedBoltDamage;
 
                 if(rain) damage++;
 
-                if(thunder) damage *= switch(level.getDifficulty()) {
+                if(thunder) damage *= switch(level.getDifficulty())
+                {
                     case PEACEFUL -> 0.0;
                     case EASY -> 1.05;
                     case NORMAL -> 1.1;
@@ -230,12 +137,6 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
                 lightning.moveTo(targetPos, 0.0F, 0.0F);
                 level.addFreshEntity(lightning);
             }
-        }
-
-        @Override
-        public boolean canUse()
-        {
-            return super.canUse() && ElectroIllagerEntity.this.getHealth() > ElectroIllagerEntity.this.getMaxHealth() / 2;
         }
 
         @Override
@@ -279,7 +180,6 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
         {
             LivingEntity target = ElectroIllagerEntity.this.getTarget();
             ServerLevel level = (ServerLevel)ElectroIllagerEntity.this.getLevel();
-            boolean raid = ElectroIllagerEntity.this.getCurrentRaid() != null;
             boolean rain = level.isRainingAt(ElectroIllagerEntity.this.blockPosition());
             boolean thunder = level.isThundering();
 
@@ -288,19 +188,8 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
                 BlockPos targetPos = target.blockPosition();
                 Random random = new Random();
 
-                int strikes = raid
-                    ? ElectroIllagerEntity.this.getRaidDifficulty().config().electro().genericLightningStrikeCount()
-                    : RaidDifficulty.DEFAULT.config().electro().genericLightningStrikeCount();
-
-                strikes += switch(level.getDifficulty()) {
-                    case PEACEFUL -> -strikes;
-                    case EASY -> -2;
-                    case NORMAL -> 0;
-                    case HARD -> 2;
-                };
-
-                strikes = random.nextInt(strikes - 1, strikes + 2);
-                strikes = Math.max(1, strikes);
+                int strikes = ElectroIllagerEntity.this.config().conductor.genericLightningStrikeCount;
+                if(strikes > 2) strikes = Math.max(1, random.nextInt(strikes - 1, strikes + 2));
 
                 for(int i = 0; i < strikes; i++)
                 {
@@ -309,12 +198,8 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
                     LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level);
                     lightning.setCustomName(Component.literal(DifficultRaidsUtil.ELECTRO_ILLAGER_CUSTOM_BOLT_TAG));
 
-                    float damage = switch(level.getDifficulty()) {
-                        case PEACEFUL -> 0.0F;
-                        case EASY -> 6.0F;
-                        case NORMAL -> 8.0F;
-                        case HARD -> 10.0F;
-                    } + (rain ? 1.0F : 0.0F) + (thunder ? 2.0F : 0.0F);
+                    float damage = ElectroIllagerEntity.this.config().conductor.genericLightningDamage
+                            + (rain ? 1.0F : 0.0F) + (thunder ? 2.0F : 0.0F);
 
                     lightning.setDamage(damage);
                     lightning.moveTo(offsetPos, 0.0F, 0.0F);
@@ -388,7 +273,7 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
                     List<BlockPos> extraOffsets = new ArrayList<>();
                     RaidDifficulty raidDifficulty = ElectroIllagerEntity.this.getRaidDifficulty();
 
-                    if(raidDifficulty.config().electro().extraRingBolts()) offsets.forEach(pos -> {
+                    if(ElectroIllagerEntity.this.config().conductor.ringExtraBolts) offsets.forEach(pos -> {
                         BlockPos farPos = new BlockPos(pos);
                         if(pos.getX() != 0) farPos = pos.offset(pos.getX(), 0, 0);
                         if(pos.getZ() != 0) farPos = pos.offset(0, 0, pos.getZ());
@@ -402,17 +287,11 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
                     LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level);
                     lightning.setCustomName(Component.literal(DifficultRaidsUtil.ELECTRO_ILLAGER_CUSTOM_BOLT_TAG));
                     lightning.moveTo(pos, 0, 0);
-                    lightning.setDamage(thunder ? 3.0F : 1.0F);
+                    lightning.setDamage(ElectroIllagerEntity.this.config().conductor.ringLightningDamage + (thunder ? 3.0F : 0.0F));
 
                     level.addFreshEntity(lightning);
                 });
             }
-        }
-
-        @Override
-        public boolean canUse()
-        {
-            return super.canUse() && ElectroIllagerEntity.this.getHealth() < ElectroIllagerEntity.this.getMaxHealth() / 2;
         }
 
         @Override
@@ -430,7 +309,7 @@ public class ElectroIllagerEntity extends AbstractEvokerVariant
         @Override
         protected int getCastingInterval()
         {
-            return 400;
+            return 700;
         }
 
         @Nullable

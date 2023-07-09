@@ -11,6 +11,7 @@
     "LivingEntityMixin",
     "PillagerMixin",
     "RaidMixin",
+    "RavagerMixin",
     "VexMixin",
     "VillagerMixin",
     "VindicatorMixin",

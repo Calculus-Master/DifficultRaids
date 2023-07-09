@@ -20,7 +20,7 @@ public class AdvanceRaidWaveCommand
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
     {
         LiteralArgumentBuilder<CommandSourceStack> literalArgumentBuilder = Commands
-                .literal("dr_nextwave")
+                .literal("difficultraids_nextwave")
                 .requires(css -> {
                         try { return css.getPlayerOrException().hasPermissions(2); }
                         catch (CommandSyntaxException e)

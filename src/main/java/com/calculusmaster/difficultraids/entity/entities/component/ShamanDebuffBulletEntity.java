@@ -1,6 +1,6 @@
 package com.calculusmaster.difficultraids.entity.entities.component;
 
-import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
+import com.calculusmaster.difficultraids.util.Compat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -82,7 +82,7 @@ public class ShamanDebuffBulletEntity extends ShulkerBullet
         targets.addAll(this.level.getEntitiesOfClass(Player.class, applyRange));
         targets.addAll(this.level.getEntitiesOfClass(IronGolem.class, applyRange));
         targets.addAll(this.level.getEntitiesOfClass(AbstractVillager.class, applyRange));
-        if(DifficultRaidsUtil.isGuardVillagersLoaded()) targets.addAll(this.level.getEntitiesOfClass(Guard.class, applyRange));
+        if(Compat.GUARD_VILLAGERS.isLoaded()) targets.addAll(this.level.getEntitiesOfClass(Guard.class, applyRange));
 
         List<MobEffectInstance> debuffs = this.getModifiedDebuffs(0.75);
         targets.forEach(living -> debuffs.forEach(living::addEffect));

@@ -97,7 +97,7 @@ public class DREntityAttributeRegistry
                 .add(Attributes.FOLLOW_RANGE, 16.0D)
                 .add(Attributes.MAX_HEALTH, 200.0D)
                 .add(Attributes.ATTACK_DAMAGE, 10.0D)
-                .add(Attributes.ARMOR_TOUGHNESS, 5.0D)
+                .add(Attributes.ARMOR_TOUGHNESS, 10.0D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.8D)
                 .build()
         );
@@ -107,7 +107,7 @@ public class DREntityAttributeRegistry
                 .add(Attributes.FOLLOW_RANGE, 16.0D)
                 .add(Attributes.MAX_HEALTH, 85.0D)
                 .add(Attributes.ATTACK_DAMAGE, 12.0D)
-                .add(Attributes.ARMOR, 4.5D)
+                .add(Attributes.ARMOR, 8.5D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.8D)
                 .build()
         );

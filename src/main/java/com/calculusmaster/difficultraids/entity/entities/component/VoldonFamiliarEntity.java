@@ -3,8 +3,7 @@ package com.calculusmaster.difficultraids.entity.entities.component;
 import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractPillagerVariant;
 import com.calculusmaster.difficultraids.entity.entities.elite.VoldonEliteEntity;
-import com.calculusmaster.difficultraids.raids.RaidDifficulty;
-import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
+import com.calculusmaster.difficultraids.util.Compat;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -63,7 +62,7 @@ public class VoldonFamiliarEntity extends AbstractPillagerVariant
             @Override
             public boolean canUse() { return super.canUse() && VoldonFamiliarEntity.this.isInHideState(); }
         });
-        if(DifficultRaidsUtil.isGuardVillagersLoaded()) this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, Guard.class, 8.0F, 0.5D, 0.7D) {
+        if(Compat.GUARD_VILLAGERS.isLoaded()) this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, Guard.class, 8.0F, 0.5D, 0.7D) {
             @Override
             public boolean canUse() { return super.canUse() && VoldonFamiliarEntity.this.isInHideState(); }
         });
@@ -77,7 +76,7 @@ public class VoldonFamiliarEntity extends AbstractPillagerVariant
 
         this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, Raider.class)).setAlertOthers());
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
-        if(DifficultRaidsUtil.isGuardVillagersLoaded()) this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Guard.class, true));
+        if(Compat.GUARD_VILLAGERS.isLoaded()) this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Guard.class, true));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractVillager.class, true));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
     }
@@ -103,7 +102,8 @@ public class VoldonFamiliarEntity extends AbstractPillagerVariant
     {
         super.die(pCause);
 
-        if(pCause.getEntity() instanceof LivingEntity living && (pCause.getEntity() instanceof Player || (DifficultRaidsUtil.isGuardVillagersLoaded() && pCause.getEntity() instanceof Guard)))
+        if(this.config().voldon.familiarWeaknessOnDeath &&
+                pCause.getEntity() instanceof LivingEntity living && (pCause.getEntity() instanceof Player || (Compat.GUARD_VILLAGERS.isLoaded() && pCause.getEntity() instanceof Guard)))
             living.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 60, 3));
 
         if(this.voldon != null) this.voldon.removeFamiliar(this);
@@ -112,28 +112,19 @@ public class VoldonFamiliarEntity extends AbstractPillagerVariant
     @Override
     public void applyRaidBuffs(int p_37844_, boolean p_37845_)
     {
-        RaidDifficulty raidDifficulty = this.getRaidDifficulty();
+        AttributeModifier attackModifier = new AttributeModifier("VOLDON_FAMILIAR_RAID_ATTACK_BOOST",
+                this.config().voldon.familiarAttackDamageMultiplier,
+                AttributeModifier.Operation.MULTIPLY_TOTAL);
 
-        AttributeModifier attackModifier = new AttributeModifier("VOLDON_FAMILIAR_RAID_ATTACK_BOOST", switch(raidDifficulty)
-        {
-            case HERO -> 1.5F;
-            case LEGEND -> 2.0F;
-            case MASTER -> 2.5F;
-            case GRANDMASTER -> 4.0F;
-            default -> 1.0F;
-        }, AttributeModifier.Operation.MULTIPLY_TOTAL);
+        AttributeModifier healthModifier = new AttributeModifier("VOLDON_FAMILIAR_MAX_HEALTH_INCREASE",
+                this.config().voldon.familiarHealthMultiplier,
+                AttributeModifier.Operation.MULTIPLY_TOTAL);
 
         AttributeInstance attackDamage = this.getAttribute(Attributes.ATTACK_DAMAGE);
         if(attackDamage != null) attackDamage.addPermanentModifier(attackModifier);
 
-        if(raidDifficulty.is(RaidDifficulty.MASTER, RaidDifficulty.GRANDMASTER))
-        {
-            AttributeInstance health = this.getAttribute(Attributes.MAX_HEALTH);
-            if(health != null) health.addPermanentModifier(new AttributeModifier("VOLDON_FAMILIAR_MAX_HEALTH_INCREASE",
-                    raidDifficulty.is(RaidDifficulty.MASTER) ? 2.0F : 2.5F,
-                    AttributeModifier.Operation.MULTIPLY_TOTAL)
-            );
-        }
+        AttributeInstance health = this.getAttribute(Attributes.MAX_HEALTH);
+        if(health != null) health.addPermanentModifier(healthModifier);
     }
 
     public boolean isInHideState()
@@ -146,7 +137,7 @@ public class VoldonFamiliarEntity extends AbstractPillagerVariant
     {
         super.customServerAiStep();
 
-        if(this.voldon != null && this.voldon.isDeadOrDying())
+        if(this.voldon == null || this.voldon.isDeadOrDying())
         {
             this.hurt(DamageSource.STARVE, this.getHealth() + 1.0F);
             return;

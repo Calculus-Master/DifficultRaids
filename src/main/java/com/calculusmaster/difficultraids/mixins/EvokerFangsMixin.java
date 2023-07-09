@@ -35,15 +35,9 @@ public abstract class EvokerFangsMixin extends Entity
 
         if(canHit && owner instanceof Evoker evoker && evoker.getCurrentRaid() != null)
         {
-            RaidDifficulty raidDifficulty = RaidDifficulty.get(evoker.getCurrentRaid().getBadOmenLevel());
+            RaidDifficulty rd = RaidDifficulty.get(evoker.getCurrentRaid().getBadOmenLevel());
 
-            float damage = switch(raidDifficulty) {
-                case DEFAULT -> 6.0F;
-                case HERO -> 7.0F;
-                case LEGEND -> 9.0F;
-                case MASTER -> 13.0F;
-                case GRANDMASTER -> 18.0F;
-            };
+            float damage = rd.config().evoker.evokerFangDamage;
 
             pTarget.hurt(DamageSource.indirectMagic(this, owner), damage);
             callback.cancel();

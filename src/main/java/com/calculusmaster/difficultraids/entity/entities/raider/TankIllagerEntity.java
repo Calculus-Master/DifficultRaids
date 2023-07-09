@@ -1,7 +1,6 @@
 package com.calculusmaster.difficultraids.entity.entities.raider;
 
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractVindicatorVariant;
-import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
@@ -22,6 +21,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import org.apache.logging.log4j.LogManager;
@@ -62,7 +62,6 @@ public class TankIllagerEntity extends AbstractVindicatorVariant
     @Override
     public void applyRaidBuffs(int p_37844_, boolean p_37845_)
     {
-        RaidDifficulty raidDifficulty = this.getRaidDifficulty();
         this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.STONE_SWORD));
 
         AttributeInstance armor = this.getAttribute(Attributes.ARMOR);
@@ -70,24 +69,30 @@ public class TankIllagerEntity extends AbstractVindicatorVariant
 
         if(armor != null)
         {
-            AttributeModifier armorModifier = new AttributeModifier(TAG_TANK_ARMOR_MODIFIER, switch(raidDifficulty) {
-                case DEFAULT -> 7.5;
-                case HERO -> 11.0;
-                case LEGEND -> 15.0;
-                case MASTER, GRANDMASTER -> 20.0;
-            }, AttributeModifier.Operation.ADDITION);
+            AttributeModifier armorModifier = new AttributeModifier(TAG_TANK_ARMOR_MODIFIER,
+                    this.config().tank.extraArmor,
+                    AttributeModifier.Operation.ADDITION);
 
             armor.addPermanentModifier(armorModifier);
         }
         else LOGGER.warn("DifficultRaids: Tank Illager has a null Armor Attribute!");
 
-
-        if(raidDifficulty.is(RaidDifficulty.GRANDMASTER) && armorToughness != null)
+        if(armorToughness != null && this.config().tank.extraArmorToughness > 0)
         {
-            AttributeModifier toughnessModifier = new AttributeModifier(TAG_TANK_TOUGHNESS_MODIFIER, 15.0, AttributeModifier.Operation.ADDITION);
+            AttributeModifier toughnessModifier = new AttributeModifier(TAG_TANK_TOUGHNESS_MODIFIER,
+                    this.config().tank.extraArmorToughness,
+                    AttributeModifier.Operation.ADDITION);
+
             armorToughness.addPermanentModifier(toughnessModifier);
         }
-        else if(armorToughness == null) LOGGER.warn("DifficultRaids: Tank Illager has a null Armor Toughness Attribute!");
+        else LOGGER.warn("DifficultRaids: Tank Illager has a null Armor Toughness Attribute!");
+
+        if(this.random.nextFloat() < this.config().tank.thornsChance)
+        {
+            ItemStack chestplate = new ItemStack(Items.DIAMOND_CHESTPLATE);
+            chestplate.enchant(Enchantments.THORNS, 3);
+            this.setItemSlot(EquipmentSlot.CHEST, chestplate);
+        }
     }
 
     @Nullable

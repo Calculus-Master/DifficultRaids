@@ -18,7 +18,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raid;
@@ -76,15 +75,12 @@ public abstract class RaidMixin
     private void difficultraids_raidStart(Player p_37729_, CallbackInfo callbackInfo)
     {
         this.initializeValidRaidArea();
-        for (Raid.RaiderType value : Raid.RaiderType.values()) {
-            System.out.println(value);
-        }
     }
 
     @Inject(at = @At("TAIL"), method = "tick")
     private void difficultraids_highlightRemainingRaiders(CallbackInfo callback)
     {
-        if(this.ticksActive % 5 == 0 && this.getTotalRaidersAlive() <= 3)
+        if(this.ticksActive % 20 * 2 == 0 && this.getTotalRaidersAlive() <= 3)
             this.getAllRaiders().stream()
                     .filter(LivingEntity::isAlive) //Alive Raiders
                     .filter(r -> !r.hasEffect(MobEffects.GLOWING)) //Not already glowing
@@ -116,7 +112,7 @@ public abstract class RaidMixin
         RaidDifficulty raidDifficulty = RaidDifficulty.get(this.getBadOmenLevel());
         int wave = this.getGroupsSpawned();
 
-        if(raidDifficulty.config().areElitesEnabled() && RaidEnemyRegistry.isEliteWave(raidDifficulty, wave))
+        if(raidDifficulty.config().elitesEnabled.get() && RaidEnemyRegistry.isEliteWave(raidDifficulty, wave))
         {
             EntityType<?> eliteType = RaidEnemyRegistry.getRandomElite(raidDifficulty, wave); //DifficultRaidsEntityTypes.NUAOS_ELITE.get();
 
@@ -242,15 +238,6 @@ public abstract class RaidMixin
                 p.sendSystemMessage(Component.literal("Raid Rewards have spawned at X: %s Y: %s Z: %s!".formatted(rewardPos.getX(), rewardPos.getY(), rewardPos.getZ())));
             });
         }
-        else if(false && this.isLoss() && raidDifficulty.is(RaidDifficulty.GRANDMASTER)) //TODO: Add config option or rework
-        {
-            WitherBoss wither = EntityType.WITHER.create(this.level);
-
-            wither.setCustomName(Component.literal("The Apocalypse"));
-            wither.setPos(this.center.getX(), this.center.getY() + 10, this.center.getZ());
-
-            this.level.addFreshEntity(wither);
-        }
     }
 
     @ModifyVariable(at = @At("HEAD"), method = "joinRaid", ordinal = 0, argsOnly = true)
@@ -271,16 +258,8 @@ public abstract class RaidMixin
     @ModifyVariable(at = @At("HEAD"), method = "joinRaid", ordinal = 0, argsOnly = true)
     private Raider difficultraids_boostRaiderFromPlayerCount(Raider defaultRaider)
     {
-        float healthBoost = switch(this.players) {
-            case 1 -> 0.0F;
-            case 2 -> 0.5F;
-            case 3 -> 1.0F;
-            case 4 -> 1.75F;
-            case 5 -> 2.5F;
-            case 6 -> 3.5F;
-            case 7 -> 5.0F;
-            default -> 5.0F + this.players * 1.25F;
-        };
+        float perPlayerHealthBoost = RaidDifficulty.get(this.getBadOmenLevel()).config().playerHealthBoostAmount.get().floatValue();
+        float healthBoost = perPlayerHealthBoost * (this.players - 1);
 
         AttributeModifier healthBoostModifier = new AttributeModifier("RAID_PLAYER_COUNT_HEALTH_BOOST", healthBoost, AttributeModifier.Operation.ADDITION);
 

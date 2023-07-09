@@ -2,17 +2,17 @@ package com.calculusmaster.difficultraids.mixins.compat;
 
 import baguchan.hunterillager.entity.HunterIllagerEntity;
 import baguchan.hunterillager.init.HunterItems;
+import com.calculusmaster.difficultraids.config.RaidDifficultyConfig;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
-import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
+import com.calculusmaster.difficultraids.util.Compat;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.monster.AbstractIllager;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;
@@ -21,9 +21,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Mixin(HunterIllagerEntity.class)
 public abstract class HunterIllagerMixin extends AbstractIllager
@@ -41,165 +38,46 @@ public abstract class HunterIllagerMixin extends AbstractIllager
         boolean inRaid = this.getCurrentRaid() != null;
         RaidDifficulty raidDifficulty = inRaid ? RaidDifficulty.get(this.getCurrentRaid().getBadOmenLevel()) : null;
 
-        if(inRaid && !raidDifficulty.isDefault() && DifficultRaidsUtil.isHunterIllagerLoaded())
+        if(inRaid && !raidDifficulty.isDefault() && Compat.HUNTER_ILLAGER.isLoaded())
         {
-            //TODO: Add Config for this stuff
+            RaidDifficultyConfig cfg = raidDifficulty.config();
+
             //Main Weapon
-            Item sword = switch(raidDifficulty) {
-                case HERO -> Items.STONE_SWORD;
-                case LEGEND -> Items.IRON_SWORD;
-                case MASTER -> Items.DIAMOND_SWORD;
-                case GRANDMASTER -> Items.NETHERITE_SWORD;
-                default -> Items.GOLDEN_SWORD;
-            };
+            ItemStack weapon = new ItemStack(this.random.nextBoolean() ? Items.BOW : cfg.hunter.getSword());
 
-            ItemStack weapon = new ItemStack(this.random.nextBoolean() ? Items.BOW : sword);
-
-            Map<Enchantment, Integer> weaponEnchants = new HashMap<>();
             if(weapon.getItem().equals(Items.BOW))
             {
-                //Power
-                int powerChance = switch(raidDifficulty) {
-                    case HERO -> 25;
-                    case LEGEND -> 35;
-                    case MASTER -> 45;
-                    case GRANDMASTER -> 90;
-                    default -> 0;
-                };
+                weapon.enchant(Enchantments.POWER_ARROWS, cfg.hunter.bowPowerLevel);
 
-                if(this.random.nextInt(100) < powerChance)
-                {
-                    int powerLevel = switch(raidDifficulty) {
-                        case HERO -> this.random.nextInt(1, 3);
-                        case LEGEND -> this.random.nextInt(1, 5);
-                        case MASTER -> this.random.nextInt(2, 5);
-                        case GRANDMASTER -> this.random.nextInt(5, 7);
-                        default -> 0;
-                    };
-
-                    weaponEnchants.put(Enchantments.POWER_ARROWS, powerLevel);
-                }
-
-                //Punch
-                int punchChance = switch(raidDifficulty) {
-                    case HERO -> 15;
-                    case LEGEND -> 20;
-                    case MASTER -> 25;
-                    case GRANDMASTER -> 50;
-                    default -> 0;
-                };
-
-                if(this.random.nextInt(100) < punchChance)
-                {
-                    int punchLevel = switch(raidDifficulty) {
-                        case HERO, LEGEND -> 1;
-                        case MASTER -> 2;
-                        case GRANDMASTER -> 3;
-                        default -> 0;
-                    };
-
-                    weaponEnchants.put(Enchantments.PUNCH_ARROWS, punchLevel);
-                }
-
-                //Flame
-                int fireChance = switch(raidDifficulty) {
-                    case HERO -> 5;
-                    case LEGEND -> 10;
-                    case MASTER -> 15;
-                    case GRANDMASTER -> 50;
-                    default -> 0;
-                };
-
-                if(this.random.nextInt(100) < fireChance)
-                {
-                    int fireLevel = switch(raidDifficulty) {
-                        case HERO, LEGEND -> 1;
-                        case MASTER -> 2;
-                        case GRANDMASTER -> 3;
-                        default -> 0;
-                    };
-
-                    weaponEnchants.put(Enchantments.FLAMING_ARROWS, fireLevel);
-                }
+                if(this.random.nextFloat() < cfg.hunter.bowPunchChance)
+                    weapon.enchant(Enchantments.PUNCH_ARROWS, cfg.hunter.bowPunchLevel);
             }
             else
             {
-                int sharpnessChance = switch(raidDifficulty) {
-                    case HERO -> 60;
-                    case LEGEND -> 70;
-                    case MASTER -> 80;
-                    case GRANDMASTER -> 90;
-                    default -> 0;
-                };
+                weapon.enchant(Enchantments.SHARPNESS, cfg.hunter.bowPowerLevel);
 
-                if(this.random.nextInt(100) < sharpnessChance)
-                {
-                    int sharpnessLevel = switch(raidDifficulty) {
-                        case HERO -> 2;
-                        case LEGEND -> 3;
-                        case MASTER -> 4;
-                        case GRANDMASTER -> 6;
-                        default -> 0;
-                    };
-
-                    weaponEnchants.put(Enchantments.SHARPNESS, sharpnessLevel);
-                }
+                if(this.random.nextFloat() < cfg.hunter.swordKnockbackChance)
+                    weapon.enchant(Enchantments.KNOCKBACK, cfg.hunter.swordKnockbackLevel);
             }
-
-            EnchantmentHelper.setEnchantments(weaponEnchants, weapon);
 
             //Offhand Boomerang
             ItemStack boomerang = new ItemStack(HunterItems.BOOMERANG.get());
 
-            Map<Enchantment, Integer> boomerangEnchants = new HashMap<>();
+            if(this.random.nextFloat() < cfg.hunter.boomerangLoyaltyChance)
+                boomerang.enchant(Enchantments.LOYALTY, 1);
 
-            int loyaltyChance = switch(raidDifficulty) {
-                case HERO -> 33;
-                case LEGEND -> 45;
-                case MASTER -> 55;
-                case GRANDMASTER -> 90;
-                default -> 0;
-            };
-
-            if(this.random.nextInt(100) < loyaltyChance) boomerangEnchants.put(Enchantments.LOYALTY, 1);
-
-            int sharpnessChance = switch(raidDifficulty) {
-                case HERO -> 20;
-                case LEGEND -> 30;
-                case MASTER -> 45;
-                case GRANDMASTER -> 90;
-                default -> 0;
-            };
-
-            if(this.random.nextInt(100) < sharpnessChance)
-            {
-                int sharpnessLevel = switch(raidDifficulty) {
-                    case HERO -> 1;
-                    case LEGEND -> 2;
-                    case MASTER -> 3;
-                    case GRANDMASTER -> 7;
-                    default -> 0;
-                };
-
-                boomerangEnchants.put(Enchantments.SHARPNESS, sharpnessLevel);
-            }
-
-            EnchantmentHelper.setEnchantments(boomerangEnchants, boomerang);
+            boomerang.enchant(Enchantments.SHARPNESS, cfg.hunter.boomerangSharpnessLevel);
 
             //Food
-            int foodCount = switch(raidDifficulty) {
-                case HERO -> 6;
-                case LEGEND -> 8;
-                case MASTER -> 10;
-                case GRANDMASTER -> 20;
-                default -> 0;
-            };
-
-            this.inventory.addItem(new ItemStack(Items.COOKED_MUTTON, foodCount));
+            Item food = this.random.nextFloat() < cfg.hunter.foodGoldenAppleChance ? Items.GOLDEN_APPLE : Items.COOKED_MUTTON;
+            this.inventory.addItem(new ItemStack(food, cfg.hunter.foodCount));
 
             //Final Stuff
             this.setItemInHand(InteractionHand.MAIN_HAND, weapon);
             this.setItemInHand(InteractionHand.OFF_HAND, boomerang);
+
+            this.setDropChance(EquipmentSlot.MAINHAND, cfg.hunter.mainItemDropChance);
+            this.setDropChance(EquipmentSlot.OFFHAND, cfg.hunter.boomerangDropChance);
 
             callback.cancel();
         }

@@ -1,7 +1,8 @@
 package com.calculusmaster.difficultraids.entity.entities.raider;
 
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractPillagerVariant;
-import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
+import com.calculusmaster.difficultraids.setup.DifficultRaidsEnchantments;
+import com.calculusmaster.difficultraids.util.Compat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.DifficultyInstance;
@@ -23,16 +24,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import org.jetbrains.annotations.Nullable;
 import tallestegg.guardvillagers.entities.Guard;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class AssassinIllagerEntity extends AbstractPillagerVariant
 {
@@ -61,7 +57,7 @@ public class AssassinIllagerEntity extends AbstractPillagerVariant
         this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(this, Sheep.class, true));
         this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(this, Pig.class, true));
         this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(this, Chicken.class, true));
-        if(DifficultRaidsUtil.isGuardVillagersLoaded()) this.targetSelector.addGoal(8, new NearestAttackableTargetGoal<>(this, Guard.class, true));
+        if(Compat.GUARD_VILLAGERS.isLoaded()) this.targetSelector.addGoal(8, new NearestAttackableTargetGoal<>(this, Guard.class, true));
 
         this.goalSelector.addGoal(8, new RandomStrollGoal(this, 0.9D));
         this.goalSelector.addGoal(9, new LookAtPlayerGoal(this, Player.class, 3.0F, 1.0F));
@@ -72,7 +68,7 @@ public class AssassinIllagerEntity extends AbstractPillagerVariant
     public boolean hurt(DamageSource pSource, float pAmount)
     {
         if(pSource.getDirectEntity() instanceof IronGolem) pAmount *= 0.25;
-        else if(DifficultRaidsUtil.isGuardVillagersLoaded() && pSource.getEntity() instanceof Guard) pAmount *= 0.5;
+        else if(Compat.GUARD_VILLAGERS.isLoaded() && pSource.getEntity() instanceof Guard) pAmount *= 0.5;
 
         if(!this.hasEffect(MobEffects.MOVEMENT_SLOWDOWN)) this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20 * 10, 1, false, true, true));
 
@@ -99,28 +95,18 @@ public class AssassinIllagerEntity extends AbstractPillagerVariant
         //Teleport Attack
         if(target != null)
         {
-            if(this.distanceTo(target) > 8 && this.canTeleport() && this.random.nextInt(100) < 25)
+            if(this.distanceTo(target) > 8 && this.canTeleport() && this.random.nextFloat() < 0.25F)
             {
                 BlockPos targetPos = new BlockPos(target.getEyePosition()).offset(this.random.nextInt(5) - 2, 0, this.random.nextInt(5) - 2);
                 this.randomTeleport(targetPos.getX(), targetPos.getY(), targetPos.getZ(), true);
 
-                this.teleportCooldown = switch(this.level.getDifficulty()) {
-                    case PEACEFUL -> 0;
-                    case EASY -> 20 * 60;
-                    case NORMAL -> 20 * 30;
-                    case HARD -> 20 * 15;
-                };
+                this.teleportCooldown = this.config().assassin.teleportCooldown;
             }
 
             if(this.hasEffect(MobEffects.INVISIBILITY))
             {
                 this.removeEffect(MobEffects.INVISIBILITY);
-                this.invisibilityCooldown = switch(this.level.getDifficulty()) {
-                    case PEACEFUL -> 0;
-                    case EASY -> 20 * 60 * 5;
-                    case NORMAL -> 20 * 60 * 3;
-                    case HARD -> 20 * 60 * 1;
-                };
+                this.invisibilityCooldown = this.config().assassin.invisibilityCooldown;
             }
         }
     }
@@ -140,23 +126,12 @@ public class AssassinIllagerEntity extends AbstractPillagerVariant
     {
         ItemStack sword = new ItemStack(Items.STONE_SWORD);
 
-        if(this.isInDifficultRaid())
-        {
-            Map<Enchantment, Integer> enchants = new HashMap<>();
-
-            enchants.put(Enchantments.SHARPNESS, switch(this.getRaidDifficulty()) {
-                case LEGEND -> 1;
-                case MASTER -> 2;
-                case GRANDMASTER -> 5;
-                default -> 0;
-            });
-
-            enchants.put(Enchantments.VANISHING_CURSE, 1);
-
-            EnchantmentHelper.setEnchantments(enchants, sword);
-        }
+        sword.enchant(Enchantments.SHARPNESS, Enchantments.SHARPNESS.getMaxLevel());
+        sword.enchant(DifficultRaidsEnchantments.CRITICAL_STRIKE.get(), DifficultRaidsEnchantments.CRITICAL_STRIKE.get().getMaxLevel());
+        sword.enchant(DifficultRaidsEnchantments.CRITICAL_BURST.get(), DifficultRaidsEnchantments.CRITICAL_BURST.get().getMaxLevel());
 
         this.setItemSlot(EquipmentSlot.MAINHAND, sword);
+        this.setDropChance(EquipmentSlot.MAINHAND, 0);
     }
 
     @Nullable

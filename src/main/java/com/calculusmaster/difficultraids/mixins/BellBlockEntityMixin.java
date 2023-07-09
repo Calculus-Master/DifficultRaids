@@ -1,5 +1,6 @@
 package com.calculusmaster.difficultraids.mixins;
 
+import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -18,7 +19,10 @@ public class BellBlockEntityMixin
     @Inject(at = @At("HEAD"), method = "isRaiderWithinRange", cancellable = true)
     private static void difficultraids_largerBellSearchRange(BlockPos p_155197_, LivingEntity p_155198_, CallbackInfoReturnable<Boolean> callback)
     {
-        callback.setReturnValue(p_155198_.isAlive() && !p_155198_.isRemoved() && p_155197_.closerToCenterThan(p_155198_.position(), 256.0D) && p_155198_.getType().is(EntityTypeTags.RAIDERS));
+        callback.setReturnValue(p_155198_.isAlive() && !p_155198_.isRemoved()
+                        && p_155197_.closerToCenterThan(p_155198_.position(), DifficultRaidsConfig.BELL_SEARCH_RADIUS.get())
+                        && p_155198_.getType().is(EntityTypeTags.RAIDERS)
+        );
     }
 
     @Inject(at = @At("HEAD"), method = "glow", cancellable = true)

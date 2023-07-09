@@ -13,6 +13,7 @@ import com.calculusmaster.difficultraids.entity.entities.elite.VoldonEliteEntity
 import com.calculusmaster.difficultraids.entity.entities.elite.XydraxEliteEntity;
 import com.calculusmaster.difficultraids.entity.entities.raider.*;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsEnchantments;
+import com.calculusmaster.difficultraids.util.Compat;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LightningBolt;
@@ -92,7 +93,7 @@ public class DRForgeModEvents
         }
 
         //Compatibility with GuardVillagers - Custom Illagers will also target Guards
-        if(DifficultRaidsUtil.isGuardVillagersLoaded() && event.getEntity() instanceof AbstractIllagerVariant illager)
+        if(Compat.GUARD_VILLAGERS.isLoaded() && event.getEntity() instanceof AbstractIllagerVariant illager)
         {
             int priority = 3;
 

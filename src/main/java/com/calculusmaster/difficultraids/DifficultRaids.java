@@ -31,7 +31,6 @@ public class DifficultRaids
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         DifficultRaidsItems.register(eventBus);
-        //DifficultRaidsStructures.register(eventBus); TODO: Fix Larger Villages
 
         DifficultRaidsConfig.register();
 
@@ -61,6 +60,8 @@ public class DifficultRaids
 
     private void onLoadComplete(final FMLLoadCompleteEvent event)
     {
+        DifficultRaidsConfig.initializeConfigs();
+
         RaidEnemyRegistry.registerRaiders();
         RaidEnemyRegistry.registerWaves();
 

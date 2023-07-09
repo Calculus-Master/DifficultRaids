@@ -23,7 +23,7 @@ public class PrintRaidersCommand
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
     {
         LiteralArgumentBuilder<CommandSourceStack> literalArgumentBuilder = Commands
-                .literal("dr_printraiders")
+                .literal("difficultraids_printraiders")
                 .requires(css -> {
                         try { return css.getPlayerOrException().hasPermissions(2); }
                         catch (CommandSyntaxException e)

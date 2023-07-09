@@ -3,9 +3,8 @@ package com.calculusmaster.difficultraids.entity.entities.raider;
 import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
 import com.calculusmaster.difficultraids.entity.entities.component.FrostSnowballEntity;
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
-import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
+import com.calculusmaster.difficultraids.util.Compat;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
@@ -58,7 +57,7 @@ public class FrostIllagerEntity extends AbstractEvokerVariant
         this.targetSelector.addGoal(3, (new NearestAttackableTargetGoal<>(this, AbstractVillager.class, true)).setUnseenMemoryTicks(300));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
 
-        if(DifficultRaidsUtil.isGuardVillagersLoaded()) this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Guard.class, 8.0F, 0.7D, 1.0D));
+        if(Compat.GUARD_VILLAGERS.isLoaded()) this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Guard.class, 8.0F, 0.7D, 1.0D));
     }
 
     @Override
@@ -95,11 +94,11 @@ public class FrostIllagerEntity extends AbstractEvokerVariant
         super.tick();
 
         //Slowness Aura
-        if(this.random.nextFloat() < 0.25F)
+        if(this.tickCount % (20 * 4) == 0)
         {
-            final AABB aabb = this.getBoundingBox().inflate(4.0D);
+            final AABB aabb = this.getBoundingBox().inflate(this.config().frostmage.slownessAuraRadius);
 
-            this.level.getEntitiesOfClass(LivingEntity.class, aabb, e -> !e.isAlliedTo(this) && !e.hasEffect(MobEffects.MOVEMENT_SLOWDOWN) && (!(e instanceof Player p) || !p.isSpectator() && !p.isCreative())).forEach(e -> e.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 3)));
+            this.level.getEntitiesOfClass(LivingEntity.class, aabb, e -> !e.isAlliedTo(this) && !e.hasEffect(MobEffects.MOVEMENT_SLOWDOWN) && (!(e instanceof Player p) || !p.isSpectator() && !p.isCreative())).forEach(e -> e.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20 * 5, 3)));
         }
 
         //Barrage
@@ -121,12 +120,7 @@ public class FrostIllagerEntity extends AbstractEvokerVariant
                     FrostSnowballEntity snowball = DifficultRaidsEntityTypes.FROST_SNOWBALL.get().create(this.level);
                     snowball.setOwner(this);
                     snowball.setPos(this.getEyePosition().x(), this.getEyePosition().y() - 0.2, this.getEyePosition().z());
-                    snowball.setDamage(switch(this.level.getDifficulty()) {
-                        case PEACEFUL -> 0.0F;
-                        case EASY -> 1.8F;
-                        case NORMAL -> 2.4F;
-                        case HARD -> 2.9F;
-                    });
+                    snowball.setDamage(this.config().frostmage.barrageSnowballDamage);
 
                     //Helps with client lag a little
                     if(this.random.nextInt(100) < 40) snowball.setInvisible(true);
@@ -169,16 +163,7 @@ public class FrostIllagerEntity extends AbstractEvokerVariant
 
             if(target != null)
             {
-                float damage = FrostIllagerEntity.this.isInRaid() ? FrostIllagerEntity.this.getRaidDifficulty().config().frost().snowballBlastDamage() + switch(FrostIllagerEntity.this.level.getDifficulty()) {
-                    case PEACEFUL, NORMAL -> 0.0F;
-                    case EASY -> -0.5F;
-                    case HARD -> 0.5F;
-                } : switch(FrostIllagerEntity.this.level.getDifficulty()) {
-                    case PEACEFUL -> 0.0F;
-                    case EASY -> 4.75F;
-                    case NORMAL -> 6.5F;
-                    case HARD -> 8.0F;
-                };
+                float damage = FrostIllagerEntity.this.config().frostmage.snowballBlastDamage;
 
                 for(int i = 0; i < size; i++)
                 {
@@ -244,14 +229,7 @@ public class FrostIllagerEntity extends AbstractEvokerVariant
         @Override
         protected void castSpell()
         {
-            FrostIllagerEntity.this.barrageTicks = FrostIllagerEntity.this.isInRaid()
-                    ? FrostIllagerEntity.this.getRaidDifficulty().config().frost().barrageDuration()
-                    : switch(FrostIllagerEntity.this.level.getDifficulty()) {
-                        case PEACEFUL -> 0;
-                        case EASY -> 20 * 2;
-                        case NORMAL -> 20 * 5;
-                        case HARD -> 20 * 9;
-                    };
+            FrostIllagerEntity.this.barrageTicks = FrostIllagerEntity.this.config().frostmage.barrageDuration;
         }
 
         @Override
@@ -300,17 +278,10 @@ public class FrostIllagerEntity extends AbstractEvokerVariant
         protected void castSpell()
         {
             LivingEntity target = FrostIllagerEntity.this.getTarget();
-            ServerLevel level = (ServerLevel)FrostIllagerEntity.this.getLevel();
-            boolean raid = FrostIllagerEntity.this.getCurrentRaid() != null;
 
             if(target != null)
             {
-                int duration = raid ? FrostIllagerEntity.this.getRaidDifficulty().config().frost().freezeDuration() : switch(level.getDifficulty()) {
-                    case PEACEFUL -> 0;
-                    case EASY -> 20 * 3;
-                    case NORMAL -> 20 * 5;
-                    case HARD -> 20 * 7;
-                };
+                int duration = FrostIllagerEntity.this.config().frostmage.freezeDuration;
 
                 if(target.canFreeze()) target.setTicksFrozen(target.getTicksFrozen() + duration);
             }

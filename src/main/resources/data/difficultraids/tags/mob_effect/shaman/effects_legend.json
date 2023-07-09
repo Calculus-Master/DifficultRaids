@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:slowness",
+    "minecraft:mining_fatigue",
+    "minecraft:poison",
+    "minecraft:weakness"
+  ]
+}

@@ -1,5 +1,6 @@
 package com.calculusmaster.difficultraids.raids;
 
+import com.calculusmaster.difficultraids.config.RaidDifficultyConfig;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 
 import java.util.List;
@@ -23,14 +24,15 @@ public enum RaidDifficulty
         };
     }
 
-    public DifficultRaidsConfig.RaidDifficultyConfig config()
+    public RaidDifficultyConfig config()
     {
-        return switch(this) {
-            case HERO -> DifficultRaidsConfig.HERO_CONFIG;
-            case LEGEND -> DifficultRaidsConfig.LEGEND_CONFIG;
-            case MASTER -> DifficultRaidsConfig.MASTER_CONFIG;
-            case GRANDMASTER -> DifficultRaidsConfig.GRANDMASTER_CONFIG;
-            default -> DifficultRaidsConfig.DEFAULT_CONFIG;
+        return switch(this)
+        {
+            case HERO -> DifficultRaidsConfig.HERO;
+            case LEGEND -> DifficultRaidsConfig.LEGEND;
+            case MASTER -> DifficultRaidsConfig.MASTER;
+            case GRANDMASTER -> DifficultRaidsConfig.GRANDMASTER;
+            default -> DifficultRaidsConfig.DEFAULT;
         };
     }
 

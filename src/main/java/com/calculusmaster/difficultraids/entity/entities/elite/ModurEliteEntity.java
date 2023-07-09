@@ -1,7 +1,9 @@
 package com.calculusmaster.difficultraids.entity.entities.elite;
 
+import com.calculusmaster.difficultraids.config.RaiderConfigs;
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsItems;
+import com.calculusmaster.difficultraids.util.Compat;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -15,7 +17,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.BossEvent;
-import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
@@ -95,7 +96,7 @@ public class ModurEliteEntity extends AbstractEvokerVariant implements RangedAtt
         this.targetSelector.addGoal(3, (new NearestAttackableTargetGoal<>(this, AbstractVillager.class, true)).setUnseenMemoryTicks(300));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
 
-        if(DifficultRaidsUtil.isGuardVillagersLoaded()) this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Guard.class, 6.0F, 0.6D, 0.75D));
+        if(Compat.GUARD_VILLAGERS.isLoaded()) this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Guard.class, 6.0F, 0.6D, 0.75D));
     }
 
     @Override
@@ -107,10 +108,10 @@ public class ModurEliteEntity extends AbstractEvokerVariant implements RangedAtt
     @Override
     public boolean hurt(DamageSource pSource, float pAmount)
     {
-        if(pSource.getEntity() instanceof IronGolem || (DifficultRaidsUtil.isGuardVillagersLoaded() && pSource.getEntity() instanceof Guard))
-            pAmount *= 0.4;
+        if(pSource.getEntity() instanceof IronGolem || (Compat.GUARD_VILLAGERS.isLoaded() && pSource.getEntity() instanceof Guard))
+            pAmount *= this.config().modur.friendlyDamageReduction;
 
-        if(pSource.getDirectEntity() instanceof Projectile) pAmount *= 0.8F;
+        if(pSource.getDirectEntity() instanceof Projectile) pAmount *= this.config().modur.projectileDamageReduction;
 
         if(this.isStormActive()) pAmount *= 1.2;
 
@@ -120,14 +121,7 @@ public class ModurEliteEntity extends AbstractEvokerVariant implements RangedAtt
     @Override
     public void performRangedAttack(LivingEntity pTarget, float pVelocity)
     {
-        ModurEliteEntity.this.spawnCustomBolt(pTarget.blockPosition(), this.isInDifficultRaid() ? switch(this.getRaidDifficulty())
-        {
-            case HERO -> 7.0F;
-            case LEGEND -> 12.0F;
-            case MASTER -> 16.0F;
-            case GRANDMASTER -> 20.0F;
-            default -> 5.0F;
-        } : 10.0F);
+        ModurEliteEntity.this.spawnCustomBolt(pTarget.blockPosition(), this.config().modur.basicLightningStrikeDamage);
     }
 
     @Override
@@ -216,10 +210,11 @@ public class ModurEliteEntity extends AbstractEvokerVariant implements RangedAtt
     public void tick()
     {
         super.tick();
+        RaiderConfigs.Modur cfg = this.config().modur;
 
         if(this.isStormActive())
         {
-            int strikes = this.level.getDifficulty().equals(Difficulty.HARD) ? 2 : 1;
+            int strikes = cfg.stormStrikesPerTick;
 
             if(this.stormTicks % 2 == 0) for(int i = 0; i < strikes; i++)
             {
@@ -230,18 +225,7 @@ public class ModurEliteEntity extends AbstractEvokerVariant implements RangedAtt
                 BlockPos strikePos = new BlockPos(strikeX, strikeY, strikeZ);
                 int tries = 0; while(!this.level.getBlockState(strikePos).isAir() && tries++ < 20) strikePos = strikePos.above(1);
 
-                ModurEliteEntity.this.spawnCustomBolt(strikePos, this.isInDifficultRaid() ? switch(this.getRaidDifficulty()) {
-                    case HERO -> 10.0F;
-                    case LEGEND -> 15.0F;
-                    case MASTER -> 20.0F;
-                    case GRANDMASTER -> 30.0F;
-                    default -> 5.0F;
-                } : switch(this.level.getDifficulty()) {
-                    case PEACEFUL -> 0.0F;
-                    case EASY -> 3.0F;
-                    case NORMAL -> 7.5F;
-                    case HARD -> 10.0F;
-                });
+                ModurEliteEntity.this.spawnCustomBolt(strikePos, cfg.stormStrikeDamage);
             }
 
             this.stormTicks--;
@@ -272,13 +256,8 @@ public class ModurEliteEntity extends AbstractEvokerVariant implements RangedAtt
 
             if(this.chargedBoltWarmup <= 0)
             {
-                for(int i = 0; i < 10; i++) this.spawnCustomBolt(this.chargedBoltPos, this.isInDifficultRaid() ? switch(this.getRaidDifficulty()) {
-                    case HERO -> 25.0F;
-                    case LEGEND -> 40.0F;
-                    case MASTER -> 60.0F;
-                    case GRANDMASTER -> 100.0F;
-                    default -> 5.0F;
-                } : 25.0F);
+                for(int i = 0; i < cfg.chargedBoltCount; i++)
+                    this.spawnCustomBolt(this.chargedBoltPos, cfg.chargedBoltDamage);
 
                 this.chargedBoltWarmup = 0;
                 this.chargedBoltWarmupTotal = 0;
@@ -294,15 +273,7 @@ public class ModurEliteEntity extends AbstractEvokerVariant implements RangedAtt
 
             this.homingBoltPos = this.homingBoltPos.offset(x == 0 ? 0 : x < 0 ? -1 : 1, 0, z == 0 ? 0 : z < 0 ? -1 : 1);
 
-            float damage = this.isInDifficultRaid() ? switch(this.getRaidDifficulty())
-            {
-                case DEFAULT, HERO -> 8.0F;
-                case LEGEND -> 11.0F;
-                case MASTER -> 15.0F;
-                case GRANDMASTER -> 20.0F;
-            } : 10.0F;
-
-            this.spawnCustomBolt(this.homingBoltPos, damage);
+            this.spawnCustomBolt(this.homingBoltPos, cfg.homingBoltDamage);
         }
     }
 
@@ -326,13 +297,7 @@ public class ModurEliteEntity extends AbstractEvokerVariant implements RangedAtt
             Vec3 v = ModurEliteEntity.this.getLookAngle();
             modur.homingBoltPos = modur.blockPosition().offset(v.x, 0, v.z);
 
-            modur.homingBoltTicks = modur.isInDifficultRaid() ? switch(modur.getRaidDifficulty())
-            {
-                case DEFAULT, HERO -> 10 * 8;
-                case LEGEND -> 10 * 14;
-                case MASTER -> 10 * 20;
-                case GRANDMASTER -> 10 * 30;
-            } : 10 * 8;
+            modur.homingBoltTicks = modur.config().modur.homingBoltTime;
         }
 
         @Override
@@ -434,7 +399,9 @@ public class ModurEliteEntity extends AbstractEvokerVariant implements RangedAtt
         {
             if(!this.targetPos.equals(BlockPos.ZERO))
             {
-                for(int i = 0; i < 3; i++) ModurEliteEntity.this.spawnCustomBolt(this.targetPos.offset(0.5 - Math.random(), 0, 0.5 - Math.random()), 15.0F);
+                for(int i = 0; i < 3; i++)
+                    ModurEliteEntity.this.spawnCustomBolt(this.targetPos.offset(0.5 - Math.random(), 0, 0.5 - Math.random()),
+                            ModurEliteEntity.this.config().modur.zapBoltDamage);
             }
         }
 
@@ -501,21 +468,12 @@ public class ModurEliteEntity extends AbstractEvokerVariant implements RangedAtt
         {
             ModurEliteEntity modur = ModurEliteEntity.this;
 
-            modur.stormTicks = modur.isInDifficultRaid() ? switch(modur.getRaidDifficulty()) {
-                case HERO -> 20 * 5;
-                case LEGEND -> 20 * 12;
-                case MASTER -> 20 * 16;
-                case GRANDMASTER -> 20 * 20;
-                default -> 20 * 3;
-            } : 20 * 5;
+            modur.stormTicks = modur.config().modur.stormDuration;
 
-            modur.stormAABB = new AABB(modur.blockPosition()).inflate(modur.isInDifficultRaid() ? switch(modur.getRaidDifficulty()) {
-                case HERO -> 12.0;
-                case LEGEND -> 18.0;
-                case MASTER -> 20.0;
-                case GRANDMASTER -> 25.0;
-                default -> 10.0;
-            } : 10.0).setMaxY(modur.getEyeY() + modur.getBbHeight()).setMinY(modur.blockPosition().getY() + 0.4);
+            modur.stormAABB = new AABB(modur.blockPosition())
+                    .inflate(modur.config().modur.stormRadius)
+                    .setMaxY(modur.getEyeY() + modur.getBbHeight())
+                    .setMinY(modur.blockPosition().getY() + 0.4);
         }
 
         @Override

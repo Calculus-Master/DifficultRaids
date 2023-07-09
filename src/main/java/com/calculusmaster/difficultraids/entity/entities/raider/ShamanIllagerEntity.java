@@ -2,13 +2,11 @@ package com.calculusmaster.difficultraids.entity.entities.raider;
 
 import com.calculusmaster.difficultraids.entity.entities.component.ShamanDebuffBulletEntity;
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
-import com.calculusmaster.difficultraids.raids.RaidDifficulty;
-import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
+import com.calculusmaster.difficultraids.util.Compat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.Difficulty;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -62,7 +60,7 @@ public class ShamanIllagerEntity extends AbstractEvokerVariant
         this.targetSelector.addGoal(3, (new NearestAttackableTargetGoal<>(this, AbstractVillager.class, true)).setUnseenMemoryTicks(300));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
 
-        if(DifficultRaidsUtil.isGuardVillagersLoaded()) this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Guard.class, 8.0F, 0.7D, 1.0D));
+        if(Compat.GUARD_VILLAGERS.isLoaded()) this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Guard.class, 8.0F, 0.7D, 1.0D));
     }
 
     private List<Raider> getNearbyRaiders(double distance)
@@ -140,19 +138,9 @@ public class ShamanIllagerEntity extends AbstractEvokerVariant
         @Override
         protected void castSpell()
         {
-            ServerLevel level = (ServerLevel)ShamanIllagerEntity.this.getLevel();
-
-            int duration = switch(level.getDifficulty()) {
-                case PEACEFUL -> 0;
-                case EASY -> 60;
-                case NORMAL -> 80;
-                case HARD -> 100;
-            };
+            int duration = ShamanIllagerEntity.this.config().shaman.invisibilityDuration;
 
             ShamanIllagerEntity.this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 1));
-
-            if(level.getDifficulty().equals(Difficulty.HARD) && ShamanIllagerEntity.this.random.nextInt(100) < 20)
-                ShamanIllagerEntity.this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 60, 2));
         }
 
         @Override
@@ -207,68 +195,38 @@ public class ShamanIllagerEntity extends AbstractEvokerVariant
         {
             ServerLevel level = (ServerLevel)ShamanIllagerEntity.this.getLevel();
             LivingEntity target = ShamanIllagerEntity.this.getTarget();
-            boolean raid = ShamanIllagerEntity.this.isInRaid();
             Random random = new Random();
 
-            List<MobEffect> debuffPool = List.of(MobEffects.CONFUSION, MobEffects.MOVEMENT_SLOWDOWN, MobEffects.DIG_SLOWDOWN, MobEffects.POISON, MobEffects.LEVITATION, MobEffects.WEAKNESS);
+            List<MobEffect> debuffPool = new ArrayList<>(ShamanIllagerEntity.this.config().shaman.getEffectPool());
 
-            if(raid && target != null)
+            if(target != null)
             {
-                RaidDifficulty raidDifficulty = ShamanIllagerEntity.this.getRaidDifficulty();
-                int debuffCount = raidDifficulty.config().shaman().debuffAmount();
+                int debuffCount = ShamanIllagerEntity.this.config().shaman.maxDebuffCount;
 
                 Set<MobEffect> apply = new HashSet<>();
-                for(int i = 0; i < debuffCount; i++)
+
+                //Main Effect
+                MobEffect mainEffect = debuffPool.get(random.nextInt(debuffPool.size()));
+                apply.add(mainEffect);
+                debuffPool.remove(mainEffect);
+
+                //Additional Effects
+                for(int i = 0; i < debuffCount - 1 && !debuffPool.isEmpty(); i++)
                 {
-                    MobEffect effect = debuffPool.get(random.nextInt(debuffPool.size()));
-                    if(apply.contains(effect) && random.nextFloat() < 0.75) i--;
-                    else apply.add(debuffPool.get(random.nextInt(debuffPool.size())));
+                    if(ShamanIllagerEntity.this.random.nextFloat() < ShamanIllagerEntity.this.config().shaman.additionalDebuffChance)
+                    {
+                        MobEffect effect = debuffPool.get(random.nextInt(debuffPool.size()));
+                        apply.add(effect);
+                        debuffPool.remove(effect);
+                    }
+                    else break;
                 }
 
                 ShamanDebuffBulletEntity projectile = ShamanDebuffBulletEntity.create(level, ShamanIllagerEntity.this, target, ShamanIllagerEntity.this.getDirection().getAxis());
 
                 apply.forEach(effect -> {
-                    int duration = 0;
-                    int amplifier = 0;
-
-                    if(effect.equals(MobEffects.CONFUSION))
-                    {
-                        duration = raidDifficulty.config().shaman().nauseaDuration();
-                        amplifier = 1;
-                    }
-                    else if(effect.equals(MobEffects.MOVEMENT_SLOWDOWN))
-                    {
-                        duration = raidDifficulty.config().shaman().slownessDuration();
-                        amplifier = raidDifficulty.config().shaman().slownessAmplifier();
-                    }
-                    else if(effect.equals(MobEffects.DIG_SLOWDOWN))
-                    {
-                        duration = raidDifficulty.config().shaman().miningFatigueDuration();
-                        amplifier = raidDifficulty.config().shaman().miningFatigueAmplifier();
-                    }
-                    else if(effect.equals(MobEffects.POISON))
-                    {
-                        duration = raidDifficulty.config().shaman().poisonDuration();
-                        amplifier = raidDifficulty.config().shaman().poisonAmplifier();
-                    }
-                    else if(effect.equals(MobEffects.LEVITATION))
-                    {
-                        duration = raidDifficulty.config().shaman().levitationDuration();
-                        amplifier = 1;
-                    }
-                    else if(effect.equals(MobEffects.WEAKNESS))
-                    {
-                        duration = raidDifficulty.config().shaman().weaknessDuration();
-                        amplifier = raidDifficulty.config().shaman().weaknessAmplifier();
-                    }
-
-                    //General Difficulty Changes
-                    duration += switch(level.getDifficulty()) {
-                        case PEACEFUL -> -duration;
-                        case EASY -> -40;
-                        case NORMAL -> 0;
-                        case HARD -> 60;
-                    };
+                    int duration = ShamanIllagerEntity.this.config().shaman.debuffDuration;
+                    int amplifier = ShamanIllagerEntity.this.config().shaman.debuffAmplifier;
 
                     projectile.loadDebuff(new MobEffectInstance(effect, duration, amplifier));
                 });
@@ -316,61 +274,31 @@ public class ShamanIllagerEntity extends AbstractEvokerVariant
         @Override
         public boolean canUse()
         {
-            return super.canUse() && ShamanIllagerEntity.this.isInRaid() && !ShamanIllagerEntity.this.getNearbyRaiders(ShamanIllagerEntity.this.getRaidDifficulty().config().shaman().buffRadius()).isEmpty();
+            return super.canUse() && ShamanIllagerEntity.this.isInRaid();
         }
 
         @Override
         protected void castSpell()
         {
             ServerLevel level = (ServerLevel)ShamanIllagerEntity.this.getLevel();
-            boolean raid = ShamanIllagerEntity.this.isInRaid();
-            Random random = new Random();
 
-            //In a Raid, Shaman will boost others. If not, it'll boost itself (but the Shaman is a Raid-only mob at the moment)
-            if(raid)
-            {
-                RaidDifficulty raidDifficulty = ShamanIllagerEntity.this.getRaidDifficulty();
+            AABB buffAABB = new AABB(ShamanIllagerEntity.this.blockPosition()).inflate(ShamanIllagerEntity.this.config().shaman.allyBuffRadius);
 
-                AABB buffAABB = new AABB(ShamanIllagerEntity.this.blockPosition()).inflate(raidDifficulty.config().shaman().buffRadius());
-                Predicate<AbstractIllager> canReceiveBuff = illager -> !illager.is(ShamanIllagerEntity.this) && !illager.hasEffect(MobEffects.DAMAGE_RESISTANCE);
-                List<AbstractIllager> raiders = level.getEntitiesOfClass(AbstractIllager.class, buffAABB, canReceiveBuff);
+            Predicate<AbstractIllager> canReceiveBuff = illager -> !illager.is(ShamanIllagerEntity.this) && !illager.hasEffect(MobEffects.DAMAGE_RESISTANCE);
+            List<AbstractIllager> raiders = level.getEntitiesOfClass(AbstractIllager.class, buffAABB, canReceiveBuff);
 
-                int duration = raidDifficulty.config().shaman().allyResistanceDuration() + switch(level.getDifficulty()) {
-                    case PEACEFUL -> 0;
-                    case EASY -> -40;
-                    case NORMAL -> -20 + random.nextInt(41);
-                    case HARD -> +40;
-                };
-                int amplifier = raidDifficulty.config().shaman().allyResistanceAmplifier();
+            int duration = ShamanIllagerEntity.this.config().shaman.allyResistanceDuration;
+            int amplifier = ShamanIllagerEntity.this.config().shaman.allyResistanceAmplifier;
 
-                raiders.forEach(r -> {
-                    r.addEffect(new MobEffectInstance(
-                            MobEffects.DAMAGE_RESISTANCE,
-                            random.nextInt(duration - 20, duration + 21),
-                            amplifier));
-                    r.playSound(SoundEvents.BREWING_STAND_BREW, 0.5F, 1.0F);
-                });
+            raiders.forEach(r -> {
+                r.addEffect(new MobEffectInstance(
+                        MobEffects.DAMAGE_RESISTANCE,
+                        duration < 40 ? duration : random.nextInt(duration - 20, duration + 21),
+                        amplifier));
+                r.playSound(SoundEvents.BREWING_STAND_BREW, 0.5F, 1.0F);
+            });
 
-                ShamanIllagerEntity.this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 60, 2));
-            }
-            else if(!ShamanIllagerEntity.this.hasEffect(MobEffects.DAMAGE_RESISTANCE))
-            {
-                int resistanceLevel = switch(level.getDifficulty()) {
-                    case PEACEFUL -> 0;
-                    case EASY -> 1;
-                    case NORMAL -> 2;
-                    case HARD -> 3;
-                };
-
-                int resistanceDuration = switch(level.getDifficulty()) {
-                    case PEACEFUL -> 0;
-                    case EASY -> 120;
-                    case NORMAL -> 200;
-                    case HARD -> 240;
-                };
-
-                ShamanIllagerEntity.this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, resistanceDuration, resistanceLevel));
-            }
+            ShamanIllagerEntity.this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, duration / 2, amplifier / 2));
         }
 
         @Override
@@ -410,61 +338,31 @@ public class ShamanIllagerEntity extends AbstractEvokerVariant
         @Override
         public boolean canUse()
         {
-            return super.canUse() && ShamanIllagerEntity.this.isInRaid() && !ShamanIllagerEntity.this.getNearbyRaiders(ShamanIllagerEntity.this.getRaidDifficulty().config().shaman().buffRadius()).isEmpty();
+            return super.canUse() && ShamanIllagerEntity.this.isInRaid();
         }
 
         @Override
         protected void castSpell()
         {
             ServerLevel level = (ServerLevel)ShamanIllagerEntity.this.getLevel();
-            boolean raid = ShamanIllagerEntity.this.getCurrentRaid() != null;
-            Random random = new Random();
 
-            //In a Raid, Shaman will boost others. If not, it'll boost itself (but the Shaman is a Raid-only mob at the moment)
-            if(raid)
-            {
-                RaidDifficulty raidDifficulty = ShamanIllagerEntity.this.getRaidDifficulty();
+            AABB buffAABB = new AABB(ShamanIllagerEntity.this.blockPosition()).inflate(ShamanIllagerEntity.this.config().shaman.allyBuffRadius);
 
-                AABB buffAABB = new AABB(ShamanIllagerEntity.this.blockPosition()).inflate(raidDifficulty.config().shaman().buffRadius());
-                Predicate<AbstractIllager> canReceiveBuff = illager -> !illager.is(ShamanIllagerEntity.this) && !illager.hasEffect(MobEffects.DAMAGE_BOOST);
-                List<AbstractIllager> raiders = level.getEntitiesOfClass(AbstractIllager.class, buffAABB, canReceiveBuff);
+            Predicate<AbstractIllager> canReceiveBuff = illager -> !illager.is(ShamanIllagerEntity.this) && !illager.hasEffect(MobEffects.DAMAGE_BOOST);
+            List<AbstractIllager> raiders = level.getEntitiesOfClass(AbstractIllager.class, buffAABB, canReceiveBuff);
 
-                int duration = raidDifficulty.config().shaman().allyStrengthDuration() + switch(level.getDifficulty()) {
-                    case PEACEFUL -> 0;
-                    case EASY -> -40;
-                    case NORMAL -> -20 + random.nextInt(41);
-                    case HARD -> +40;
-                };
-                int amplifier = raidDifficulty.config().shaman().allyStrengthAmplifier();
+            int duration = ShamanIllagerEntity.this.config().shaman.allyStrengthDuration;
+            int amplifier = ShamanIllagerEntity.this.config().shaman.allyStrengthAmplifier;
 
-                raiders.forEach(r -> {
-                    r.addEffect(new MobEffectInstance(
-                            MobEffects.DAMAGE_BOOST,
-                            random.nextInt(duration - 20, duration + 21),
-                            amplifier));
-                    r.playSound(SoundEvents.BREWING_STAND_BREW, 0.5F, 1.0F);
-                });
+            raiders.forEach(r -> {
+                r.addEffect(new MobEffectInstance(
+                        MobEffects.DAMAGE_BOOST,
+                        duration < 40 ? duration : random.nextInt(duration - 20, duration + 21),
+                        amplifier));
+                r.playSound(SoundEvents.BREWING_STAND_BREW, 0.5F, 1.0F);
+            });
 
-                ShamanIllagerEntity.this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 60, 2));
-            }
-            else if(!ShamanIllagerEntity.this.hasEffect(MobEffects.DAMAGE_BOOST))
-            {
-                int strengthLevel = switch(level.getDifficulty()) {
-                    case PEACEFUL -> 0;
-                    case EASY -> 1;
-                    case NORMAL -> 2;
-                    case HARD -> 3;
-                };
-
-                int strengthDuration = switch(level.getDifficulty()) {
-                    case PEACEFUL -> 0;
-                    case EASY -> 120;
-                    case NORMAL -> 200;
-                    case HARD -> 240;
-                };
-
-                ShamanIllagerEntity.this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, strengthDuration, strengthLevel));
-            }
+            ShamanIllagerEntity.this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, duration / 2, amplifier / 2));
         }
 
         @Override

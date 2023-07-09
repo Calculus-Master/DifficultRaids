@@ -1,5 +1,6 @@
 package com.calculusmaster.difficultraids.mixins.compat;
 
+import com.calculusmaster.difficultraids.config.RaidDifficultyConfig;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.izofar.takesapillage.entity.Archer;
 import net.minecraft.world.InteractionHand;
@@ -27,27 +28,16 @@ public abstract class ArcherMixin extends AbstractIllager
         if(this.getCurrentRaid() != null)
         {
             RaidDifficulty raidDifficulty = RaidDifficulty.get(this.getCurrentRaid().getBadOmenLevel());
-            ItemStack bow = this.getItemInHand(InteractionHand.MAIN_HAND);
 
             if(!raidDifficulty.isDefault())
             {
-                bow.enchant(Enchantments.POWER_ARROWS, switch(raidDifficulty)
-                {
-                    case DEFAULT, HERO -> 1;
-                    case LEGEND -> 3;
-                    case MASTER -> 4;
-                    case GRANDMASTER -> 5;
-                });
+                RaidDifficultyConfig cfg = raidDifficulty.config();
+                ItemStack bow = this.getItemInHand(InteractionHand.MAIN_HAND);
 
-                if(raidDifficulty.is(RaidDifficulty.MASTER, RaidDifficulty.GRANDMASTER))
-                    bow.enchant(Enchantments.PUNCH_ARROWS, switch(raidDifficulty)
-                    {
-                        case DEFAULT, HERO, LEGEND -> 0;
-                        case MASTER -> 1;
-                        case GRANDMASTER -> 2;
-                    });
+                bow.enchant(Enchantments.POWER_ARROWS, cfg.archer.bowPowerLevel);
+                bow.enchant(Enchantments.PUNCH_ARROWS, cfg.archer.bowPunchLevel);
 
-                this.setDropChance(EquipmentSlot.MAINHAND, 0);
+                this.setDropChance(EquipmentSlot.MAINHAND, cfg.archer.bowDropChance);
             }
         }
     }

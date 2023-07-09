@@ -1,11 +1,12 @@
 package com.calculusmaster.difficultraids.entity.entities.elite;
 
+import com.calculusmaster.difficultraids.config.RaidDifficultyConfig;
 import com.calculusmaster.difficultraids.entity.entities.component.XydraxWindColumn;
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsEffects;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsItems;
-import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
+import com.calculusmaster.difficultraids.util.Compat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -20,7 +21,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -36,10 +36,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -49,9 +45,7 @@ import org.jetbrains.annotations.Nullable;
 import tallestegg.guardvillagers.entities.Guard;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class XydraxEliteEntity extends AbstractEvokerVariant
 {
@@ -92,31 +86,13 @@ public class XydraxEliteEntity extends AbstractEvokerVariant
         this.targetSelector.addGoal(3, (new NearestAttackableTargetGoal<>(this, AbstractVillager.class, true)).setUnseenMemoryTicks(300));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
 
-        if(DifficultRaidsUtil.isGuardVillagersLoaded()) this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Guard.class, 8.0F, 0.7D, 1.0D));
+        if(Compat.GUARD_VILLAGERS.isLoaded()) this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Guard.class, 8.0F, 0.7D, 1.0D));
     }
 
     @Override
     public void applyRaidBuffs(int p_37844_, boolean p_37845_)
     {
-        //Armor
-        Map<Enchantment, Integer> generalEnchants = new HashMap<>();
-        generalEnchants.put(Enchantments.ALL_DAMAGE_PROTECTION, 1);
-        generalEnchants.put(Enchantments.VANISHING_CURSE, 1);
 
-        ItemStack helm = new ItemStack(Items.DIAMOND_HELMET);
-        ItemStack chest = new ItemStack(Items.DIAMOND_CHESTPLATE);
-        ItemStack legs = new ItemStack(Items.DIAMOND_LEGGINGS);
-        ItemStack boots = new ItemStack(Items.DIAMOND_BOOTS);
-
-        EnchantmentHelper.setEnchantments(generalEnchants, helm);
-        EnchantmentHelper.setEnchantments(generalEnchants, chest);
-        EnchantmentHelper.setEnchantments(generalEnchants, legs);
-        EnchantmentHelper.setEnchantments(generalEnchants, boots);
-
-        this.setItemSlot(EquipmentSlot.HEAD, helm);
-        this.setItemSlot(EquipmentSlot.CHEST, chest);
-        this.setItemSlot(EquipmentSlot.LEGS, legs);
-        this.setItemSlot(EquipmentSlot.FEET, boots);
     }
 
     @Override
@@ -154,8 +130,8 @@ public class XydraxEliteEntity extends AbstractEvokerVariant
     @Override
     public boolean hurt(DamageSource pSource, float pAmount)
     {
-        if(pSource.getEntity() instanceof IronGolem || (DifficultRaidsUtil.isGuardVillagersLoaded() && pSource.getEntity() instanceof Guard))
-            pAmount *= 0.4;
+        if(pSource.getEntity() instanceof IronGolem || (Compat.GUARD_VILLAGERS.isLoaded() && pSource.getEntity() instanceof Guard))
+            pAmount *= this.config().xydrax.friendlyDamageReduction;
 
         if(pSource.getDirectEntity() instanceof LivingEntity living && this.random.nextFloat() < 0.2)
             living.push(0.0D, this.random.nextFloat() * 0.7, 0.0D);
@@ -181,6 +157,7 @@ public class XydraxEliteEntity extends AbstractEvokerVariant
         super.tick();
 
         RaidDifficulty raidDifficulty = this.isInDifficultRaid() ? this.getRaidDifficulty() : RaidDifficulty.DEFAULT;
+        RaidDifficultyConfig cfg = this.config();
 
         if(this.isHealing())
         {
@@ -226,19 +203,13 @@ public class XydraxEliteEntity extends AbstractEvokerVariant
             }
 
             //Vortex Pull
-            if(this.vortexTicks % 20 == 0)
+            if(this.vortexTicks % cfg.xydrax.vortexPullInterval == 0)
             {
                 this.getVortexTargets().forEach(e -> {
                     BlockPos targetPos = e.blockPosition().offset(0.5, 0, 0.5);
                     Vec3 targetVector = new Vec3(this.vortexFloor.getX() - targetPos.getX(), this.vortexFloor.getY() - targetPos.getY(), this.vortexFloor.getZ() - targetPos.getZ()).normalize();
 
-                    double force = switch(raidDifficulty) {
-                        case DEFAULT -> 1.25F;
-                        case HERO -> 1.75F;
-                        case LEGEND -> 2.5F;
-                        case MASTER -> 3.75F;
-                        case GRANDMASTER -> 5.0F;
-                    };
+                    double force = cfg.xydrax.vortexForce;
 
                     //Modifier from entity's Knockback Resistance (0 -> 1, percent of some max value)
                     double kbresistanceModifier = 1 - e.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE) * 0.5F;
@@ -250,24 +221,21 @@ public class XydraxEliteEntity extends AbstractEvokerVariant
             }
 
             //DoT
-            if(this.vortexTicks % 40 == 0)
+            if(this.vortexTicks % cfg.xydrax.vortexDamageInterval == 0)
             {
                 this.getVortexTargets().forEach(e -> {
                     double distance = Math.pow(e.distanceToSqr(this.vortexFloor.getX(), this.vortexFloor.getY(), this.vortexFloor.getZ()), 0.5);
-                    float damage;
-                    if(distance < 1) damage = 17.5F;
-                    else if(distance < 2) damage = 10.0F;
-                    else if(distance < 5) damage = 4.0F;
-                    else damage = 1.0F;
 
-                    damage *= switch(raidDifficulty) {
-                        case DEFAULT, HERO -> 1.0F;
-                        case LEGEND -> 1.05F;
-                        case MASTER -> 1.2F;
-                        case GRANDMASTER -> 2.0F;
-                    };
+                    List<Double> base = cfg.xydrax.vortexBaseDamageThresholds;
+                    double damage;
+                    if(distance < 1) damage = base.get(0);
+                    else if(distance < 2) damage = base.get(1);
+                    else if(distance < 5) damage = base.get(2);
+                    else damage = base.get(3);
 
-                    if(damage != 0.0F) e.hurt(DamageSource.mobAttack(this), damage);
+                    damage *= cfg.xydrax.vortexDamageMultiplier;
+
+                    if(damage != 0.0F) e.hurt(DamageSource.mobAttack(this), (float)damage);
                 });
             }
         }
@@ -378,13 +346,10 @@ public class XydraxEliteEntity extends AbstractEvokerVariant
         };
 
         windColumnSpawns.forEach(pos -> {
-            int life = switch(raidDifficulty) {
-                case DEFAULT -> this.random.nextInt(20 * 5, 20 * 15 + 1);
-                case HERO -> this.random.nextInt(20 * 7, 20 * 17 + 1);
-                case LEGEND -> this.random.nextInt(20 * 9, 20 * 17 + 1);
-                case MASTER -> this.random.nextInt(20 * 10, 20 * 20 + 1);
-                case GRANDMASTER -> this.random.nextInt(20 * 15, 20 * 25 + 1);
-            };
+            int life = this.random.nextInt(
+                    raidDifficulty.config().xydrax.windColumnLifetime.get(0),
+                    raidDifficulty.config().xydrax.windColumnLifetime.get(1) + 1
+            );
 
             XydraxWindColumn column = new XydraxWindColumn(this, pos, life);
             this.windColumns.add(column);
@@ -411,7 +376,7 @@ public class XydraxEliteEntity extends AbstractEvokerVariant
     {
         public XydraxAvoidEntityGoal(float pMaxDistance, double pWalkSpeedModifier, double pSprintSpeedModifier)
         {
-            super(XydraxEliteEntity.this, LivingEntity.class, pMaxDistance, pWalkSpeedModifier, pSprintSpeedModifier, e -> (e instanceof Player player && !player.isCreative() && !player.isSpectator()) || (DifficultRaidsUtil.isGuardVillagersLoaded() && e instanceof Guard));
+            super(XydraxEliteEntity.this, LivingEntity.class, pMaxDistance, pWalkSpeedModifier, pSprintSpeedModifier, e -> (e instanceof Player player && !player.isCreative() && !player.isSpectator()) || (Compat.GUARD_VILLAGERS.isLoaded() && e instanceof Guard));
         }
 
         @Override
@@ -458,12 +423,7 @@ public class XydraxEliteEntity extends AbstractEvokerVariant
             xydrax.setOnGround(false);
 
             //Initiate vortex
-            RaidDifficulty raidDifficulty = xydrax.isInDifficultRaid() ? xydrax.getRaidDifficulty() : RaidDifficulty.DEFAULT;
-            xydrax.vortexTicks = switch(raidDifficulty) {
-                case DEFAULT -> 20 * 12;
-                case HERO, LEGEND -> 20 * 20;
-                case MASTER, GRANDMASTER -> 20 * 30;
-            };
+            xydrax.vortexTicks = xydrax.config().xydrax.vortexLifetime;
         }
 
         @Override
@@ -621,19 +581,8 @@ public class XydraxEliteEntity extends AbstractEvokerVariant
 
             if(target != null)
             {
-                int curseDuration = XydraxEliteEntity.this.isInDifficultRaid() ? switch(XydraxEliteEntity.this.getRaidDifficulty()) {
-                    case DEFAULT, HERO -> 20 * 10;
-                    case LEGEND -> 20 * 20;
-                    case MASTER -> 20 * 30;
-                    case GRANDMASTER -> 20 * 40;
-                } : 20 * 10;
-
-                int curseAmplifier = XydraxEliteEntity.this.isInDifficultRaid() ? switch(XydraxEliteEntity.this.getRaidDifficulty()) {
-                    case DEFAULT, HERO -> 1;
-                    case LEGEND -> 2;
-                    case MASTER -> 3;
-                    case GRANDMASTER -> 4;
-                } : 1;
+                int curseDuration = XydraxEliteEntity.this.config().xydrax.barrageCurseDuration;
+                int curseAmplifier = XydraxEliteEntity.this.config().xydrax.barrageCurseAmplifier;
 
                 for(int i = 0; i < 12; i++)
                 {
@@ -645,7 +594,7 @@ public class XydraxEliteEntity extends AbstractEvokerVariant
                         @Override
                         protected void onHitEntity(EntityHitResult pResult)
                         {
-                            if(!(pResult.getEntity() instanceof Raider))
+                            if(!(pResult.getEntity() instanceof Raider) || !XydraxEliteEntity.this.isAlliedTo(pResult.getEntity()))
                             {
                                 super.onHitEntity(pResult);
 

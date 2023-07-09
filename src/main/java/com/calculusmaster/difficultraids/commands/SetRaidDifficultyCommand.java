@@ -16,7 +16,7 @@ public class SetRaidDifficultyCommand
 {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
     {
-        LiteralArgumentBuilder<CommandSourceStack> literalArgumentBuilder = Commands.literal("dr_raiddifficulty");
+        LiteralArgumentBuilder<CommandSourceStack> literalArgumentBuilder = Commands.literal("difficultraids_raiddifficulty");
 
         // dr_raiddifficulty get
         literalArgumentBuilder.then(Commands.literal("get").executes(css -> {
@@ -31,10 +31,10 @@ public class SetRaidDifficultyCommand
                 {
                     int level = player.getEffect(MobEffects.BAD_OMEN).getAmplifier() + 1;
 
-                    css.getSource().sendSuccess(Component.literal("Entering a Village will initiate a " + RaidDifficulty.get(level).getFormattedName() + " Difficulty Raid."), false);
+                    css.getSource().sendSuccess(Component.literal("Entering a Village will initiate a " + RaidDifficulty.get(level).getFormattedName() + " Raid with your current Bad Omen level."), false);
                 }
             }
-            else css.getSource().sendSuccess(Component.literal("The Difficulty of the current Raid is " + RaidDifficulty.get(raid.getBadOmenLevel()).getFormattedName() + "."), false);
+            else css.getSource().sendSuccess(Component.literal("You're currently in a " + RaidDifficulty.get(raid.getBadOmenLevel()).getFormattedName() + " Raid."), false);
 
             return 1;
         }));
@@ -56,14 +56,14 @@ public class SetRaidDifficultyCommand
 
                 css.getSource().getPlayerOrException().addEffect(new MobEffectInstance(MobEffects.BAD_OMEN, 100000, level - 1));
 
-                css.getSource().sendSuccess(Component.literal("Entering a Village will initiate a " + difficulty.getFormattedName() + " Difficulty Raid!"), false);
+                css.getSource().sendSuccess(Component.literal("Entering a Village will initiate a " + difficulty.getFormattedName() + " Raid."), false);
                 return 1;
             })));
         }
 
         // dr_raiddifficulty info
         literalArgumentBuilder.then(Commands.literal("info").executes(css -> {
-            css.getSource().sendSuccess(Component.literal("To select a Raid Difficulty, obtain higher levels of Bad Omen. Level 1 spawns a Default Vanilla Raid, and higher levels spawn tougher Raids added by this DifficultRaids (2: Hero, 3: Legend, 4: Master, 5: Grandmaster)."), false);
+            css.getSource().sendSuccess(Component.literal("To select a Raid Difficulty, obtain higher levels of Bad Omen. Level 1 spawns a Default Vanilla Raid, and higher levels spawn tougher Raids added by DifficultRaids (2: Hero, 3: Legend, 4: Master, 5: Grandmaster)."), false);
             return 1;
         }));
 

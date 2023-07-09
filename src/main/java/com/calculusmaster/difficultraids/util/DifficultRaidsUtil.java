@@ -3,29 +3,15 @@ package com.calculusmaster.difficultraids.util;
 import baguchan.enchantwithmob.registry.ModEntities;
 import baguchan.hunterillager.init.HunterEntityRegistry;
 import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
+import com.izofar.takesapillage.init.ModEntityTypes;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.raid.Raider;
-import net.minecraftforge.fml.ModList;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class DifficultRaidsUtil
 {
-    //Mod Checks
-    public static boolean isGuardVillagersLoaded()
-    {
-        return ModList.get().isLoaded("guardvillagers");
-    }
-    public static boolean isHunterIllagerLoaded()
-    {
-        return ModList.get().isLoaded("hunterillager");
-    }
-    public static boolean isEnchantWithMobLoaded()
-    {
-        return ModList.get().isLoaded("enchantwithmob");
-    }
-
     public static final String ELECTRO_ILLAGER_CUSTOM_BOLT_TAG = "DifficultRaids_Electro_Bolt";
 
     //For Armor Modifiers
@@ -43,7 +29,8 @@ public class DifficultRaidsUtil
         //Unaffected: Illusioner, Assassin, Dart, Elites
 
         //Mod Compat
-        if(DifficultRaidsUtil.isHunterIllagerLoaded()) STANDARD_RAIDERS.add(HunterEntityRegistry.HUNTERILLAGER.get());
-        if(DifficultRaidsUtil.isEnchantWithMobLoaded()) ADVANCED_MAGIC_RAIDERS.add(ModEntities.ENCHANTER.get());
+        if(Compat.HUNTER_ILLAGER.isLoaded()) STANDARD_RAIDERS.add(HunterEntityRegistry.HUNTERILLAGER.get());
+        if(Compat.ENCHANT_WITH_MOB.isLoaded()) ADVANCED_MAGIC_RAIDERS.add(ModEntities.ENCHANTER.get());
+        if(Compat.IT_TAKES_A_PILLAGE.isLoaded()) STANDARD_RAIDERS.addAll(List.of(ModEntityTypes.ARCHER.get(), ModEntityTypes.SKIRMISHER.get(), ModEntityTypes.LEGIONER.get()));
     }
 }

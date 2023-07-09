@@ -6,17 +6,14 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.entity.raid.Raider;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import static com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes.*;
 
 public class RaidEnemyRegistry
 {
     public static final Map<RaidDifficulty, RaidEnemies> WAVES = new HashMap<>();
-    public static final Map<Integer, List<EntityType<?>>> ELITES = new HashMap<>();
+    private static final Set<String> REGISTERED_RAIDER_TYPES = new HashSet<>();
 
     //Minecraft
     public static final String VINDICATOR = "VINDICATOR";
@@ -61,7 +58,7 @@ public class RaidEnemyRegistry
 
     public static boolean isRaiderTypeRegistered(String raiderType)
     {
-        return WAVES.values().stream().anyMatch(re -> re.waves.keySet().stream().anyMatch(raiderType::equalsIgnoreCase));
+        return REGISTERED_RAIDER_TYPES.contains(raiderType.toUpperCase());
     }
 
     public static void registerRaiders()
@@ -216,7 +213,7 @@ public class RaidEnemyRegistry
                 .withEliteWave(7, NUAOS_ELITE.get(), VOLDON_ELITE.get(), XYDRAX_ELITE.get(), MODUR_ELITE.get())
                 .register();
 
-        //TODO: Look into using Reflection instead
+        //Reflection Option:
         //ObfuscationReflectionHelper.findField(Raid.RaiderType.class, "f_37815_").set(Raid.RaiderType.VINDICATOR, new int[]{0, 0, 2, 0, 1, 4, 2, 5});
     }
 
@@ -273,6 +270,7 @@ public class RaidEnemyRegistry
         public void register()
         {
             WAVES.put(this.raidDifficulty, this);
+            REGISTERED_RAIDER_TYPES.addAll(this.waves.keySet());
         }
     }
 }

@@ -3,7 +3,7 @@ package com.calculusmaster.difficultraids.entity.entities.elite;
 import com.calculusmaster.difficultraids.entity.entities.component.VoldonFamiliarEntity;
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsItems;
-import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
+import com.calculusmaster.difficultraids.util.Compat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -77,7 +77,7 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
         this.targetSelector.addGoal(3, (new NearestAttackableTargetGoal<>(this, AbstractVillager.class, true)).setUnseenMemoryTicks(300));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
 
-        if(DifficultRaidsUtil.isGuardVillagersLoaded()) this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Guard.class, 8.0F, 0.7D, 1.0D));
+        if(Compat.GUARD_VILLAGERS.isLoaded()) this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Guard.class, 8.0F, 0.7D, 1.0D));
     }
 
     @Override
@@ -117,7 +117,7 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
     {
         this.familiars.remove(familiar);
 
-        if(this.areFamiliarsDead()) this.familiarCooldown = 20 * 15;
+        if(this.areFamiliarsDead()) this.familiarCooldown = this.config().voldon.familiarSummonCooldown;
     }
 
     @Override
@@ -132,11 +132,17 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
     @Override
     public boolean hurt(DamageSource pSource, float pAmount)
     {
-        if(pSource.getEntity() instanceof IronGolem || (DifficultRaidsUtil.isGuardVillagersLoaded() && pSource.getEntity() instanceof Guard))
-            pAmount *= 0.5;
+        if(pSource.getEntity() instanceof IronGolem || (Compat.GUARD_VILLAGERS.isLoaded() && pSource.getEntity() instanceof Guard))
+            pAmount *= this.config().voldon.friendlyDamageReduction;
 
         if(!this.areFamiliarsDead())
+        {
             pAmount *= 0.025F;
+
+            this.familiars.stream()
+                    .filter(e -> !e.hasEffect(MobEffects.GLOWING))
+                    .forEach(e -> e.addEffect(new MobEffectInstance(MobEffects.GLOWING, 10000, 1, false, false)));
+        }
 
         return super.hurt(pSource, pAmount);
     }
@@ -160,7 +166,7 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
             zombie.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(zombie, Villager.class, true));
             zombie.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(zombie, Player.class, true));
             zombie.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(zombie, IronGolem.class, true));
-            if(DifficultRaidsUtil.isGuardVillagersLoaded()) zombie.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(zombie, Guard.class, true));
+            if(Compat.GUARD_VILLAGERS.isLoaded()) zombie.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(zombie, Guard.class, true));
 
             if(pCause.getEntity() instanceof LivingEntity living) zombie.setTarget(living);
 
@@ -179,7 +185,6 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
     @Override
     protected void dropCustomDeathLoot(DamageSource pSource, int pLooting, boolean pRecentlyHit)
     {
-        //TODO: Voldon Unique Raid Loot - the Totem reward is temporary
         this.spawnAtLocation(new ItemStack(DifficultRaidsItems.TOTEM_OF_PROTECTION.get()));
         this.spawnAtLocation(new ItemStack(DifficultRaidsItems.TOTEM_OF_PROTECTION.get()));
         this.spawnAtLocation(new ItemStack(DifficultRaidsItems.TOTEM_OF_PROTECTION.get()));
@@ -194,12 +199,7 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
         double d3 = pTarget.getZ() - this.getZ();
         double d4 = Math.sqrt(Math.sqrt(d0)) * 0.5D;
 
-        int count = !this.isInDifficultRaid() ? 3 : switch(this.getRaidDifficulty()) {
-            case HERO, LEGEND -> 4;
-            case MASTER -> 5;
-            case GRANDMASTER -> 6;
-            default -> 3;
-        };
+        int count = this.config().voldon.fireballCount;
 
         for(int i = 0; i < count; i++)
         {
@@ -251,13 +251,7 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
                 VoldonEliteEntity.this.getLookControl().setLookAt(sacrifice);
                 ((Mob)sacrifice).getLookControl().setLookAt(VoldonEliteEntity.this);
 
-                int effectDuration = VoldonEliteEntity.this.isInDifficultRaid() ? switch(VoldonEliteEntity.this.getRaidDifficulty()) {
-                    case HERO -> 20 * 20;
-                    case LEGEND -> 20 * 25;
-                    case MASTER -> 20 * 40;
-                    case GRANDMASTER -> 20 * 60;
-                    default -> 20 * 10;
-                } : 20 * 20;
+                int effectDuration = VoldonEliteEntity.this.config().voldon.sacrificeBuffDuration;
 
                 familiars.forEach(f ->
                 {
@@ -382,21 +376,7 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
         @Override
         protected void castSpell()
         {
-            int familiarCount;
-
-            if(VoldonEliteEntity.this.isInRaid() && !VoldonEliteEntity.this.getRaidDifficulty().isDefault()) familiarCount = switch(VoldonEliteEntity.this.getRaidDifficulty()) {
-                case HERO -> 4;
-                case LEGEND -> 6;
-                case MASTER -> 8;
-                case GRANDMASTER -> 12;
-                default -> 0;
-            };
-            else familiarCount = switch(VoldonEliteEntity.this.level.getDifficulty()) {
-                case PEACEFUL -> 0;
-                case EASY -> 3;
-                case NORMAL -> 4;
-                case HARD -> 6;
-            };
+            int familiarCount = VoldonEliteEntity.this.config().voldon.familiarSummonCount;
 
             VoldonEliteEntity.this.totalFamiliars = familiarCount;
 

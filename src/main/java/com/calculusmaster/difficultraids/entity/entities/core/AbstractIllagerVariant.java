@@ -1,5 +1,6 @@
 package com.calculusmaster.difficultraids.entity.entities.core;
 
+import com.calculusmaster.difficultraids.config.RaidDifficultyConfig;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -35,6 +36,11 @@ public abstract class AbstractIllagerVariant extends AbstractIllager
     {
         if(this.getCurrentRaid() == null) return null;
         else return RaidDifficulty.get(this.getCurrentRaid().getBadOmenLevel());
+    }
+
+    public RaidDifficultyConfig config()
+    {
+        return (this.isInRaid() ? this.getRaidDifficulty() : RaidDifficulty.DEFAULT).config();
     }
 
     protected boolean isInRaid()

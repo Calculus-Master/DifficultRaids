@@ -1,10 +1,11 @@
 package com.calculusmaster.difficultraids.entity.entities.elite;
 
-import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
+import com.calculusmaster.difficultraids.config.RaidDifficultyConfig;
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractIllagerVariant;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsEnchantments;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsItems;
+import com.calculusmaster.difficultraids.util.Compat;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -97,8 +98,8 @@ public class NuaosEliteEntity extends AbstractIllagerVariant
     @Override
     public boolean hurt(DamageSource pSource, float pAmount)
     {
-        if(pSource.getEntity() instanceof IronGolem || (DifficultRaidsUtil.isGuardVillagersLoaded() && pSource.getEntity() instanceof Guard))
-            pAmount *= 0.4;
+        if(pSource.getEntity() instanceof IronGolem || (Compat.GUARD_VILLAGERS.isLoaded() && pSource.getEntity() instanceof Guard))
+            pAmount *= this.config().nuaos.friendlyDamageReduction;
 
         return super.hurt(pSource, pAmount);
     }
@@ -106,42 +107,22 @@ public class NuaosEliteEntity extends AbstractIllagerVariant
     @Override
     public void applyRaidBuffs(int p_37844_, boolean p_37845_)
     {
-        RaidDifficulty raidDifficulty = this.isInDifficultRaid() ? this.getRaidDifficulty() : RaidDifficulty.DEFAULT;
+        RaidDifficultyConfig cfg = this.config();
 
         //Weapons
         ItemStack sword = this.getMainHandItem();
-        sword.enchant(Enchantments.SHARPNESS, switch(raidDifficulty)
-        {
-            case DEFAULT, HERO -> 2;
-            case LEGEND -> 3;
-            case MASTER -> 4;
-            case GRANDMASTER -> 5;
-        });
 
-        sword.enchant(DifficultRaidsEnchantments.CRITICAL_BURST.get(), switch(raidDifficulty)
-        {
-            case DEFAULT, HERO -> 5;
-            case LEGEND -> 6;
-            case MASTER -> 8;
-            case GRANDMASTER -> 10;
-        });
-
-        if(raidDifficulty.is(RaidDifficulty.MASTER, RaidDifficulty.GRANDMASTER))
-            sword.enchant(DifficultRaidsEnchantments.CRITICAL_STRIKE.get(), switch(raidDifficulty)
-            {
-                case DEFAULT, HERO, LEGEND -> 0;
-                case MASTER -> 1;
-                case GRANDMASTER -> 3;
-            });
+        sword.enchant(Enchantments.SHARPNESS, cfg.nuaos.sharpnessLevel);
+        sword.enchant(DifficultRaidsEnchantments.CRITICAL_BURST.get(), cfg.nuaos.criticalBurstLevel);
+        sword.enchant(DifficultRaidsEnchantments.CRITICAL_STRIKE.get(), cfg.nuaos.criticalStrikeLevel);
 
         this.setItemInHand(InteractionHand.MAIN_HAND, sword);
+        this.setDropChance(EquipmentSlot.MAINHAND, cfg.nuaos.swordDropChance);
     }
 
     @Override
     protected void dropCustomDeathLoot(DamageSource pSource, int pLooting, boolean pRecentlyHit)
     {
-        this.spawnAtLocation(this.getItemInHand(InteractionHand.MAIN_HAND));
-
         this.spawnAtLocation(new ItemStack(DifficultRaidsItems.TOTEM_OF_PROTECTION.get()));
     }
 
@@ -149,9 +130,7 @@ public class NuaosEliteEntity extends AbstractIllagerVariant
     @Override
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData, @Nullable CompoundTag pDataTag)
     {
-        ItemStack sword = new ItemStack(this.isInRaid() && this.getRaidDifficulty().is(RaidDifficulty.MASTER, RaidDifficulty.GRANDMASTER) ? Items.NETHERITE_SWORD : Items.DIAMOND_SWORD);
-
-        this.setItemSlot(EquipmentSlot.MAINHAND, sword);
+        this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.NETHERITE_SWORD));
 
         return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData, pDataTag);
     }
@@ -166,13 +145,9 @@ public class NuaosEliteEntity extends AbstractIllagerVariant
         @Override
         protected void checkAndPerformAttack(LivingEntity pEnemy, double pDistToEnemySqr)
         {
-            AttributeModifier damageBoost = new AttributeModifier("NUAOS_CHARGED_DAMAGE_BOOST", switch(NuaosEliteEntity.this.getChargeState())
-            {
-                case NO_CHARGE -> 1.0F;
-                case LOW_CHARGE -> 1.25F;
-                case HIGH_CHARGE -> 1.75F;
-                case MAX_CHARGE -> 2.25F;
-            }, AttributeModifier.Operation.MULTIPLY_TOTAL);
+            AttributeModifier damageBoost = new AttributeModifier("NUAOS_CHARGED_DAMAGE_BOOST",
+                    NuaosEliteEntity.this.config().nuaos.chargedDamageBoost.get(NuaosEliteEntity.this.getChargeState().ordinal()),
+                    AttributeModifier.Operation.MULTIPLY_TOTAL);
 
             AttributeInstance attackDamageInstance = NuaosEliteEntity.this.getAttribute(Attributes.ATTACK_DAMAGE);
 
@@ -211,7 +186,7 @@ public class NuaosEliteEntity extends AbstractIllagerVariant
 
     public float getMaxChargeDamage()
     {
-        return 50.0F;
+        return this.isInDifficultRaid() ? this.getRaidDifficulty().config().nuaos.maxChargeDamage : 50.0F;
     }
 
     public ChargeState getChargeState()
@@ -247,7 +222,9 @@ public class NuaosEliteEntity extends AbstractIllagerVariant
         super.customServerAiStep();
         this.ELITE_EVENT.setProgress(this.getHealth() / this.getMaxHealth());
 
-        if(this.ticksLastDamageTaken++ > 20 * 10)
+        RaidDifficulty rd = this.isInDifficultRaid() ? this.getRaidDifficulty() : RaidDifficulty.DEFAULT;
+
+        if(this.config().nuaos.chargeDecay && this.ticksLastDamageTaken++ > 20 * 10)
         {
             float decayPercent = (this.random.nextFloat() * 0.1F) + 0.005F;
 
@@ -261,18 +238,12 @@ public class NuaosEliteEntity extends AbstractIllagerVariant
         {
             this.resetStoredChargeDamage();
 
-            this.playSound(SoundEvents.GENERIC_EXPLODE, 0.8F, 0.8F);
+            this.playSound(SoundEvents.GENERIC_EXPLODE, 1.2F, 0.8F);
 
             List<EntityType<? extends LivingEntity>> canReceiveDamage = new ArrayList<>(List.of(EntityType.VILLAGER, EntityType.PLAYER, EntityType.IRON_GOLEM));
-            if(DifficultRaidsUtil.isGuardVillagersLoaded()) canReceiveDamage.add(GuardEntityType.GUARD.get());
+            if(Compat.GUARD_VILLAGERS.isLoaded()) canReceiveDamage.add(GuardEntityType.GUARD.get());
 
-            double shockwaveRadius;
-            if(this.isInRaid()) shockwaveRadius = switch(this.getRaidDifficulty()) {
-                case DEFAULT, HERO, LEGEND -> 4.0D;
-                case MASTER -> 5.0D;
-                case GRANDMASTER -> 7.0D;
-            };
-            else shockwaveRadius = 4.0D;
+            double shockwaveRadius = rd.config().nuaos.shockwaveRadius;
 
             AABB shockwaveAABB = new AABB(this.blockPosition()).inflate(shockwaveRadius);
             List<LivingEntity> targets = this.level.getEntitiesOfClass(LivingEntity.class, shockwaveAABB, entity -> canReceiveDamage.stream().anyMatch(type -> entity.getType().equals(type)));
@@ -301,21 +272,11 @@ public class NuaosEliteEntity extends AbstractIllagerVariant
 
         if(this.tickCount % 80 == 0)
         {
-            AABB auraRadius = new AABB(this.blockPosition()).inflate(8.0D);
+            AABB auraRadius = new AABB(this.blockPosition()).inflate(rd.config().nuaos.buffAuraRadius);
 
-            List<EntityType<? extends AbstractIllager>> effectTargets = List.of(
-                    EntityType.VINDICATOR, EntityType.PILLAGER,
-                    DifficultRaidsEntityTypes.WARRIOR_ILLAGER.get(), DifficultRaidsEntityTypes.TANK_ILLAGER.get(),
-                    DifficultRaidsEntityTypes.DART_ILLAGER.get()
-            );
+            int strengthAmplifier = rd.config().nuaos.buffAuraStrengthLevel;
 
-            int strengthAmplifier = this.isInDifficultRaid() ? switch(this.getRaidDifficulty()) {
-                case DEFAULT, HERO, LEGEND -> 1;
-                case MASTER -> 2;
-                case GRANDMASTER -> 3;
-            } : 1;
-
-            this.level.getEntitiesOfClass(Raider.class, auraRadius, r -> effectTargets.contains(r.getType())).forEach(raider ->
+            this.level.getEntitiesOfClass(Raider.class, auraRadius, r -> DifficultRaidsUtil.STANDARD_RAIDERS.contains(r.getType())).forEach(raider ->
             {
                 if(!raider.hasEffect(MobEffects.DAMAGE_BOOST))
                     raider.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 20 * 10, strengthAmplifier, false, true));
