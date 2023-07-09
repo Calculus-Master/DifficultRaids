@@ -17,14 +17,18 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 
 import java.util.Random;
 
 @Mixin(AbstractIllager.class)
 public abstract class AbstractIllagerMixin extends Raider
 {
+    @Unique
     private static final String TAG_RAIDER_ARMOR_MODIFIER = "DifficultRaids Raider Armor Modifier";
+    @Unique
     private static final String TAG_RAIDER_TOUGHNESS_MODIFIER = "DifficultRaids Raider Armor Toughness Modifier";
+    @Unique
     private static final String TAG_RAIDER_DIFFICULTY_ARMOR_MODIFIER = "DifficultRaids Raider Armor Modifier (MC Difficulty-Dependent)";
 
     //Default Constructor
@@ -46,13 +50,14 @@ public abstract class AbstractIllagerMixin extends Raider
             RaidDifficulty raidDifficulty = RaidDifficulty.get(this.getCurrentRaid().getBadOmenLevel());
 
             boolean standard = DifficultRaidsUtil.STANDARD_RAIDERS.contains(this.getType());
+            boolean advanced = DifficultRaidsUtil.ADVANCED_RAIDERS.contains(this.getType());
             boolean basicMagic = DifficultRaidsUtil.BASIC_MAGIC_RAIDERS.contains(this.getType());
             boolean advMagic = DifficultRaidsUtil.ADVANCED_MAGIC_RAIDERS.contains(this.getType());
 
             AttributeInstance armor = this.getAttribute(Attributes.ARMOR);
             AttributeInstance toughness = this.getAttribute(Attributes.ARMOR_TOUGHNESS);
 
-            if(!raidDifficulty.isDefault() && (standard || basicMagic || advMagic) && (armor != null && toughness != null))
+            if(!raidDifficulty.isDefault() && (standard || advanced || basicMagic || advMagic) && (armor != null && toughness != null))
             {
                 int[] iron = {2, 6};
                 int[] diamond = {3, 8};
@@ -74,6 +79,24 @@ public abstract class AbstractIllagerMixin extends Raider
                     if(raidDifficulty.is(RaidDifficulty.GRANDMASTER))
                     {
                         AttributeModifier toughnessModifier = new AttributeModifier(TAG_RAIDER_TOUGHNESS_MODIFIER, 10, AttributeModifier.Operation.ADDITION);
+                        toughness.addPermanentModifier(toughnessModifier);
+                    }
+                }
+                else if(advanced)
+                {
+                    AttributeModifier armorModifier = new AttributeModifier(TAG_RAIDER_ARMOR_MODIFIER, switch(raidDifficulty) {
+                        case DEFAULT -> 0.0F;
+                        case HERO -> random.nextInt(iron[0], iron[1] + 1) - 1;
+                        case LEGEND -> random.nextInt(diamond[0], diamond[1] + 1) * 1.25 - 2;
+                        case MASTER -> random.nextInt(netherite[0], netherite[1] + 1) * 1.5 - 2;
+                        case GRANDMASTER -> random.nextInt(10, 21) - 2;
+                    }, AttributeModifier.Operation.ADDITION);
+
+                    armor.addPermanentModifier(armorModifier);
+
+                    if(raidDifficulty.is(RaidDifficulty.GRANDMASTER))
+                    {
+                        AttributeModifier toughnessModifier = new AttributeModifier(TAG_RAIDER_TOUGHNESS_MODIFIER, 5, AttributeModifier.Operation.ADDITION);
                         toughness.addPermanentModifier(toughnessModifier);
                     }
                 }
