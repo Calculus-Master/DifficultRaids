@@ -3,9 +3,12 @@ package com.calculusmaster.difficultraids.mixins;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.raids.RaidEnemyRegistry;
 import com.calculusmaster.difficultraids.raids.RaidLoot;
+import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import com.mojang.logging.LogUtils;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -31,6 +34,7 @@ import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -63,9 +67,14 @@ public abstract class RaidMixin
     @Shadow public abstract Set<Raider> getAllRaiders();
 
     @Shadow @Final private ServerBossEvent raidEvent;
+
+    @Shadow public abstract boolean isOver();
+    @Shadow private int celebrationTicks;
+
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private void initializeValidRaidArea()
+    @Unique
+    private void difficultRaids$initializeValidRaidArea()
     {
         this.validRaidArea = new AABB(this.center).inflate(Math.sqrt(Raid.VALID_RAID_RADIUS_SQR));
         this.players = this.level.getEntitiesOfClass(Player.class, this.validRaidArea).size();
@@ -74,7 +83,7 @@ public abstract class RaidMixin
     @Inject(at = @At("TAIL"), method = "absorbBadOmen")
     private void difficultraids_raidStart(Player p_37729_, CallbackInfo callbackInfo)
     {
-        this.initializeValidRaidArea();
+        this.difficultRaids$initializeValidRaidArea();
     }
 
     @Inject(at = @At("TAIL"), method = "tick")
@@ -93,14 +102,33 @@ public abstract class RaidMixin
         RaidDifficulty raidDifficulty = RaidDifficulty.get(this.getBadOmenLevel());
         String title = this.raidEvent.getName().getString();
 
-        if(title.toLowerCase().contains("raid") && !title.toLowerCase().contains(raidDifficulty.getFormattedName().toLowerCase()))
-            this.raidEvent.setName(Component.literal(raidDifficulty.getFormattedName() + " " + title));
+        if(this.ticksActive % 20L == 0L)
+        {
+            if(title.toLowerCase().contains("raid") && !title.toLowerCase().contains(raidDifficulty.getFormattedName().toLowerCase()))
+            {
+                MutableComponent current = Component.literal(this.raidEvent.getName().getString());
+
+                MutableComponent additions = Component.empty();
+                if(DifficultRaidsConfig.INSANITY_MODE.get()) additions.append(Component.literal("Insane ").withStyle(ChatFormatting.RED));
+                additions.append(raidDifficulty.getFormattedName() + " ");
+
+                MutableComponent wave = DifficultRaidsConfig.SHOW_WAVE_INFORMATION.get() ? Component.literal(" (Wave " + this.getGroupsSpawned() + " of " + this.numGroups + ")").withStyle(ChatFormatting.GRAY) : Component.empty();
+
+                this.raidEvent.setName(additions.append(current).append(wave));
+            }
+        }
+
+        if(this.isOver() && this.celebrationTicks % 20 == 0)
+        {
+            if(title.startsWith(Component.translatable("event.minecraft.raid").append(" - ").getString()))
+                this.raidEvent.setName(Component.literal(raidDifficulty.getFormattedName() + " ").append(title));
+        }
     }
 
     @Inject(at = @At("HEAD"), method = "spawnGroup")
     private void difficultraids_spawnGroup(BlockPos pos, CallbackInfo callbackInfo)
     {
-        if(this.validRaidArea == null) this.initializeValidRaidArea();
+        if(this.validRaidArea == null) this.difficultRaids$initializeValidRaidArea();
 
         List<Player> participants = this.level.getEntitiesOfClass(Player.class, this.validRaidArea);
         this.players = participants.size();
@@ -150,6 +178,8 @@ public abstract class RaidMixin
 
             //Selected spawns for the current wave
             int baseSpawnCount = spawnBonusGroup ? spawnsPerWave[this.numGroups] : spawnsPerWave[groupsSpawned];
+
+            if(DifficultRaidsConfig.INSANITY_MODE.get()) baseSpawnCount *= DifficultRaidsConfig.INSANITY_COUNT_MULTIPLIER.get();
 
             callbackInfoReturnable.setReturnValue(baseSpawnCount);
         }

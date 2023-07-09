@@ -22,6 +22,11 @@ public class DifficultRaidsConfig
     public static Map<String, ForgeConfigSpec.BooleanValue> ENABLED_RAIDERS = new HashMap<>();
     public static ForgeConfigSpec.IntValue HIGHLIGHT_THRESHOLD;
     public static ForgeConfigSpec.DoubleValue BELL_SEARCH_RADIUS;
+    public static ForgeConfigSpec.BooleanValue BOSS_BARS;
+    public static ForgeConfigSpec.BooleanValue FRIENDLY_FIRE_ARROWS;
+    public static ForgeConfigSpec.BooleanValue INSANITY_MODE;
+    public static ForgeConfigSpec.DoubleValue INSANITY_COUNT_MULTIPLIER;
+    public static ForgeConfigSpec.BooleanValue SHOW_WAVE_INFORMATION;
 
     public static RaidDifficultyConfig DEFAULT, HERO, LEGEND, MASTER, GRANDMASTER;
 
@@ -48,6 +53,29 @@ public class DifficultRaidsConfig
                 .comment("WARNING: This can cause a decent bit of lag at high radius values because it will search more and more blocks around the village center.")
                 .comment("Vanilla Minecraft uses a radius of 48 blocks.")
                 .defineInRange("bellSearchRadius", 256.0, 0., Integer.MAX_VALUE);
+
+        BOSS_BARS = GENERAL
+                .comment("Toggles whether Boss Bars for Elite Raiders/Bosses will show up during Raids.")
+                .comment("Enabling this will create Boss Event Bars for:", "DifficultRaids: Nuaos, Xydrax, Voldon, Modur", "Illage & Spillage: Freakager, Magispeller, Spiritcaller", "Dungeons Mobs: Redstone Golem")
+                .define("bossBarsEnabled", true);
+
+        FRIENDLY_FIRE_ARROWS = GENERAL
+                .comment("Toggles whether arrows fired by Raiders (such as Pillagers) can deal damage to other Raiders.")
+                .define("friendlyFireArrowsEnabled", false);
+
+        INSANITY_MODE = GENERAL
+                .comment("Activate Insanity mode.")
+                .comment("'Detecting hundreds of raiders in the region. Are you certain whatever you're doing is worth it?'")
+                .define("insanityMode", false);
+
+        INSANITY_COUNT_MULTIPLIER = GENERAL
+                .comment("The multiplier for the number of raiders spawned in Insanity mode.")
+                .comment("This gets applied on top of whatever difficulty a Raid is at. This will not apply to Default Raids.")
+                .defineInRange("insanityCountMultiplier", 3.0, 1.0, Double.MAX_VALUE);
+
+        SHOW_WAVE_INFORMATION = GENERAL
+                .comment("Determines if wave information will show up in the Raid Event title.")
+                .define("showWaveInformation", true);
 
         GENERAL.comment("Customize which Raiders will show up in Raids. By default, all raiders are enabled.")
                 .push("Enabled Raiders");
@@ -105,7 +133,7 @@ public class DifficultRaidsConfig
             RaidDifficultyConfig config = new RaidDifficultyConfig();
             ForgeConfigSpec.Builder spec = new ForgeConfigSpec.Builder();
 
-            if(rd == RaidDifficulty.DEFAULT) spec.comment("Note: Changing values in this config will have no real impact on the game. Default Raids are Vanilla and do not feature anything from this mod. The config file exists for consistency within the code.\n");
+            if(rd == RaidDifficulty.DEFAULT) spec.comment("Note: Changing values in this config will have no impact on the game. Default Raids are Vanilla and do not feature anything from this mod. The config file exists for consistency within the code.\n");
             else spec.comment("Edit config values for " + rd.getFormattedName() + " Raids.\n");
 
             //General

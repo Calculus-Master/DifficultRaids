@@ -6,6 +6,7 @@ import com.calculusmaster.difficultraids.entity.entities.elite.XydraxEliteEntity
 import com.calculusmaster.difficultraids.entity.entities.raider.TankIllagerEntity;
 import com.calculusmaster.difficultraids.items.GMArmorItem;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
+import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsEnchantments;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -15,6 +16,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
@@ -37,6 +39,20 @@ public class DREntityEvents
 
         Entity source = event.getSource().getEntity();
         LivingEntity target = event.getEntity();
+
+        //Preventing Friendly Fire
+        if(!DifficultRaidsConfig.FRIENDLY_FIRE_ARROWS.get())
+        {
+            boolean friendlyFire = event.getSource().getDirectEntity() instanceof AbstractArrow arrow
+                    && (arrow.getOwner() instanceof Raider || source instanceof Raider)
+                    && target instanceof Raider;
+
+            if(friendlyFire)
+            {
+                event.setAmount(0.0F);
+                event.setCanceled(true);
+            }
+        }
 
         //Nuaos Chargewave
         if(target instanceof NuaosEliteEntity nuaos && event.getAmount() > 0)

@@ -2,6 +2,7 @@ package com.calculusmaster.difficultraids.entity.entities.elite;
 
 import com.calculusmaster.difficultraids.config.RaiderConfigs;
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
+import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsItems;
 import com.calculusmaster.difficultraids.util.Compat;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
@@ -566,7 +567,7 @@ public class ModurEliteEntity extends AbstractEvokerVariant implements RangedAtt
     public void startSeenByPlayer(ServerPlayer pPlayer)
     {
         super.startSeenByPlayer(pPlayer);
-        this.ELITE_EVENT.addPlayer(pPlayer);
+        if(DifficultRaidsConfig.BOSS_BARS.get()) this.ELITE_EVENT.addPlayer(pPlayer);
     }
 
     @Override

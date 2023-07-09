@@ -4,6 +4,7 @@ import com.calculusmaster.difficultraids.config.RaidDifficultyConfig;
 import com.calculusmaster.difficultraids.entity.entities.component.XydraxWindColumn;
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
+import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsEffects;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsItems;
 import com.calculusmaster.difficultraids.util.Compat;
@@ -660,7 +661,7 @@ public class XydraxEliteEntity extends AbstractEvokerVariant
     public void startSeenByPlayer(ServerPlayer pPlayer)
     {
         super.startSeenByPlayer(pPlayer);
-        this.ELITE_EVENT.addPlayer(pPlayer);
+        if(DifficultRaidsConfig.BOSS_BARS.get()) this.ELITE_EVENT.addPlayer(pPlayer);
     }
 
     @Override
