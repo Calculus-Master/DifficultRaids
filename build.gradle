@@ -180,8 +180,10 @@ dependencies {
     //Savage and Ravage 5.0.4
     implementation fg.deobf("curse.maven:savage-and-ravage-381736:4429231")
 
-    //Dungeons Mobs 4.0.8
+    //Dungeons Mobs 4.0.8 + GeckoLib 3.1.40 + Dungeons Libraries 3.0.10
     implementation fg.deobf("curse.maven:dungeons-mobs-428883:4501524")
+    implementation fg.deobf("curse.maven:geckolib-388172:4407241")
+    implementation fg.deobf("curse.maven:dungeons-libraries-550941:4496767")
 
     //Mob Entity Path Visualizer 1.1.0-release.6
     runtimeOnly fg.deobf("curse.maven:mob-entity-path-visualizer-590716:4063117")
