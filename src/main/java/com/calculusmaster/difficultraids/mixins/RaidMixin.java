@@ -12,6 +12,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -31,10 +32,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -43,13 +41,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.*;
 
+import static com.calculusmaster.difficultraids.util.DifficultRaidsUtil.OverflowHandlingMode.ZERO;
+
 @Mixin(Raid.class)
 public abstract class RaidMixin
 {
     private int players;
     private AABB validRaidArea;
 
-    @Shadow @Final private int numGroups;
+    @Mutable @Shadow @Final private int numGroups;
     @Shadow private int groupsSpawned;
     @Shadow @Final private ServerLevel level;
     @Shadow @Final private RandomSource random;
@@ -71,6 +71,8 @@ public abstract class RaidMixin
     @Shadow public abstract boolean isOver();
     @Shadow private int celebrationTicks;
 
+    @Shadow public abstract int getNumGroups(Difficulty pDifficulty);
+
     private static final Logger LOGGER = LogUtils.getLogger();
 
     @Unique
@@ -84,6 +86,8 @@ public abstract class RaidMixin
     private void difficultraids_raidStart(Player p_37729_, CallbackInfo callbackInfo)
     {
         this.difficultRaids$initializeValidRaidArea();
+
+        this.numGroups = this.getNumGroups(this.level.getDifficulty());
     }
 
     @Inject(at = @At("TAIL"), method = "tick")
@@ -144,10 +148,10 @@ public abstract class RaidMixin
         {
             EntityType<?> eliteType = RaidEnemyRegistry.getRandomElite(raidDifficulty, wave); //DifficultRaidsEntityTypes.NUAOS_ELITE.get();
 
-            Entity elite = eliteType.create(this.level);
+            Entity elite = eliteType == null ? null : eliteType.create(this.level);
 
             if(elite instanceof Raider raider) this.joinRaid(wave, raider, spawnPos, false);
-            else LOGGER.error("Failed to spawn Raid Elite! {EntityType: " + eliteType.toShortString() + "}, Wave {" + wave + "}, Difficulty {" + this.level.getDifficulty() + "}");
+            else LOGGER.error("Failed to spawn Raid Elite! {EntityType: " + (eliteType == null ? "null" : eliteType.toShortString()) + "}, Wave {" + wave + "}, Difficulty {" + this.level.getDifficulty() + "}");
         }
     }
 
@@ -155,33 +159,37 @@ public abstract class RaidMixin
     private void difficultraids_getDefaultNumSpawns(Raid.RaiderType raiderType, int groupsSpawned, boolean spawnBonusGroup, CallbackInfoReturnable<Integer> callbackInfoReturnable)
     {
         RaidDifficulty raidDifficulty = RaidDifficulty.get(this.getBadOmenLevel());
-        LogUtils.getLogger().info("Checking spawn count for " + raiderType.toString());
 
-        boolean isDefault = raidDifficulty.isDefault();
-        boolean isRegistered = RaidEnemyRegistry.isRaiderTypeRegistered(raiderType.toString());
-        boolean isEnabled = RaidEnemyRegistry.isRaiderTypeEnabled(raiderType.toString());
-
-        //Disable GuardVillagers Illusioner spawns
-        if(!isDefault && raiderType.toString().equalsIgnoreCase("thebluemengroup"))
-            callbackInfoReturnable.setReturnValue(0);
-        //Disable the regular Dungeons Mobs Illusioner spawns (replaced by a custom re-registration of the RaiderType)
-        else if(!isDefault && raiderType.toString().equals("illusioner"))
-            callbackInfoReturnable.setReturnValue(0);
-
-        //Check if the Raider Type is enabled
-        else if(isRegistered && !isEnabled) callbackInfoReturnable.setReturnValue(0);
-        //Add default compatibility with other mods, so if a new raider type isn't in the registry the game won't crash
-        else if(!isDefault && isRegistered)
+        if(!raidDifficulty.isDefault())
         {
-            //Spawns per wave array
-            int[] spawnsPerWave = RaidEnemyRegistry.getWaves(raidDifficulty, raiderType.toString());
+            boolean isRegistered = RaidEnemyRegistry.isRaiderTypeRegistered(raiderType.toString());
+            boolean isEnabled = RaidEnemyRegistry.isRaiderTypeEnabled(raiderType.toString());
 
-            //Selected spawns for the current wave
-            int baseSpawnCount = spawnBonusGroup ? spawnsPerWave[this.numGroups] : spawnsPerWave[groupsSpawned];
+            //Disable GuardVillagers Illusioner spawns
+            if(raiderType.toString().equalsIgnoreCase("thebluemengroup"))
+                callbackInfoReturnable.setReturnValue(0);
+            //Disable the regular Dungeons Mobs Illusioner spawns (replaced by a custom re-registration of the RaiderType)
+            else if(raiderType.toString().equals("illusioner"))
+                callbackInfoReturnable.setReturnValue(0);
 
-            if(DifficultRaidsConfig.INSANITY_MODE.get()) baseSpawnCount *= DifficultRaidsConfig.INSANITY_COUNT_MULTIPLIER.get();
+            //Check if the Raider Type is enabled
+            else if(isRegistered && !isEnabled) callbackInfoReturnable.setReturnValue(0);
+            //Add default compatibility with other mods, so if a new raider type isn't in the registry the game won't crash
+            else if(isRegistered)
+            {
+                //Spawns per wave array
+                List<Integer> spawnsPerWave = RaidEnemyRegistry.getWaves(raidDifficulty, raiderType.toString());
 
-            callbackInfoReturnable.setReturnValue(baseSpawnCount);
+                int waveIndex = spawnBonusGroup ? this.numGroups : groupsSpawned;
+
+                int count;
+                if(waveIndex >= spawnsPerWave.size()) count = DifficultRaidsConfig.OVERFLOW_MODE.get() == ZERO ? 0 : spawnsPerWave.get(spawnsPerWave.size() - 1);
+                else count = spawnsPerWave.get(waveIndex);
+
+                if(DifficultRaidsConfig.INSANITY_MODE.get()) count *= DifficultRaidsConfig.INSANITY_COUNT_MULTIPLIER.get();
+
+                callbackInfoReturnable.setReturnValue(count);
+            }
         }
     }
 
@@ -189,6 +197,23 @@ public abstract class RaidMixin
     private void difficultraids_getPotentialBonusSpawns(Raid.RaiderType raiderType, RandomSource random, int groupsSpawned, DifficultyInstance difficultyInstance, boolean shouldSpawnBonusGroup, CallbackInfoReturnable<Integer> callbackInfoReturnable)
     {
         if(!RaidDifficulty.get(this.getBadOmenLevel()).isDefault()) callbackInfoReturnable.setReturnValue(0);
+    }
+
+    @Inject(at = @At("HEAD"), method = "getNumGroups", cancellable = true)
+    private void difficultraids_getWaveCounts(Difficulty pDifficulty, CallbackInfoReturnable<Integer> cir)
+    {
+        RaidDifficulty rd = RaidDifficulty.get(this.getBadOmenLevel());
+
+        if(!rd.isDefault())
+        {
+            cir.setReturnValue(switch(pDifficulty)
+            {
+                case PEACEFUL -> 0;
+                case EASY -> DifficultRaidsConfig.WAVE_COUNT_EASY.get();
+                case NORMAL -> DifficultRaidsConfig.WAVE_COUNT_NORMAL.get();
+                case HARD -> DifficultRaidsConfig.WAVE_COUNT_HARD.get();
+            });
+        }
     }
 
     @Inject(at = @At("HEAD"), method = "stop")

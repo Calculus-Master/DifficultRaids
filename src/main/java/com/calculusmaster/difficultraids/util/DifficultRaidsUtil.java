@@ -15,6 +15,8 @@ public class DifficultRaidsUtil
 {
     public static final String ELECTRO_ILLAGER_CUSTOM_BOLT_TAG = "DifficultRaids_Electro_Bolt";
 
+    public enum OverflowHandlingMode { ZERO, REPEAT }
+
     //For Armor Modifiers
     public static final List<EntityType<? extends Raider>> STANDARD_RAIDERS = new ArrayList<>();
     public static final List<EntityType<? extends Raider>> ADVANCED_RAIDERS = new ArrayList<>();

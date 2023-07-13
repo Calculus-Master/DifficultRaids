@@ -20,9 +20,9 @@ displayName="Difficult Raids" #mandatory
 # A URL to query for updates for this mod. See the JSON update specification https://mcforge.readthedocs.io/en/latest/gettingstarted/autoupdate/
 #updateJSONURL="https://change.me.example.invalid/updates.json" #optional
 # A URL for the "homepage" for this mod, displayed in the mod UI
-#displayURL="https://change.me.to.your.mods.homepage.example.invalid/" #optional
+displayURL="https://www.curseforge.com/minecraft/mc-mods/difficult-raids" #optional
 # A file name (in the root of the mod JAR) containing a logo for display
-logoFile="examplemod.png" #optional
+logoFile="logo.png" #optional
 # A text field displayed in the mod UI
 credits="See CurseForge page for a list of all texture artists!" #optional
 # A text field displayed in the mod UI
@@ -30,9 +30,9 @@ authors="CalculusMaster" #optional
 # The description text for the mod (multi line!) (#mandatory)
 description='''
 Do you like Raids? Do you think they're too easy?
-Difficult Raids adds higher difficulty options for Raids, ranging from Hero to Apocalypse.
+Difficult Raids adds higher difficulty options for Raids as well as new Illagers to challenge you.
 Higher difficulty raids offer greater rewards.
-Losing the toughest raids may generate unwanted guests...
+Are you up for the challenge?
 '''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
 [[dependencies.difficultraids]] #optional

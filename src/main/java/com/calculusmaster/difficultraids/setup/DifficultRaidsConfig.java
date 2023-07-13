@@ -5,6 +5,7 @@ import com.calculusmaster.difficultraids.config.RaidDifficultyConfig;
 import com.calculusmaster.difficultraids.config.RaiderConfigs;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.raids.RaidEnemyRegistry;
+import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -14,19 +15,30 @@ import org.slf4j.Logger;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.calculusmaster.difficultraids.util.DifficultRaidsUtil.OverflowHandlingMode.REPEAT;
+import static com.calculusmaster.difficultraids.util.DifficultRaidsUtil.OverflowHandlingMode.ZERO;
+
 public class DifficultRaidsConfig
 {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     //Common Config Values
-    public static Map<String, ForgeConfigSpec.BooleanValue> ENABLED_RAIDERS = new HashMap<>();
-    public static ForgeConfigSpec.IntValue HIGHLIGHT_THRESHOLD;
+    public static ForgeConfigSpec.IntValue WAVE_COUNT_EASY;
+    public static ForgeConfigSpec.IntValue WAVE_COUNT_NORMAL;
+    public static ForgeConfigSpec.IntValue WAVE_COUNT_HARD;
+    public static ForgeConfigSpec.EnumValue<DifficultRaidsUtil.OverflowHandlingMode> OVERFLOW_MODE;
+
     public static ForgeConfigSpec.DoubleValue BELL_SEARCH_RADIUS;
-    public static ForgeConfigSpec.BooleanValue BOSS_BARS;
     public static ForgeConfigSpec.BooleanValue FRIENDLY_FIRE_ARROWS;
+
+    public static ForgeConfigSpec.IntValue HIGHLIGHT_THRESHOLD;
+    public static ForgeConfigSpec.BooleanValue BOSS_BARS;
+    public static ForgeConfigSpec.BooleanValue SHOW_WAVE_INFORMATION;
+
     public static ForgeConfigSpec.BooleanValue INSANITY_MODE;
     public static ForgeConfigSpec.DoubleValue INSANITY_COUNT_MULTIPLIER;
-    public static ForgeConfigSpec.BooleanValue SHOW_WAVE_INFORMATION;
+
+    public static Map<String, ForgeConfigSpec.BooleanValue> ENABLED_RAIDERS = new HashMap<>();
 
     public static RaidDifficultyConfig DEFAULT, HERO, LEGEND, MASTER, GRANDMASTER;
 
@@ -44,9 +56,31 @@ public class DifficultRaidsConfig
         //General Config
         ForgeConfigSpec.Builder GENERAL = new ForgeConfigSpec.Builder();
 
-        HIGHLIGHT_THRESHOLD = GENERAL
-                .comment("If there are fewer raiders alive than this threshold, they will be highlighted permanently. Set to 0 to disable highlighting.")
-                .defineInRange("highlightThreshold", 3, 0, Integer.MAX_VALUE);
+        GENERAL.push("Wave Amounts");
+
+        WAVE_COUNT_EASY = GENERAL
+                .comment("Number of waves in a Raid on Easy difficulty.")
+                .defineInRange("waveCountEasy", 3, 1, Integer.MAX_VALUE);
+
+        WAVE_COUNT_NORMAL = GENERAL
+                .comment("Number of waves in a Raid on Normal difficulty.")
+                .defineInRange("waveCountNormal", 5, 1, Integer.MAX_VALUE);
+
+        WAVE_COUNT_HARD = GENERAL
+                .comment("Number of waves in a Raid on Hard difficulty.")
+                .defineInRange("waveCountHard", 7, 1, Integer.MAX_VALUE);
+
+        OVERFLOW_MODE = GENERAL
+                .comment("Advanced config. Only edit if you're working with the datapack configuration!")
+                .comment("Determines how the mod will handle the case where a raider does not have a spawn count defined for a wave.")
+                .comment("This can happen if the number of waves is changed, but the spawn counts list for a raider is not updated.")
+                .comment("ZERO: The raider will not spawn if it does not have a spawn count defined for the current wave.")
+                .comment("REPEAT: The raider will spawn with the last wave's (whatever the last registered wave is for it) spawn count for the current wave.")
+                .defineEnum("arrayOverflowMode", ZERO, ZERO, REPEAT);
+
+        GENERAL.pop();
+
+        GENERAL.push("Raid Mechanics");
 
         BELL_SEARCH_RADIUS = GENERAL
                 .comment("Search radius of the Bell when hit.")
@@ -54,14 +88,30 @@ public class DifficultRaidsConfig
                 .comment("Vanilla Minecraft uses a radius of 48 blocks.")
                 .defineInRange("bellSearchRadius", 256.0, 0., Integer.MAX_VALUE);
 
+        FRIENDLY_FIRE_ARROWS = GENERAL
+                .comment("Toggles whether arrows fired by Raiders (such as Pillagers) can deal damage to other Raiders.")
+                .define("friendlyFireArrowsEnabled", false);
+
+        GENERAL.pop();
+
+        GENERAL.push("UI");
+
+        HIGHLIGHT_THRESHOLD = GENERAL
+                .comment("If there are fewer raiders alive than this threshold, they will be highlighted permanently. Set to 0 to disable highlighting.")
+                .defineInRange("highlightThreshold", 3, 0, Integer.MAX_VALUE);
+
         BOSS_BARS = GENERAL
                 .comment("Toggles whether Boss Bars for Elite Raiders/Bosses will show up during Raids.")
                 .comment("Enabling this will create Boss Event Bars for:", "DifficultRaids: Nuaos, Xydrax, Voldon, Modur", "Illage & Spillage: Freakager, Magispeller, Spiritcaller", "Dungeons Mobs: Redstone Golem")
                 .define("bossBarsEnabled", true);
 
-        FRIENDLY_FIRE_ARROWS = GENERAL
-                .comment("Toggles whether arrows fired by Raiders (such as Pillagers) can deal damage to other Raiders.")
-                .define("friendlyFireArrowsEnabled", false);
+        SHOW_WAVE_INFORMATION = GENERAL
+                .comment("Determines if wave information will show up in the Raid Event title.")
+                .define("showWaveInformation", true);
+
+        GENERAL.pop();
+
+        GENERAL.push("Insanity Mode");
 
         INSANITY_MODE = GENERAL
                 .comment("Activate Insanity mode.")
@@ -73,9 +123,7 @@ public class DifficultRaidsConfig
                 .comment("This gets applied on top of whatever difficulty a Raid is at. This will not apply to Default Raids.")
                 .defineInRange("insanityCountMultiplier", 3.0, 1.0, Double.MAX_VALUE);
 
-        SHOW_WAVE_INFORMATION = GENERAL
-                .comment("Determines if wave information will show up in the Raid Event title.")
-                .define("showWaveInformation", true);
+        GENERAL.pop();
 
         GENERAL.comment("Customize which Raiders will show up in Raids. By default, all raiders are enabled.")
                 .push("Enabled Raiders");
@@ -95,33 +143,40 @@ public class DifficultRaidsConfig
         ENABLED_RAIDERS.put(RaidEnemyRegistry.ASSASSIN, GENERAL.define("enableAssassins", true));
         ENABLED_RAIDERS.put(RaidEnemyRegistry.FROSTMAGE, GENERAL.define("enableFrostmages", true));
 
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.HUNTER, GENERAL.comment("If HunterIllager is installed.").define("enableHunters", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.ENCHANTER, GENERAL.comment("If EnchantWithMob is installed.").define("enableEnchanters", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.ARCHER, GENERAL.comment("If It Takes a Pillage is installed.").define("enableArchers", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.SKIRMISHER, GENERAL.comment("If It Takes a Pillage is installed.").define("enableSkirmishers", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.LEGIONER, GENERAL.comment("If It Takes a Pillage is installed.").define("enableLegioners", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.IGNITER, GENERAL.comment("If Illage & Spillage is installed.").define("enableIgniters", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.TWITTOLLAGER, GENERAL.comment("If Illage & Spillage is installed.").define("enableTwittollagers", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.PRESERVER, GENERAL.comment("If Illage & Spillage is installed.").define("enablePreservers", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.ABSORBER, GENERAL.comment("If Illage & Spillage is installed.").define("enableAbsorbers", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.CROCOFANG, GENERAL.comment("If Illage & Spillage is installed.").define("enableCrocofangs", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.MAGISPELLER, GENERAL.comment("If Illage & Spillage is installed.").define("enableMagispellers", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.SPIRITCALLER, GENERAL.comment("If Illage & Spillage is installed.").define("enableSpiritcallers", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.FREAKAGER, GENERAL.comment("If Illage & Spillage is installed.").define("enableFreakagers", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.BOSS_RANDOMIZER, GENERAL.comment("If Illage & Spillage is installed.").define("enableBossRandomizers", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.GRIEFER, GENERAL.comment("If Savage and Ravage is installed.").define("enableGriefers", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.EXECUTIONER, GENERAL.comment("If Savage and Ravage is installed.").define("enableExecutioners", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.TRICKSTER, GENERAL.comment("If Savage and Ravage is installed.").define("enableTricksters", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.ICEOLOGER_SR, GENERAL.comment("If Savage and Ravage is installed.").define("enableSavageRavageIceologers", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.MOUNTAINEER, GENERAL.comment("If Dungeon Mobs is installed.").define("enableMountaineers", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.ROYAL_GUARD, GENERAL.comment("If Dungeon Mobs is installed.").define("enableRoyalGuards", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.GEOMANCER, GENERAL.comment("If Dungeon Mobs is installed.").define("enableGeomancers", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.ILLUSIONER_DM, GENERAL.comment("If Dungeon Mobs is installed.").define("enableDungeonMobsIllusioners", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.MAGE, GENERAL.comment("If Dungeon Mobs is installed.").define("enableMages", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.ICEOLOGER_DM, GENERAL.comment("If Dungeon Mobs is installed.").define("enableDungeonMobsIceologers", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.WINDCALLER, GENERAL.comment("If Dungeon Mobs is installed.").define("enableWindcallers", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.SQUALL_GOLEM, GENERAL.comment("If Dungeon Mobs is installed.").define("enableSquallGolems", true));
-        ENABLED_RAIDERS.put(RaidEnemyRegistry.REDSTONE_GOLEM, GENERAL.comment("If Dungeon Mobs is installed.").define("enableRedstoneGolems", true));
+        GENERAL.push("Requires HunterIllager");
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.HUNTER, GENERAL.define("enableHunters", true));
+        GENERAL.pop().push("Requires EnchantWithMob");
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.ENCHANTER, GENERAL.define("enableEnchanters", true));
+        GENERAL.pop().push("Requires It Takes a Pillage");
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.ARCHER, GENERAL.define("enableArchers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.SKIRMISHER, GENERAL.define("enableSkirmishers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.LEGIONER, GENERAL.define("enableLegioners", true));
+        GENERAL.pop().push("Requires Illage & Spillage");
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.IGNITER, GENERAL.define("enableIgniters", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.TWITTOLLAGER, GENERAL.define("enableTwittollagers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.PRESERVER, GENERAL.define("enablePreservers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.ABSORBER, GENERAL.define("enableAbsorbers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.CROCOFANG, GENERAL.define("enableCrocofangs", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.MAGISPELLER, GENERAL.define("enableMagispellers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.SPIRITCALLER, GENERAL.define("enableSpiritcallers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.FREAKAGER, GENERAL.define("enableFreakagers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.BOSS_RANDOMIZER, GENERAL.define("enableBossRandomizers", true));
+        GENERAL.pop().push("Requires Savage and Ravage");
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.GRIEFER, GENERAL.define("enableGriefers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.EXECUTIONER, GENERAL.define("enableExecutioners", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.TRICKSTER, GENERAL.define("enableTricksters", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.ICEOLOGER_SR, GENERAL.define("enableSavageRavageIceologers", true));
+        GENERAL.pop().push("Requires Dungeon Mobs");
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.MOUNTAINEER, GENERAL.define("enableMountaineers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.ROYAL_GUARD, GENERAL.define("enableRoyalGuards", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.GEOMANCER, GENERAL.define("enableGeomancers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.ILLUSIONER_DM, GENERAL.define("enableDungeonMobsIllusioners", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.MAGE, GENERAL.define("enableMages", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.ICEOLOGER_DM, GENERAL.define("enableDungeonMobsIceologers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.WINDCALLER, GENERAL.define("enableWindcallers", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.SQUALL_GOLEM, GENERAL.define("enableSquallGolems", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.REDSTONE_GOLEM, GENERAL.define("enableRedstoneGolems", true));
+        GENERAL.pop();
 
         GENERAL.pop();
 

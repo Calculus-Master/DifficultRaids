@@ -1,10 +1,7 @@
 package com.calculusmaster.difficultraids.events;
 
 import com.calculusmaster.difficultraids.DifficultRaids;
-import com.calculusmaster.difficultraids.commands.AdvanceRaidWaveCommand;
-import com.calculusmaster.difficultraids.commands.PrintRaidersCommand;
-import com.calculusmaster.difficultraids.commands.SetRaidDifficultyCommand;
-import com.calculusmaster.difficultraids.commands.ToggleInsanityModeCommand;
+import com.calculusmaster.difficultraids.commands.*;
 import com.calculusmaster.difficultraids.entity.entities.component.VoldonFamiliarEntity;
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractIllagerVariant;
@@ -42,6 +39,7 @@ public class DRForgeModEvents
         PrintRaidersCommand.register(event.getDispatcher());
         AdvanceRaidWaveCommand.register(event.getDispatcher());
         ToggleInsanityModeCommand.register(event.getDispatcher());
+        DumpRaidWavesCommand.register(event.getDispatcher());
     }
 
     @SubscribeEvent
