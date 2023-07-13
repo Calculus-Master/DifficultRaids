@@ -93,7 +93,7 @@ public abstract class RaidMixin
     @Inject(at = @At("TAIL"), method = "tick")
     private void difficultraids_highlightRemainingRaiders(CallbackInfo callback)
     {
-        if(this.ticksActive % 20 * 2 == 0 && this.getTotalRaidersAlive() <= 3)
+        if(this.ticksActive % 20 * 2 == 0 && this.getTotalRaidersAlive() <= DifficultRaidsConfig.HIGHLIGHT_THRESHOLD.get())
             this.getAllRaiders().stream()
                     .filter(LivingEntity::isAlive) //Alive Raiders
                     .filter(r -> !r.hasEffect(MobEffects.GLOWING)) //Not already glowing

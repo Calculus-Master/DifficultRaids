@@ -92,12 +92,12 @@ public class RaidEnemyRegistry
 
     public static boolean isRaiderTypeEnabled(String raiderType)
     {
-        return DifficultRaidsConfig.ENABLED_RAIDERS.containsKey(raiderType.toUpperCase()) && DifficultRaidsConfig.ENABLED_RAIDERS.get(raiderType.toUpperCase()).get();
+        return DifficultRaidsConfig.ENABLED_RAIDERS.containsKey(raiderType) && DifficultRaidsConfig.ENABLED_RAIDERS.get(raiderType).get();
     }
 
     public static boolean isRaiderTypeRegistered(String raiderType)
     {
-        return REGISTERED_RAIDER_TYPES.contains(raiderType.toUpperCase());
+        return REGISTERED_RAIDER_TYPES.contains(raiderType);
     }
 
     public static void registerRaiders()
