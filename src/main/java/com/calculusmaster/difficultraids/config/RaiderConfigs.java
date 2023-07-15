@@ -2003,6 +2003,69 @@ public class RaiderConfigs
         }
     }
 
+    public static class VindicatorWithShield extends RaiderConfig
+    {
+        private final ForgeConfigSpec.IntValue sharpnessLevel_config;
+        public int sharpnessLevel;
+
+        private final ForgeConfigSpec.IntValue criticalBurstLevel_config;
+        public int criticalBurstLevel;
+
+        private final ForgeConfigSpec.IntValue criticalStrikeLevel_config;
+        public int criticalStrikeLevel;
+
+        private final ForgeConfigSpec.DoubleValue axeDropChance_config;
+        public float axeDropChance;
+
+        public VindicatorWithShield(RaidDifficulty rd, ForgeConfigSpec.Builder spec)
+        {
+            super(rd);
+
+            this.sharpnessLevel_config = spec
+                    .comment("Level of Sharpness that Shielded Vindicator axes will be enchanted with. 0 to disable.")
+                    .defineInRange("shieldVindicator_sharpnessLevel", switch(rd)
+                    {
+                        case DEFAULT -> 0;
+                        case HERO -> 2;
+                        case LEGEND -> 3;
+                        case MASTER -> 4;
+                        case GRANDMASTER -> 5;
+                    }, 0, Integer.MAX_VALUE);
+
+            this.criticalBurstLevel_config = spec
+                    .comment("Level of Critical Burst that Shielded Vindicator axes will be enchanted with. 0 to disable.")
+                    .defineInRange("shieldVindicator_criticalBurstLevel", switch(rd)
+                    {
+                        case DEFAULT, HERO -> 0;
+                        case LEGEND -> 2;
+                        case MASTER -> 3;
+                        case GRANDMASTER -> 6;
+                    }, 0, Integer.MAX_VALUE);
+
+            this.criticalStrikeLevel_config = spec
+                    .comment("Level of Critical Strike that Shielded Vindicator axes will be enchanted with. 0 to disable.")
+                    .defineInRange("shieldVindicator_criticalStrikeLevel", switch(rd)
+                    {
+                        case DEFAULT -> 0;
+                        case HERO, LEGEND -> 1;
+                        case MASTER, GRANDMASTER -> 2;
+                    }, 0, Integer.MAX_VALUE);
+
+            this.axeDropChance_config = spec
+                    .comment("Chance that a Shielded Vindicator will drop their axe upon death. 0 to disable.")
+                    .defineInRange("shieldVindicator_axeDropChance", 0., 0., 1.);
+        }
+
+        @Override
+        public void initialize()
+        {
+            this.sharpnessLevel = this.sharpnessLevel_config.get();
+            this.criticalBurstLevel = this.criticalBurstLevel_config.get();
+            this.criticalStrikeLevel = this.criticalStrikeLevel_config.get();
+            this.axeDropChance = this.axeDropChance_config.get().floatValue();
+        }
+    }
+
     private static abstract class RaiderConfig
     {
         protected RaidDifficulty rd;

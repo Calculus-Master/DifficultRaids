@@ -36,6 +36,7 @@ public class RaidDifficultyConfig
     public RaiderConfigs.Executioner executioner;
     public RaiderConfigs.Mountaineer mountaineer;
     public RaiderConfigs.RoyalGuard royalguard;
+    public RaiderConfigs.VindicatorWithShield vindicatorWithShield;
 
     //Translate ForgeConfigSpec values into usable variables
     public void init()
@@ -68,5 +69,6 @@ public class RaidDifficultyConfig
         this.executioner.initialize();
         this.mountaineer.initialize();
         this.royalguard.initialize();
+        this.vindicatorWithShield.initialize();
     }
 }

@@ -12,6 +12,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.Container;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -22,14 +23,17 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.entity.raid.Raider;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.*;
@@ -39,7 +43,11 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Function;
 
 import static com.calculusmaster.difficultraids.util.DifficultRaidsUtil.OverflowHandlingMode.ZERO;
 
@@ -190,6 +198,7 @@ public abstract class RaidMixin
 
                 callbackInfoReturnable.setReturnValue(count);
             }
+            else if(DifficultRaidsConfig.RESTRICTIVE_MODE.get()) callbackInfoReturnable.setReturnValue(0);
         }
     }
 
@@ -223,80 +232,78 @@ public abstract class RaidMixin
 
         if(this.isVictory() && !raidDifficulty.isDefault())
         {
-            BlockPos rewardPos = new BlockPos(this.center.getX(), this.center.getY() + 7, this.center.getZ());
+            LOGGER.info("DifficultRaids: Generating " + raidDifficulty.getFormattedName() + " Raid Loot!");
 
-            RaidLoot.RaidLootData data = RaidLoot.RAID_LOOT.get(raidDifficulty);
+            Function<Integer, Integer> randomizePos = s -> s + (3 - this.random.nextInt(7));
 
-            //Emeralds
-            int emeralds = this.random.nextInt(data.emeralds[0], data.emeralds[1] + 1);
+            BlockPos valuablesPos = new BlockPos(
+                    randomizePos.apply(this.center.getX()),
+                    this.center.getY() + 5,
+                    randomizePos.apply(this.center.getZ())
+            );
+            while(!this.level.getBlockState(valuablesPos).isAir()) valuablesPos = valuablesPos.offset(randomizePos.apply(valuablesPos.getX()), 1, randomizePos.apply(valuablesPos.getZ()));
 
-            for(int i = 0; i < emeralds; i++)
+            BlockPos magicPos = new BlockPos(
+                    randomizePos.apply(this.center.getX()),
+                    this.center.getY() + 5,
+                    randomizePos.apply(this.center.getZ())
+            );
+            while(!this.level.getBlockState(magicPos).isAir()) magicPos = magicPos.offset(randomizePos.apply(magicPos.getX()), 1, randomizePos.apply(magicPos.getZ()));
+
+            this.level.setBlock(valuablesPos, Blocks.CHEST.defaultBlockState(), 2);
+            this.level.setBlock(magicPos, Blocks.CHEST.defaultBlockState(), 2);
+
+            LootTable valuablesLT = this.level.getServer().getLootTables().get(switch(raidDifficulty)
             {
-                BlockPos pos = rewardPos.offset(this.random.nextInt(11) - 5, 0, this.random.nextInt(11) - 5);
-
-                ItemEntity entityItem = new ItemEntity(this.level, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(Items.EMERALD));
-                entityItem.setExtendedLifetime();
-
-                this.level.addFreshEntity(entityItem);
-            }
-
-            //Totems
-            int totems = data.totemsPulls.get(this.level.getDifficulty());
-
-            for(int i = 0; i < totems; i++)
-            {
-                BlockPos pos = rewardPos.offset(this.random.nextInt(5) - 2, 0, this.random.nextInt(5) - 2);
-
-                Item totem = data.totemsPool.get(this.random.nextInt(data.totemsPool.size()));
-                ItemEntity entityItem = new ItemEntity(this.level, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(totem));
-                entityItem.setExtendedLifetime();
-
-                this.level.addFreshEntity(entityItem);
-            }
-
-            //Valuables
-            int valuables = data.valuablesPulls.get(this.level.getDifficulty());
-
-            Map<Item, Integer> valuablesLoot = new HashMap<>();
-            for(int i = 0; i < valuables; i++)
-            {
-                Item item = data.pullValuable(this.random);
-
-                if(item != null) valuablesLoot.put(item, valuablesLoot.getOrDefault(item, 0) + 1);
-                else LOGGER.error("Error pulling valuables Loot Item from a " + raidDifficulty.getFormattedName() + " Raid!");
-            }
-
-            valuablesLoot.forEach((item, count) -> {
-                ItemStack stack = new ItemStack(item, count);
-
-                ItemEntity entityItem = new ItemEntity(this.level, rewardPos.getX(), rewardPos.getY(), rewardPos.getZ(), stack);
-                entityItem.setExtendedLifetime();
-                this.level.addFreshEntity(entityItem);
+                case DEFAULT, HERO -> RaidLoot.HERO_VALUABLES;
+                case LEGEND -> RaidLoot.LEGEND_VALUABLES;
+                case MASTER -> RaidLoot.MASTER_VALUABLES;
+                case GRANDMASTER -> RaidLoot.GRANDMASTER_VALUABLES;
             });
 
-            //Armor
-            List<ItemStack> armor = RaidLoot.generateArmorLoot(raidDifficulty);
-
-            armor.forEach(stack -> {
-                ItemEntity entityItem = new ItemEntity(this.level, rewardPos.getX(), rewardPos.getY(), rewardPos.getZ(), stack);
-                entityItem.setExtendedLifetime();
-                this.level.addFreshEntity(entityItem);
+            LootTable magicLT = this.level.getServer().getLootTables().get(switch(raidDifficulty)
+            {
+                case DEFAULT, HERO -> RaidLoot.HERO_MAGIC;
+                case LEGEND -> RaidLoot.LEGEND_MAGIC;
+                case MASTER -> RaidLoot.MASTER_MAGIC;
+                case GRANDMASTER -> RaidLoot.GRANDMASTER_MAGIC;
             });
 
-            //Enchantments
-            for(int i = 0; i < data.enchantmentCount; i++)
-            {
-                ItemStack book = data.pullEnchantment(this.random);
+            Function<BlockPos, LootContext> chestContextBuilder = p -> new LootContext.Builder(this.level)
+                    .withLuck(this.level.getDifficulty() == Difficulty.HARD ? 1.0F : 0.0F)
+                    .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(p))
+                    .create(LootContextParamSets.CHEST);
 
-                ItemEntity entityItem = new ItemEntity(this.level, rewardPos.getX(), rewardPos.getY(), rewardPos.getZ(), book);
-                entityItem.setExtendedLifetime();
-                this.level.addFreshEntity(entityItem);
+            BlockEntity valuablesBE = this.level.getExistingBlockEntity(valuablesPos);
+            if(valuablesBE instanceof Container valuablesContainer)
+            {
+                valuablesLT.fill(valuablesContainer, chestContextBuilder.apply(valuablesPos));
+                valuablesContainer.setChanged();
             }
+            else LOGGER.warn("Could not find container for Valuables Raid Loot at {" + valuablesPos.getX() + ", " + valuablesPos.getY() + ", " + valuablesPos.getZ() + "}!");
+
+            BlockEntity magicBE = this.level.getExistingBlockEntity(magicPos);
+            if(magicBE instanceof Container magicContainer)
+            {
+                magicLT.fill(magicContainer, chestContextBuilder.apply(magicPos));
+                magicContainer.setChanged();
+            }
+            else LOGGER.warn("Could not find container for Magic Raid Loot at {" + magicPos.getX() + ", " + magicPos.getY() + ", " + magicPos.getZ() + "}!");
 
             //Notify players
-            this.heroesOfTheVillage.stream().map(uuid -> this.level.getPlayerByUUID(uuid)).filter(Objects::nonNull).forEach(p -> {
-                p.sendSystemMessage(Component.literal("Raid Rewards have spawned at X: %s Y: %s Z: %s!".formatted(rewardPos.getX(), rewardPos.getY(), rewardPos.getZ())));
-            });
+            int vX = valuablesPos.getX(); int vY = valuablesPos.getY(); int vZ = valuablesPos.getZ();
+            int mX = magicPos.getX(); int mY = magicPos.getY(); int mZ = magicPos.getZ();
+
+            this.heroesOfTheVillage
+                    .stream()
+                    .map(uuid -> this.level.getPlayerByUUID(uuid))
+                    .filter(Objects::nonNull)
+                    .forEach(p -> p.sendSystemMessage(
+                            Component.literal("The Villagers have granted you gifts at (%s, %s, %s) and (%s, %s, %s)!"
+                            .formatted(vX, vY, vZ, mX, mY, mZ)))
+                    );
+
+            LOGGER.info("DifficultRaids: Spawned " + raidDifficulty.getFormattedName() + " Raid Loot (V: %s, %s, %s | M: %s, %s, %s)!".formatted(vX, vY, vZ, mX, mY, mZ));
         }
     }
 

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:entity",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "difficultraids:invisibility_totem"
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "difficultraids:speed_totem"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ]
+}

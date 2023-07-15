@@ -3,7 +3,6 @@ package com.calculusmaster.difficultraids.entity.entities.elite;
 import com.calculusmaster.difficultraids.entity.entities.component.VoldonFamiliarEntity;
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
-import com.calculusmaster.difficultraids.setup.DifficultRaidsItems;
 import com.calculusmaster.difficultraids.util.Compat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -31,7 +30,6 @@ import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.SmallFireball;
 import net.minecraft.world.entity.raid.Raider;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import org.jetbrains.annotations.Nullable;
@@ -186,9 +184,7 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
     @Override
     protected void dropCustomDeathLoot(DamageSource pSource, int pLooting, boolean pRecentlyHit)
     {
-        this.spawnAtLocation(new ItemStack(DifficultRaidsItems.TOTEM_OF_PROTECTION.get()));
-        this.spawnAtLocation(new ItemStack(DifficultRaidsItems.TOTEM_OF_PROTECTION.get()));
-        this.spawnAtLocation(new ItemStack(DifficultRaidsItems.TOTEM_OF_PROTECTION.get()));
+
     }
 
     @Override

@@ -5,7 +5,6 @@ import com.calculusmaster.difficultraids.entity.entities.core.AbstractIllagerVar
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsEnchantments;
-import com.calculusmaster.difficultraids.setup.DifficultRaidsItems;
 import com.calculusmaster.difficultraids.util.Compat;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import net.minecraft.core.BlockPos;
@@ -124,7 +123,7 @@ public class NuaosEliteEntity extends AbstractIllagerVariant
     @Override
     protected void dropCustomDeathLoot(DamageSource pSource, int pLooting, boolean pRecentlyHit)
     {
-        this.spawnAtLocation(new ItemStack(DifficultRaidsItems.TOTEM_OF_PROTECTION.get()));
+
     }
 
     @Nullable

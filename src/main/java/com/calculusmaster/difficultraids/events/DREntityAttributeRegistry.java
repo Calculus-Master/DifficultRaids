@@ -42,6 +42,7 @@ public class DREntityAttributeRegistry
                 .add(Attributes.FOLLOW_RANGE, 12.0D)
                 .add(Attributes.MAX_HEALTH, 36.0D)
                 .add(Attributes.ATTACK_DAMAGE, 2.0D)
+                .add(Attributes.ARMOR_TOUGHNESS, 0.5)
                 .build()
         );
 
@@ -81,7 +82,6 @@ public class DREntityAttributeRegistry
                 .build()
         );
 
-        //TODO: Remove Dart
         event.put(DifficultRaidsEntityTypes.DART_ILLAGER.get(), DEFAULT.get()
                 .add(Attributes.MOVEMENT_SPEED, 0.42F)
                 .add(Attributes.FOLLOW_RANGE, 18.0D)

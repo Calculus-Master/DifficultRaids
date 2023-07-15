@@ -40,6 +40,7 @@ public class DRForgeModEvents
         AdvanceRaidWaveCommand.register(event.getDispatcher());
         ToggleInsanityModeCommand.register(event.getDispatcher());
         DumpRaidWavesCommand.register(event.getDispatcher());
+        FreezeRaidersCommand.register(event.getDispatcher());
     }
 
     @SubscribeEvent

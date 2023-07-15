@@ -88,6 +88,22 @@ public class RaidEnemyRegistry
     public static final String SQUALL_GOLEM = "squall_golem";
     public static final String REDSTONE_GOLEM = "redstone_golem";
 
+    //Illager Revolution
+    public static final String BLADE_KNIGHT = "blade_knight";
+    public static final String BEAST_TAMER = "illager_beast_tamer";
+    public static final String SCAVENGER = "illager_scavenger";
+
+    //Leo's Illagers
+    public static final String LIGHTNINGCALLER = "entity.leosillagers.lightning_caller";
+    public static final String CLOWNAGER = "entity.leosillagers.clownager";
+    public static final String CONFUSER = "entity.leosillagers.confuser";
+    public static final String SHIELD_VINDICATOR = "entity.leosillagers.vindicator_with_shield";
+    public static final String METEORITE_CALLER = "entity.leosillagers.meteorite_caller";
+    public static final String SNOWOLAGER = "entity.leosillagers.snowolager";
+    public static final String NECROMANCER_LEO = "entity.leosillagers.necromancer";
+    public static final String SUMMONER = "entity.leosillagers.summoner";
+    public static final String TROUBLEMAKER = "entity.leosillagers.troublemaker";
+
     private static final int[] BLANK = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
 
     public static boolean isRaiderTypeEnabled(String raiderType)
@@ -211,6 +227,18 @@ public class RaidEnemyRegistry
                 .withRaider(WINDCALLER,         0, 0, 1, 1, 0, 2, 1, 2)
                 .withRaider(SQUALL_GOLEM,       0, 0, 1, 1, 1, 1, 0, 2)
                 .withRaider(REDSTONE_GOLEM,     0, 0, 0, 1, 0, 1, 0, 1)
+                .withRaider(BLADE_KNIGHT,       0, 0, 1, 0, 1, 0, 0, 2)
+                .withRaider(BEAST_TAMER,        0, 0, 1, 0, 1, 0, 0, 1)
+                .withRaider(SCAVENGER,          0, 1, 1, 1, 0, 1, 2, 2)
+                .withRaider(LIGHTNINGCALLER,    0, 0, 0, 0, 0, 0, 0, 0)
+                .withRaider(CLOWNAGER,          0, 0, 0, 0, 0, 0, 0, 0)
+                .withRaider(CONFUSER,           0, 0, 1, 0, 1, 1, 1, 2)
+                .withRaider(SHIELD_VINDICATOR,  0, 1, 0, 1, 1, 1, 0, 1)
+                .withRaider(METEORITE_CALLER,   0, 0, 0, 0, 0, 0, 0, 1)
+                .withRaider(SNOWOLAGER,         0, 0, 0, 1, 0, 1, 0, 1)
+                .withRaider(NECROMANCER_LEO,    0, 0, 0, 0, 0, 1, 0, 1)
+                .withRaider(SUMMONER,           0, 0, 0, 0, 0, 1, 0, 1)
+                .withRaider(TROUBLEMAKER,       0, 1, 0, 1, 1, 1, 0, 1)
                 .withEliteWave(5, NUAOS_ELITE.get())
                 .withEliteWave(7, NUAOS_ELITE.get(), VOLDON_ELITE.get())
                 .registerDefault();
@@ -257,6 +285,18 @@ public class RaidEnemyRegistry
                 .withRaider(WINDCALLER,         0, 1, 1, 2, 1, 2, 1, 3)
                 .withRaider(SQUALL_GOLEM,       0, 1, 1, 2, 1, 2, 1, 2)
                 .withRaider(REDSTONE_GOLEM,     0, 1, 1, 1, 1, 1, 1, 1)
+                .withRaider(BLADE_KNIGHT,       0, 0, 1, 1, 1, 0, 1, 2)
+                .withRaider(BEAST_TAMER,        0, 0, 1, 0, 1, 1, 1, 1)
+                .withRaider(SCAVENGER,          0, 1, 2, 1, 1, 2, 2, 3)
+                .withRaider(LIGHTNINGCALLER,    0, 0, 0, 0, 0, 0, 0, 1)
+                .withRaider(CLOWNAGER,          0, 0, 0, 0, 0, 1, 0, 0)
+                .withRaider(CONFUSER,           0, 0, 1, 2, 1, 3, 1, 3)
+                .withRaider(SHIELD_VINDICATOR,  0, 1, 1, 2, 2, 2, 2, 3)
+                .withRaider(METEORITE_CALLER,   0, 0, 1, 0, 0, 1, 0, 1)
+                .withRaider(SNOWOLAGER,         0, 0, 1, 2, 0, 2, 0, 2)
+                .withRaider(NECROMANCER_LEO,    0, 0, 1, 1, 0, 1, 0, 2)
+                .withRaider(SUMMONER,           0, 0, 0, 1, 1, 1, 2, 1)
+                .withRaider(TROUBLEMAKER,       0, 1, 1, 2, 2, 1, 1, 1)
                 .withEliteWave(3, NUAOS_ELITE.get(), VOLDON_ELITE.get())
                 .withEliteWave(5, VOLDON_ELITE.get(), XYDRAX_ELITE.get(), MODUR_ELITE.get())
                 .withEliteWave(7, NUAOS_ELITE.get(), VOLDON_ELITE.get(), XYDRAX_ELITE.get(), MODUR_ELITE.get())
@@ -304,6 +344,18 @@ public class RaidEnemyRegistry
                 .withRaider(WINDCALLER,         0, 1, 2, 3, 2, 3, 2, 3)
                 .withRaider(SQUALL_GOLEM,       0, 1, 2, 2, 2, 3, 2, 3)
                 .withRaider(REDSTONE_GOLEM,     0, 1, 1, 2, 1, 2, 1, 2)
+                .withRaider(BLADE_KNIGHT,       0, 1, 1, 1, 1, 1, 1, 2)
+                .withRaider(BEAST_TAMER,        0, 1, 2, 0, 2, 1, 2, 1)
+                .withRaider(SCAVENGER,          0, 2, 2, 2, 3, 2, 3, 4)
+                .withRaider(LIGHTNINGCALLER,    0, 0, 0, 1, 0, 0, 0, 1)
+                .withRaider(CLOWNAGER,          0, 0, 1, 0, 0, 1, 0, 0)
+                .withRaider(CONFUSER,           0, 1, 1, 2, 1, 3, 1, 3)
+                .withRaider(SHIELD_VINDICATOR,  0, 2, 2, 2, 2, 3, 2, 3)
+                .withRaider(METEORITE_CALLER,   0, 0, 1, 1, 1, 2, 0, 2)
+                .withRaider(SNOWOLAGER,         0, 1, 2, 3, 1, 3, 1, 3)
+                .withRaider(NECROMANCER_LEO,    0, 1, 1, 1, 1, 1, 1, 2)
+                .withRaider(SUMMONER,           0, 1, 1, 1, 2, 2, 2, 2)
+                .withRaider(TROUBLEMAKER,       0, 3, 2, 3, 2, 3, 2, 3)
                 .withEliteWave(1, NUAOS_ELITE.get(), VOLDON_ELITE.get())
                 .withEliteWave(3, NUAOS_ELITE.get(), VOLDON_ELITE.get(), XYDRAX_ELITE.get(), MODUR_ELITE.get())
                 .withEliteWave(5, XYDRAX_ELITE.get(), MODUR_ELITE.get())
@@ -353,6 +405,18 @@ public class RaidEnemyRegistry
                 .withRaider(WINDCALLER,         0, 1, 2, 3, 2, 3, 2, 3)
                 .withRaider(SQUALL_GOLEM,       0, 1, 2, 2, 2, 3, 2, 3)
                 .withRaider(REDSTONE_GOLEM,     0, 1, 1, 3, 1, 3, 1, 3)
+                .withRaider(BLADE_KNIGHT,       0, 1, 1, 1, 1, 1, 1, 2)
+                .withRaider(BEAST_TAMER,        0, 1, 2, 0, 2, 1, 2, 1)
+                .withRaider(SCAVENGER,          0, 2, 2, 2, 3, 2, 3, 4)
+                .withRaider(LIGHTNINGCALLER,    0, 0, 0, 1, 1, 0, 0, 1)
+                .withRaider(CLOWNAGER,          0, 0, 1, 0, 0, 1, 1, 0)
+                .withRaider(CONFUSER,           0, 1, 1, 2, 1, 3, 1, 3)
+                .withRaider(SHIELD_VINDICATOR,  0, 2, 2, 2, 2, 3, 2, 3)
+                .withRaider(METEORITE_CALLER,   0, 0, 1, 1, 1, 2, 0, 2)
+                .withRaider(SNOWOLAGER,         0, 1, 2, 3, 1, 3, 1, 3)
+                .withRaider(NECROMANCER_LEO,    0, 1, 1, 1, 1, 1, 1, 2)
+                .withRaider(SUMMONER,           0, 1, 1, 1, 2, 3, 2, 2)
+                .withRaider(TROUBLEMAKER,       0, 3, 2, 3, 2, 3, 2, 3)
                 .withEliteWave(1, NUAOS_ELITE.get(), VOLDON_ELITE.get(), XYDRAX_ELITE.get(), MODUR_ELITE.get())
                 .withEliteWave(2, NUAOS_ELITE.get(), VOLDON_ELITE.get(), XYDRAX_ELITE.get(), MODUR_ELITE.get())
                 .withEliteWave(3, NUAOS_ELITE.get(), VOLDON_ELITE.get(), XYDRAX_ELITE.get(), MODUR_ELITE.get())
@@ -382,7 +446,7 @@ public class RaidEnemyRegistry
 
     public static List<Integer> getWaves(RaidDifficulty raidDifficulty, String raiderType)
     {
-        return CURRENT_WAVES.get(raidDifficulty).getWaves().getOrDefault(raiderType.toUpperCase(), Arrays.stream(BLANK).boxed().collect(Collectors.toList()));
+        return CURRENT_WAVES.get(raidDifficulty).getWaves().getOrDefault(raiderType, Arrays.stream(BLANK).boxed().collect(Collectors.toList()));
     }
 
     //Waves

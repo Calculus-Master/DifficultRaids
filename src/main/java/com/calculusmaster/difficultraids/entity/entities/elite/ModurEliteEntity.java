@@ -3,7 +3,6 @@ package com.calculusmaster.difficultraids.entity.entities.elite;
 import com.calculusmaster.difficultraids.config.RaiderConfigs;
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
-import com.calculusmaster.difficultraids.setup.DifficultRaidsItems;
 import com.calculusmaster.difficultraids.util.Compat;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import net.minecraft.core.BlockPos;
@@ -32,7 +31,6 @@ import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.raid.Raider;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
@@ -181,7 +179,7 @@ public class ModurEliteEntity extends AbstractEvokerVariant implements RangedAtt
     @Override
     protected void dropCustomDeathLoot(DamageSource pSource, int pLooting, boolean pRecentlyHit)
     {
-        this.spawnAtLocation(new ItemStack(DifficultRaidsItems.TOTEM_OF_LIGHTNING.get()));
+
     }
 
     public boolean isInExtendedSpellState()

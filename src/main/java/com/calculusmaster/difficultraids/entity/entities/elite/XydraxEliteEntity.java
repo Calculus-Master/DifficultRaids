@@ -6,7 +6,6 @@ import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVari
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsEffects;
-import com.calculusmaster.difficultraids.setup.DifficultRaidsItems;
 import com.calculusmaster.difficultraids.util.Compat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -36,7 +35,6 @@ import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.entity.raid.Raider;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -143,7 +141,7 @@ public class XydraxEliteEntity extends AbstractEvokerVariant
     @Override
     protected void dropCustomDeathLoot(DamageSource pSource, int pLooting, boolean pRecentlyHit)
     {
-        this.spawnAtLocation(new ItemStack(DifficultRaidsItems.TOTEM_OF_TELEPORTATION.get()));
+
     }
 
     @Override

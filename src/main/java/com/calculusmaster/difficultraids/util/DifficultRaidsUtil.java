@@ -2,11 +2,13 @@ package com.calculusmaster.difficultraids.util;
 
 import baguchan.enchantwithmob.registry.ModEntities;
 import baguchan.hunterillager.init.HunterEntityRegistry;
+import cn.leolezury.leosillagers.init.EntityInit;
 import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
 import com.izofar.takesapillage.init.ModEntityTypes;
 import com.teamabnormals.savage_and_ravage.core.registry.SREntityTypes;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.raid.Raider;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,10 +20,10 @@ public class DifficultRaidsUtil
     public enum OverflowHandlingMode { ZERO, REPEAT }
 
     //For Armor Modifiers
-    public static final List<EntityType<? extends Raider>> STANDARD_RAIDERS = new ArrayList<>();
-    public static final List<EntityType<? extends Raider>> ADVANCED_RAIDERS = new ArrayList<>();
-    public static final List<EntityType<? extends Raider>> BASIC_MAGIC_RAIDERS = new ArrayList<>();
-    public static final List<EntityType<? extends Raider>> ADVANCED_MAGIC_RAIDERS = new ArrayList<>();
+    public static final List<EntityType<?>> STANDARD_RAIDERS = new ArrayList<>();
+    public static final List<EntityType<?>> ADVANCED_RAIDERS = new ArrayList<>();
+    public static final List<EntityType<?>> BASIC_MAGIC_RAIDERS = new ArrayList<>();
+    public static final List<EntityType<?>> ADVANCED_MAGIC_RAIDERS = new ArrayList<>();
 
     public static void registerArmorModifierRaiderLists()
     {
@@ -76,6 +78,21 @@ public class DifficultRaidsUtil
                     com.infamous.dungeons_mobs.mod.ModEntityTypes.GEOMANCER.get(),
                     com.infamous.dungeons_mobs.mod.ModEntityTypes.WINDCALLER.get()
             ));
+        }
+
+        if(Compat.ILLAGER_REVOLUTION.isLoaded())
+        {
+            STANDARD_RAIDERS.add(ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation("illagerrevolutionmod", "illager_scavenger")));
+            BASIC_MAGIC_RAIDERS.add(ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation("illagerrevolutionmod", "illager_beast_tamer")));
+            ADVANCED_RAIDERS.add(ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation("illagerrevolutionmod", "blade_knight")));
+        }
+
+        if(Compat.LEOS_ILLAGERS.isLoaded()) //Skipped: Lightningcaller, Clownager
+        {
+            STANDARD_RAIDERS.addAll(List.of(EntityInit.VINDICATOR_WITH_SHIELD.get(), EntityInit.TROUBLEMAKER.get()));
+            ADVANCED_RAIDERS.add(EntityInit.CONFUSER.get());
+            BASIC_MAGIC_RAIDERS.addAll(List.of(EntityInit.SNOWOLAGER.get(), EntityInit.NECROMANCER.get()));
+            ADVANCED_MAGIC_RAIDERS.addAll(List.of(EntityInit.METEORITE_CALLER.get(), EntityInit.SUMMONER.get()));
         }
     }
 }

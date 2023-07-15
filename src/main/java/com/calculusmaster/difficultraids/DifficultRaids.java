@@ -3,7 +3,6 @@ package com.calculusmaster.difficultraids;
 import com.calculusmaster.difficultraids.data.RaidWaveReloadListener;
 import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
 import com.calculusmaster.difficultraids.raids.RaidEnemyRegistry;
-import com.calculusmaster.difficultraids.raids.RaidLoot;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsEffects;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsEnchantments;
@@ -69,8 +68,6 @@ public class DifficultRaids
 
         RaidEnemyRegistry.registerRaiders();
         RaidEnemyRegistry.registerWaves();
-
-        RaidLoot.registerLoot();
 
         DifficultRaidsUtil.registerArmorModifierRaiderLists();
     }

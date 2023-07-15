@@ -27,6 +27,7 @@ public class DifficultRaidsConfig
     public static ForgeConfigSpec.IntValue WAVE_COUNT_NORMAL;
     public static ForgeConfigSpec.IntValue WAVE_COUNT_HARD;
     public static ForgeConfigSpec.EnumValue<DifficultRaidsUtil.OverflowHandlingMode> OVERFLOW_MODE;
+    public static ForgeConfigSpec.BooleanValue RESTRICTIVE_MODE;
 
     public static ForgeConfigSpec.DoubleValue BELL_SEARCH_RADIUS;
     public static ForgeConfigSpec.BooleanValue FRIENDLY_FIRE_ARROWS;
@@ -78,6 +79,11 @@ public class DifficultRaidsConfig
                 .comment("REPEAT: The raider will spawn with the last wave's (whatever the last registered wave is for it) spawn count for the current wave.")
                 .defineEnum("arrayOverflowMode", ZERO, ZERO, REPEAT);
 
+        RESTRICTIVE_MODE = GENERAL
+                .comment("If enabled, this will make it so that if a raider is not registered implicitly by DifficultRaids, or a datapack, it will not spawn in higher difficulty raids.")
+                .comment("This can be used if you want full control over raid spawns, and do not want other mods to inject their raiders if not registered by DifficultRaids or a datapack.")
+                .define("restrictiveMode", false);
+
         GENERAL.pop();
 
         GENERAL.push("Raid Mechanics");
@@ -102,7 +108,7 @@ public class DifficultRaidsConfig
 
         BOSS_BARS = GENERAL
                 .comment("Toggles whether Boss Bars for Elite Raiders/Bosses will show up during Raids.")
-                .comment("Enabling this will create Boss Event Bars for:", "DifficultRaids: Nuaos, Xydrax, Voldon, Modur", "Illage & Spillage: Freakager, Magispeller, Spiritcaller", "Dungeons Mobs: Redstone Golem")
+                .comment("Enabling this will create Boss Event Bars for:", "DifficultRaids: Nuaos, Xydrax, Voldon, Modur", "Illage & Spillage: Freakager, Magispeller, Spiritcaller", "Dungeons Mobs: Redstone Golem", "Leo's Illagers: Lightningcaller, Clownager")
                 .define("bossBarsEnabled", true);
 
         SHOW_WAVE_INFORMATION = GENERAL
@@ -323,6 +329,11 @@ public class DifficultRaidsConfig
             //Royal Guard
             spec.comment("REQUIRES 'Dungeon Mobs'").push("Royal Guard Settings");
             config.royalguard = new RaiderConfigs.RoyalGuard(rd, spec);
+            spec.pop();
+
+            //Vindicator With Shield
+            spec.comment("REQUIRES 'Leo's Illagers'").push("Vindicator With Shield Settings");
+            config.vindicatorWithShield = new RaiderConfigs.VindicatorWithShield(rd, spec);
             spec.pop();
 
             spec.pop();

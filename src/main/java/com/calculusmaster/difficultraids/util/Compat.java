@@ -11,6 +11,8 @@ public enum Compat
     ILLAGE_AND_SPILLAGE("illageandspillage"),
     SAVAGE_AND_RAVAGE("savage_and_ravage"),
     DUNGEONS_MOBS("dungeons_mobs"),
+    ILLAGER_REVOLUTION("illagerrevolutionmod"),
+    LEOS_ILLAGERS("leosillagers")
 
     ;
 
