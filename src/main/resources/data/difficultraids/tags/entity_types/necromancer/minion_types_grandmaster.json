@@ -6,7 +6,6 @@
     "minecraft:drowned",
     "minecraft:husk",
     "minecraft:stray",
-    "minecraft:zombie_villager",
-    "minecraft:wither_skeleton"
+    "minecraft:zombie_villager"
   ]
 }

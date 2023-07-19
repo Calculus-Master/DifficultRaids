@@ -4,6 +4,9 @@ import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVari
 import com.calculusmaster.difficultraids.util.Compat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -35,16 +38,30 @@ import tallestegg.guardvillagers.entities.Guard;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class NecromancerIllagerEntity extends AbstractEvokerVariant
 {
+    private static final double SUMMON_CHECK_RADIUS = 30.0;
+    private static final String MINION_TAG_EXTENSION = "_minion";
+    private static final String HORDE_TAG_EXTENSION = "_horde";
+
+    private static final EntityDataAccessor<Integer> MINION_CHARGES = SynchedEntityData.defineId(NecromancerIllagerEntity.class, EntityDataSerializers.INT);
+
     private List<Monster> activeHorde = new ArrayList<>();
     private int hordeLifetimeTicks = 0;
     private List<Monster> activeMinions = new ArrayList<>();
 
+    private boolean checkMinions = false;
+    private boolean checkHorde = false;
+    private String summonTag;
+
     public NecromancerIllagerEntity(EntityType<? extends AbstractEvokerVariant> p_33724_, Level p_33725_)
     {
         super(p_33724_, p_33725_);
+
+        this.summonTag = IntStream.generate(() -> this.getRandom().nextInt(10)).limit(6).mapToObj(String::valueOf).collect(Collectors.joining());
     }
 
     @Override
@@ -88,12 +105,10 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
     {
         super.addAdditionalSaveData(pCompound);
 
-        List<Integer> hordeIDs = this.activeHorde.stream().filter(Monster::isAlive).map(Entity::getId).toList();
-        pCompound.putIntArray("ActiveHorde", hordeIDs);
+        pCompound.putString("SummonTag", this.summonTag);
         pCompound.putInt("ActiveHordeLifetimeTicks", this.hordeLifetimeTicks);
-
-        List<Integer> minionIDs = this.activeMinions.stream().filter(Monster::isAlive).map(Entity::getId).toList();
-        pCompound.putIntArray("ActiveMinions", minionIDs);
+        pCompound.putBoolean("HasHorde", !this.activeHorde.isEmpty());
+        pCompound.putBoolean("HasMinions", !this.activeMinions.isEmpty());
     }
 
     @Override
@@ -101,20 +116,33 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
     {
         super.readAdditionalSaveData(pCompound);
 
-        int[] hordeIDs = pCompound.getIntArray("ActiveHorde");
-        for(int ID : hordeIDs)
-        {
-            Entity entity = this.level.getEntity(ID);
-            if(entity instanceof Monster monster && monster.isAlive()) this.activeHorde.add(monster);
-        }
+        this.summonTag = pCompound.getString("SummonTag");
         this.hordeLifetimeTicks = pCompound.getInt("ActiveHordeLifetimeTicks");
+        this.checkMinions = pCompound.getBoolean("HasMinions");
+        this.checkHorde = pCompound.getBoolean("HasHorde");
+    }
 
-        int[] minionIDs = pCompound.getIntArray("ActiveMinions");
-        for(int ID : minionIDs)
-        {
-            Entity entity = this.level.getEntity(ID);
-            if(entity instanceof Monster monster && monster.isAlive()) this.activeMinions.add(monster);
-        }
+    @Override
+    protected void defineSynchedData()
+    {
+        super.defineSynchedData();
+        this.entityData.define(MINION_CHARGES, 0);
+    }
+
+    public int getMinionCharges()
+    {
+        return this.entityData.get(MINION_CHARGES);
+    }
+
+    public void addMinionCharge()
+    {
+        this.entityData.set(MINION_CHARGES, this.getMinionCharges() + 1);
+    }
+
+    public void removeMinionCharge()
+    {
+        int current = this.getMinionCharges();
+        if(current > 0) this.entityData.set(MINION_CHARGES, current - 1);
     }
 
     @Override
@@ -149,6 +177,24 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
     public void tick()
     {
         super.tick();
+
+        //Loading
+        if(this.level instanceof ServerLevel serverLevel)
+        {
+            if(this.checkMinions)
+            {
+                this.activeMinions.addAll(serverLevel.getEntitiesOfClass(Monster.class, this.getBoundingBox().inflate(SUMMON_CHECK_RADIUS), e -> e.getTags().contains(this.summonTag + MINION_TAG_EXTENSION)));
+
+                this.checkMinions = this.tickCount >= 100 || this.activeMinions.isEmpty();
+            }
+
+            if(this.checkHorde)
+            {
+                this.activeHorde.addAll(serverLevel.getEntitiesOfClass(Monster.class, this.getBoundingBox().inflate(SUMMON_CHECK_RADIUS), e -> e.getTags().contains(this.summonTag + HORDE_TAG_EXTENSION)));
+
+                this.checkHorde = this.tickCount >= 100 || this.activeHorde.isEmpty();
+            }
+        }
 
         //Remove dead Horde members
         if(!this.activeHorde.isEmpty())
@@ -198,13 +244,12 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
         {
             LivingEntity target = NecromancerIllagerEntity.this.getTarget();
             ServerLevel level = (ServerLevel)NecromancerIllagerEntity.this.getLevel();
-            boolean raid = NecromancerIllagerEntity.this.isInRaid();
 
             if(target != null)
             {
                 Random random = new Random();
 
-                int summons = NecromancerIllagerEntity.this.config().necromancer.minionSummonCount;
+                int summons = NecromancerIllagerEntity.this.config().necromancer.minionChargeSummonCount;
 
                 for(int i = 0; i < summons; i++)
                 {
@@ -234,6 +279,7 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
                     minion.moveTo(summonPos, 0, 0);
                     minion.setTarget(target);
                     minion.getLookControl().setLookAt(target);
+                    minion.addTag(NecromancerIllagerEntity.this.summonTag + MINION_TAG_EXTENSION);
 
                     minion.targetSelector.removeAllGoals();
                     minion.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(minion, Player.class, true));
@@ -243,6 +289,8 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
 
                     level.addFreshEntity(minion);
                     if(minion instanceof Monster monster) NecromancerIllagerEntity.this.activeMinions.add(monster);
+
+                    NecromancerIllagerEntity.this.removeMinionCharge();
                 }
             }
         }
@@ -250,27 +298,25 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
         @Override
         public boolean canUse()
         {
-            int minionThreshold = 2;
-
-            return super.canUse() && NecromancerIllagerEntity.this.activeMinions.size() <= minionThreshold && NecromancerIllagerEntity.this.hordeLifetimeTicks < 20 * 2;
+            return super.canUse() && NecromancerIllagerEntity.this.getMinionCharges() > 0 && NecromancerIllagerEntity.this.hordeLifetimeTicks < 20 * 2;
         }
 
         @Override
         protected int getCastingTime()
         {
-            return 160;
+            return 60;
         }
 
         @Override
         protected int getCastingInterval()
         {
-            return 600;
+            return 500;
         }
 
         @Override
         protected int getCastWarmupTime()
         {
-            return 30;
+            return 20;
         }
 
         @Nullable
@@ -296,7 +342,6 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
         {
             LivingEntity target = NecromancerIllagerEntity.this.getTarget();
             ServerLevel level = (ServerLevel)NecromancerIllagerEntity.this.getLevel();
-            boolean raid = NecromancerIllagerEntity.this.isInRaid();
 
             if(target != null)
             {
@@ -312,14 +357,19 @@ public class NecromancerIllagerEntity extends AbstractEvokerVariant
                 BlockPos currentPos = NecromancerIllagerEntity.this.blockPosition();
                 for(int i = 0; i < size; i++)
                 {
-                    Skeleton hordeMember = EntityType.SKELETON.create(level); if(hordeMember == null) continue;
+                    Skeleton hordeMember = new Skeleton(EntityType.SKELETON, level)
+                    {
+                        @Override
+                        protected boolean shouldDropLoot() { return false; }
+                    };
 
-                    hordeMember.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, life, 2));
+                    hordeMember.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, life, 2, false, false));
                     hordeMember.setHealth(hordeMember.getMaxHealth() / 2);
 
                     hordeMember.setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.LEATHER_HELMET));
                     hordeMember.setTarget(target);
                     hordeMember.getLookControl().setLookAt(target);
+                    hordeMember.addTag(NecromancerIllagerEntity.this.summonTag + HORDE_TAG_EXTENSION);
 
                     hordeMember.targetSelector.removeAllGoals();
                     hordeMember.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(hordeMember, Player.class, true));

@@ -7,6 +7,10 @@ import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.raids.RaidEnemyRegistry;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
 import com.mojang.logging.LogUtils;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
@@ -42,6 +46,9 @@ public class DifficultRaidsConfig
     public static Map<String, ForgeConfigSpec.BooleanValue> ENABLED_RAIDERS = new HashMap<>();
 
     public static RaidDifficultyConfig DEFAULT, HERO, LEGEND, MASTER, GRANDMASTER;
+
+    //Misc Tags
+    public static TagKey<EntityType<?>> WINDS_CURSE_IMMUNE = TagKey.create(Registry.ENTITY_TYPE_REGISTRY, new ResourceLocation("difficultraids:winds_curse_immune"));
 
     public static void initializeConfigs()
     {

@@ -9,6 +9,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerBossEvent;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -38,19 +39,28 @@ import tallestegg.guardvillagers.entities.Guard;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAttackMob
 {
     private final Component ELITE_NAME = Component.translatable("com.calculusmaster.difficultraids.elite_event.voldon");
     private final ServerBossEvent ELITE_EVENT = new ServerBossEvent(ELITE_NAME, BossEvent.BossBarColor.WHITE, BossEvent.BossBarOverlay.PROGRESS);
 
+    private static final double FAMILIAR_CHECK_RADIUS = 50.0;
+
     private int totalFamiliars = 0;
     private List<LivingEntity> familiars = new ArrayList<>();
     private int familiarCooldown = 0;
 
+    private boolean checkFamiliars = false;
+    private String familiarTag;
+
     public VoldonEliteEntity(EntityType<? extends AbstractEvokerVariant> p_33724_, Level p_33725_)
     {
         super(p_33724_, p_33725_);
+
+        this.familiarTag = IntStream.generate(() -> this.getRandom().nextInt(10)).limit(6).mapToObj(String::valueOf).collect(Collectors.joining());
     }
 
     @Override
@@ -86,6 +96,8 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
 
         for(int ID : pCompound.getIntArray("FamiliarIDs")) if(this.level.getEntity(ID) instanceof LivingEntity familiar) this.familiars.add(familiar);
 
+        this.checkFamiliars = pCompound.getBoolean("CheckFamiliars");
+        this.familiarTag = pCompound.getString("FamiliarTag");
         this.totalFamiliars = pCompound.getInt("TotalFamiliarCount");
     }
 
@@ -94,10 +106,8 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
     {
         super.addAdditionalSaveData(pCompound);
 
-        int[] IDs = new int[this.familiars.size()];
-        for(int i = 0; i < IDs.length; i++) IDs[i] = this.familiars.get(i).getId();
-        pCompound.putIntArray("FamiliarIDs", IDs);
-
+        pCompound.putBoolean("CheckFamiliars", !this.familiars.isEmpty());
+        pCompound.putString("FamiliarTag", this.familiarTag);
         pCompound.putInt("TotalFamiliarCount", this.totalFamiliars);
     }
 
@@ -177,8 +187,14 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
     public void tick()
     {
         super.tick();
-
         if(!this.level.isClientSide) this.familiars.removeIf(LivingEntity::isDeadOrDying);
+
+        if(this.checkFamiliars && this.level instanceof ServerLevel serverLevel)
+        {
+            this.familiars.addAll(serverLevel.getEntitiesOfClass(VoldonFamiliarEntity.class, this.getBoundingBox().inflate(FAMILIAR_CHECK_RADIUS), e -> e.getTags().contains(this.familiarTag)));
+
+            this.checkFamiliars = this.tickCount >= 100 || this.familiars.isEmpty();
+        }
     }
 
     @Override
@@ -384,6 +400,7 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
                 Monster familiar = new VoldonFamiliarEntity(VoldonEliteEntity.this.level, VoldonEliteEntity.this);
                 familiar.moveTo(familiarPos.get(), 0.0F, 0.0F);
                 familiar.setOnGround(true);
+                familiar.addTag(VoldonEliteEntity.this.familiarTag);
 
                 familiar.addEffect(new MobEffectInstance(MobEffects.GLOWING, 10000, 1, false, false));
 

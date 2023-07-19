@@ -32,7 +32,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class DartIllagerEntity extends AbstractVindicatorVariant
 {
-    private static final AttributeModifier LAST_RESORT_MOVEMENT_BOOST = new AttributeModifier("last_resort_movement_boost", 1.5, AttributeModifier.Operation.MULTIPLY_BASE);
     private static final AttributeModifier CONDUCTOR_LIGHTNING_MOVEMENT_BOOST = new AttributeModifier("conductor_lightining_movement_boost", 1.2, AttributeModifier.Operation.MULTIPLY_TOTAL);
 
     public DartIllagerEntity(EntityType<? extends AbstractIllager> p_32105_, Level p_32106_)
@@ -77,17 +76,12 @@ public class DartIllagerEntity extends AbstractVindicatorVariant
     }
 
     @Override
-    public void aiStep()
+    protected void customServerAiStep()
     {
-        super.aiStep();
-
-        AttributeInstance movementSpeed = this.getAttribute(Attributes.MOVEMENT_SPEED);
-
-        if(this.getHealth() < this.getMaxHealth() / 2 && movementSpeed != null && !movementSpeed.hasModifier(LAST_RESORT_MOVEMENT_BOOST))
-            movementSpeed.addPermanentModifier(LAST_RESORT_MOVEMENT_BOOST);
+        super.customServerAiStep();
 
         if(!this.hasEffect(MobEffects.GLOWING) && this.isAggressive())
-            this.addEffect(new MobEffectInstance(MobEffects.GLOWING, 50 * 20));
+            this.addEffect(new MobEffectInstance(MobEffects.GLOWING, 20 * 20));
         else if(this.hasEffect(MobEffects.GLOWING) && !this.isAggressive())
             this.removeEffect(MobEffects.GLOWING);
     }
@@ -95,9 +89,10 @@ public class DartIllagerEntity extends AbstractVindicatorVariant
     @Override
     public void applyRaidBuffs(int p_37844_, boolean p_37845_)
     {
-        ItemStack sword = new ItemStack(Items.GOLDEN_SWORD);
+        ItemStack sword = this.getItemInHand(InteractionHand.MAIN_HAND);
 
         sword.enchant(Enchantments.SHARPNESS, this.config().dart.sharpnessLevel);
+        sword.enchant(Enchantments.KNOCKBACK, this.config().dart.knockbackLevel);
 
         this.setItemSlot(EquipmentSlot.MAINHAND, sword);
         this.setDropChance(EquipmentSlot.MAINHAND, this.config().dart.swordDropChance);
@@ -107,8 +102,7 @@ public class DartIllagerEntity extends AbstractVindicatorVariant
     @Override
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData, @Nullable CompoundTag pDataTag)
     {
-        if(!this.isInRaid()) this.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.GOLDEN_SWORD));
-
+        this.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.GOLDEN_SWORD));
         return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData, pDataTag);
     }
 }

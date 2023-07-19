@@ -1,26 +1,24 @@
-package com.calculusmaster.difficultraids.data;
+package com.calculusmaster.difficultraids.raids;
 
-import com.calculusmaster.difficultraids.raids.RaidDifficulty;
-import com.calculusmaster.difficultraids.raids.RaidEnemyRegistry;
 import net.minecraft.world.entity.EntityType;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class RaidEnemyManager
+public class RaidDifficultyEnemyManager
 {
     private final RaidDifficulty raidDifficulty;
     private final Map<String, List<Integer>> raiderWaves;
     private final Map<Integer, List<EntityType<?>>> eliteWaves;
 
-    public RaidEnemyManager(RaidDifficulty raidDifficulty)
+    public RaidDifficultyEnemyManager(RaidDifficulty raidDifficulty)
     {
         this.raidDifficulty = raidDifficulty;
         this.raiderWaves = new HashMap<>();
         this.eliteWaves = new HashMap<>();
     }
 
-    public RaidEnemyManager(RaidEnemyManager source)
+    public RaidDifficultyEnemyManager(RaidDifficultyEnemyManager source)
     {
         this(source.raidDifficulty);
 
@@ -76,18 +74,18 @@ public class RaidEnemyManager
     }
 
     //Builder
-    public static RaidEnemyManager create(RaidDifficulty raidDifficulty)
+    public static RaidDifficultyEnemyManager create(RaidDifficulty raidDifficulty)
     {
-        return new RaidEnemyManager(raidDifficulty);
+        return new RaidDifficultyEnemyManager(raidDifficulty);
     }
 
-    public RaidEnemyManager withRaider(String raiderType, int... counts)
+    public RaidDifficultyEnemyManager withRaider(String raiderType, int... counts)
     {
         this.raiderWaves.put(raiderType, Arrays.stream(counts).boxed().collect(Collectors.toList()));
         return this;
     }
 
-    public RaidEnemyManager withEliteWave(int wave, EntityType<?>... types)
+    public RaidDifficultyEnemyManager withEliteWave(int wave, EntityType<?>... types)
     {
         this.eliteWaves.put(wave, Arrays.stream(types).collect(Collectors.toList()));
         return this;

@@ -10,30 +10,46 @@ import com.calculusmaster.difficultraids.entity.entities.elite.NuaosEliteEntity;
 import com.calculusmaster.difficultraids.entity.entities.elite.VoldonEliteEntity;
 import com.calculusmaster.difficultraids.entity.entities.elite.XydraxEliteEntity;
 import com.calculusmaster.difficultraids.entity.entities.raider.*;
+import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
+import com.calculusmaster.difficultraids.setup.DifficultRaidsEffects;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsEnchantments;
 import com.calculusmaster.difficultraids.util.Compat;
 import com.calculusmaster.difficultraids.util.DifficultRaidsUtil;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.event.PlayLevelSoundEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.MobEffectEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
 import tallestegg.guardvillagers.entities.Guard;
 
+import java.util.Optional;
+
 @Mod.EventBusSubscriber(modid = DifficultRaids.MODID)
-public class DRForgeModEvents
+public class DRForgeBusEvents
 {
     @SubscribeEvent
-    public static void onCommandsRegister(RegisterCommandsEvent event)
+    public static void onRegisterCommands(RegisterCommandsEvent event)
     {
         SetRaidDifficultyCommand.register(event.getDispatcher());
         PrintRaidersCommand.register(event.getDispatcher());
@@ -41,6 +57,17 @@ public class DRForgeModEvents
         ToggleInsanityModeCommand.register(event.getDispatcher());
         DumpRaidWavesCommand.register(event.getDispatcher());
         FreezeRaidersCommand.register(event.getDispatcher());
+    }
+
+    @SubscribeEvent
+    public static void onSoundPlayedAtPosition(PlayLevelSoundEvent.AtPosition event)
+    {
+        BlockPos pos = new BlockPos(event.getPosition().x(), event.getPosition().y(), event.getPosition().z());
+        if(event.getSource().equals(SoundSource.WEATHER) && (event.getLevel() instanceof ServerLevel sl && sl.getRaidAt(pos) != null))
+        {
+            if(event.getSound().equals(SoundEvents.LIGHTNING_BOLT_THUNDER)) event.setNewVolume(event.getOriginalVolume() / 100);
+            else if(event.getSound().equals(SoundEvents.LIGHTNING_BOLT_IMPACT)) event.setNewVolume(event.getOriginalVolume() / 2);
+        }
     }
 
     @SubscribeEvent
@@ -105,6 +132,16 @@ public class DRForgeModEvents
         }
     }
 
+    @SubscribeEvent
+    public static void onMobEffectApplicable(MobEffectEvent.Applicable event)
+    {
+        MobEffect effect = event.getEffectInstance().getEffect();
+        EntityType<?> target = event.getEntity().getType();
+
+        if(effect.equals(DifficultRaidsEffects.WIND_CURSE_EFFECT.get()) && ForgeRegistries.ENTITY_TYPES.tags().getTag(DifficultRaidsConfig.WINDS_CURSE_IMMUNE).contains(target))
+            event.setResult(Event.Result.DENY);
+    }
+
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onEntityHitByLightning(EntityStruckByLightningEvent event)
     {
@@ -132,6 +169,26 @@ public class DRForgeModEvents
             if(isElectroIllagerBolt) damageMultiplier -= 0.05F;
 
             lightning.setDamage(lightning.getDamage() * damageMultiplier);
+        }
+    }
+
+    private static final TargetingConditions NECROMANCER_MINION_CHARGE_TARGETING = TargetingConditions.forNonCombat().ignoreInvisibilityTesting().ignoreLineOfSight().range(50.0);
+
+    @SubscribeEvent
+    public static void onLivingDeath(LivingDeathEvent event)
+    {
+        if(event.getEntity() instanceof Raider raider && raider.getLevel() instanceof ServerLevel serverLevel)
+        {
+            Optional.ofNullable(serverLevel.getNearestEntity(
+                    NecromancerIllagerEntity.class,
+                    NECROMANCER_MINION_CHARGE_TARGETING,
+                    raider, raider.getX(), raider.getY(), raider.getZ(), raider.getBoundingBox().inflate(50.0)
+            )).ifPresent(necro ->
+            {
+                necro.addMinionCharge();
+
+                necro.playSound(SoundEvents.WITCH_DRINK, 12.0F, 0.7F);
+            });
         }
     }
 }

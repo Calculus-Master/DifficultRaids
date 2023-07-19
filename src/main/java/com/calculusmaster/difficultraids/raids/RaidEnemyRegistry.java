@@ -1,8 +1,7 @@
 package com.calculusmaster.difficultraids.raids;
 
 import com.calculusmaster.difficultraids.DifficultRaids;
-import com.calculusmaster.difficultraids.data.RaidEnemyManager;
-import com.calculusmaster.difficultraids.data.RaiderEntriesHolder;
+import com.calculusmaster.difficultraids.data.raiderentries.RaiderEntriesHolder;
 import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import com.calculusmaster.difficultraids.util.Compat;
@@ -22,8 +21,8 @@ import static com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes
 
 public class RaidEnemyRegistry
 {
-    public static final Map<RaidDifficulty, RaidEnemyManager> DEFAULT_WAVES = new HashMap<>();
-    public static final Map<RaidDifficulty, RaidEnemyManager> CURRENT_WAVES = new HashMap<>();
+    public static final Map<RaidDifficulty, RaidDifficultyEnemyManager> DEFAULT_WAVES = new HashMap<>();
+    public static final Map<RaidDifficulty, RaidDifficultyEnemyManager> CURRENT_WAVES = new HashMap<>();
     public static final Set<String> REGISTERED_RAIDER_TYPES = new HashSet<>();
 
     //Minecraft
@@ -142,7 +141,7 @@ public class RaidEnemyRegistry
     {
         CURRENT_WAVES.clear();
         for(RaidDifficulty d : RaidDifficulty.values()) if(d != RaidDifficulty.DEFAULT)
-            CURRENT_WAVES.put(d, new RaidEnemyManager(DEFAULT_WAVES.get(d)));
+            CURRENT_WAVES.put(d, new RaidDifficultyEnemyManager(DEFAULT_WAVES.get(d)));
 
         List<RaiderEntriesHolder> replaceEntries = new ArrayList<>();
         List<RaiderEntriesHolder> modifyEntries = new ArrayList<>();
@@ -165,7 +164,7 @@ public class RaidEnemyRegistry
         {
             for(var holderEntry : holder.getWaves().entrySet())
             {
-                RaidEnemyManager manager = CURRENT_WAVES.get(holderEntry.getKey());
+                RaidDifficultyEnemyManager manager = CURRENT_WAVES.get(holderEntry.getKey());
                 for(String raiderType : holderEntry.getValue().keySet())
                     manager.add(raiderType, holderEntry.getValue().get(raiderType), holder.isReplace());
             }
@@ -174,7 +173,7 @@ public class RaidEnemyRegistry
 
     public static void printWaveData(Logger logger)
     {
-        for(RaidEnemyManager d : CURRENT_WAVES.values())
+        for(RaidDifficultyEnemyManager d : CURRENT_WAVES.values())
             logger.info("Raid Data: " + d.toString());
     }
 
@@ -451,8 +450,8 @@ public class RaidEnemyRegistry
 
     //Waves
 
-    public static RaidEnemyManager createDefaultWavesFor(RaidDifficulty raidDifficulty)
+    public static RaidDifficultyEnemyManager createDefaultWavesFor(RaidDifficulty raidDifficulty)
     {
-        return new RaidEnemyManager(raidDifficulty);
+        return new RaidDifficultyEnemyManager(raidDifficulty);
     }
 }

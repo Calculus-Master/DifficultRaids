@@ -111,7 +111,7 @@ public abstract class RaidMixin
     @Inject(at = @At("TAIL"), method = "tick")
     private void difficultraids_addDifficultyToEventBar(CallbackInfo callback)
     {
-        RaidDifficulty raidDifficulty = RaidDifficulty.get(this.getBadOmenLevel());
+        RaidDifficulty raidDifficulty = this.difficultraids$getRaidDifficulty();
         String title = this.raidEvent.getName().getString();
 
         if(this.ticksActive % 20L == 0L)
@@ -149,12 +149,12 @@ public abstract class RaidMixin
     @Inject(at = @At("TAIL"), method = "spawnGroup")
     private void difficultraids_spawnElite(BlockPos spawnPos, CallbackInfo callback)
     {
-        RaidDifficulty raidDifficulty = RaidDifficulty.get(this.getBadOmenLevel());
+        RaidDifficulty raidDifficulty = this.difficultraids$getRaidDifficulty();
         int wave = this.getGroupsSpawned();
 
-        if(raidDifficulty.config().elitesEnabled.get() && RaidEnemyRegistry.isEliteWave(raidDifficulty, wave))
+        if(!raidDifficulty.isDefault() && raidDifficulty.config().elitesEnabled.get() && RaidEnemyRegistry.isEliteWave(raidDifficulty, wave))
         {
-            EntityType<?> eliteType = RaidEnemyRegistry.getRandomElite(raidDifficulty, wave); //DifficultRaidsEntityTypes.NUAOS_ELITE.get();
+            EntityType<?> eliteType = RaidEnemyRegistry.getRandomElite(raidDifficulty, wave);
 
             Entity elite = eliteType == null ? null : eliteType.create(this.level);
 
@@ -166,7 +166,7 @@ public abstract class RaidMixin
     @Inject(at = @At("HEAD"), method = "getDefaultNumSpawns", cancellable = true)
     private void difficultraids_getDefaultNumSpawns(Raid.RaiderType raiderType, int groupsSpawned, boolean spawnBonusGroup, CallbackInfoReturnable<Integer> callbackInfoReturnable)
     {
-        RaidDifficulty raidDifficulty = RaidDifficulty.get(this.getBadOmenLevel());
+        RaidDifficulty raidDifficulty = this.difficultraids$getRaidDifficulty();
 
         if(!raidDifficulty.isDefault())
         {
@@ -205,13 +205,13 @@ public abstract class RaidMixin
     @Inject(at = @At("HEAD"), method = "getPotentialBonusSpawns", cancellable = true)
     private void difficultraids_getPotentialBonusSpawns(Raid.RaiderType raiderType, RandomSource random, int groupsSpawned, DifficultyInstance difficultyInstance, boolean shouldSpawnBonusGroup, CallbackInfoReturnable<Integer> callbackInfoReturnable)
     {
-        if(!RaidDifficulty.get(this.getBadOmenLevel()).isDefault()) callbackInfoReturnable.setReturnValue(0);
+        if(!this.difficultraids$getRaidDifficulty().isDefault()) callbackInfoReturnable.setReturnValue(0);
     }
 
     @Inject(at = @At("HEAD"), method = "getNumGroups", cancellable = true)
     private void difficultraids_getWaveCounts(Difficulty pDifficulty, CallbackInfoReturnable<Integer> cir)
     {
-        RaidDifficulty rd = RaidDifficulty.get(this.getBadOmenLevel());
+        RaidDifficulty rd = this.difficultraids$getRaidDifficulty();
 
         if(!rd.isDefault())
         {
@@ -228,30 +228,11 @@ public abstract class RaidMixin
     @Inject(at = @At("HEAD"), method = "stop")
     public void difficultraids_grantRewards(CallbackInfo callbackInfo)
     {
-        RaidDifficulty raidDifficulty = RaidDifficulty.get(this.getBadOmenLevel());
+        RaidDifficulty raidDifficulty = this.difficultraids$getRaidDifficulty();
 
         if(this.isVictory() && !raidDifficulty.isDefault())
         {
             LOGGER.info("DifficultRaids: Generating " + raidDifficulty.getFormattedName() + " Raid Loot!");
-
-            Function<Integer, Integer> randomizePos = s -> s + (3 - this.random.nextInt(7));
-
-            BlockPos valuablesPos = new BlockPos(
-                    randomizePos.apply(this.center.getX()),
-                    this.center.getY() + 5,
-                    randomizePos.apply(this.center.getZ())
-            );
-            while(!this.level.getBlockState(valuablesPos).isAir()) valuablesPos = valuablesPos.offset(randomizePos.apply(valuablesPos.getX()), 1, randomizePos.apply(valuablesPos.getZ()));
-
-            BlockPos magicPos = new BlockPos(
-                    randomizePos.apply(this.center.getX()),
-                    this.center.getY() + 5,
-                    randomizePos.apply(this.center.getZ())
-            );
-            while(!this.level.getBlockState(magicPos).isAir()) magicPos = magicPos.offset(randomizePos.apply(magicPos.getX()), 1, randomizePos.apply(magicPos.getZ()));
-
-            this.level.setBlock(valuablesPos, Blocks.CHEST.defaultBlockState(), 2);
-            this.level.setBlock(magicPos, Blocks.CHEST.defaultBlockState(), 2);
 
             LootTable valuablesLT = this.level.getServer().getLootTables().get(switch(raidDifficulty)
             {
@@ -269,26 +250,14 @@ public abstract class RaidMixin
                 case GRANDMASTER -> RaidLoot.GRANDMASTER_MAGIC;
             });
 
-            Function<BlockPos, LootContext> chestContextBuilder = p -> new LootContext.Builder(this.level)
-                    .withLuck(this.level.getDifficulty() == Difficulty.HARD ? 1.0F : 0.0F)
-                    .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(p))
-                    .create(LootContextParamSets.CHEST);
+            BlockPos valuablesPos = this.difficultRaids$spawnLootChest("Valuables", valuablesLT);
+            BlockPos magicPos = this.difficultRaids$spawnLootChest("Magic", magicLT);
 
-            BlockEntity valuablesBE = this.level.getExistingBlockEntity(valuablesPos);
-            if(valuablesBE instanceof Container valuablesContainer)
+            if(DifficultRaidsConfig.INSANITY_MODE.get()) for(int i = 0; i < DifficultRaidsConfig.INSANITY_COUNT_MULTIPLIER.get() - 1; i++)
             {
-                valuablesLT.fill(valuablesContainer, chestContextBuilder.apply(valuablesPos));
-                valuablesContainer.setChanged();
+                this.difficultRaids$spawnLootChest("Valuables", valuablesLT);
+                this.difficultRaids$spawnLootChest("Magic", magicLT);
             }
-            else LOGGER.warn("Could not find container for Valuables Raid Loot at {" + valuablesPos.getX() + ", " + valuablesPos.getY() + ", " + valuablesPos.getZ() + "}!");
-
-            BlockEntity magicBE = this.level.getExistingBlockEntity(magicPos);
-            if(magicBE instanceof Container magicContainer)
-            {
-                magicLT.fill(magicContainer, chestContextBuilder.apply(magicPos));
-                magicContainer.setChanged();
-            }
-            else LOGGER.warn("Could not find container for Magic Raid Loot at {" + magicPos.getX() + ", " + magicPos.getY() + ", " + magicPos.getZ() + "}!");
 
             //Notify players
             int vX = valuablesPos.getX(); int vY = valuablesPos.getY(); int vZ = valuablesPos.getZ();
@@ -299,12 +268,46 @@ public abstract class RaidMixin
                     .map(uuid -> this.level.getPlayerByUUID(uuid))
                     .filter(Objects::nonNull)
                     .forEach(p -> p.sendSystemMessage(
-                            Component.literal("The Villagers have granted you gifts at (%s, %s, %s) and (%s, %s, %s)!"
-                            .formatted(vX, vY, vZ, mX, mY, mZ)))
+                            Component.literal("The Villagers have granted you gifts at (%s, %s, %s) and (%s, %s, %s)!%s"
+                            .formatted(vX, vY, vZ, mX, mY, mZ, DifficultRaidsConfig.INSANITY_MODE.get() ? " Your insanity has granted you additional gifts!" : "")))
                     );
 
             LOGGER.info("DifficultRaids: Spawned " + raidDifficulty.getFormattedName() + " Raid Loot (V: %s, %s, %s | M: %s, %s, %s)!".formatted(vX, vY, vZ, mX, mY, mZ));
         }
+    }
+
+    @Unique
+    private BlockPos difficultRaids$spawnLootChest(String type, LootTable table)
+    {
+        Function<Integer, Integer> randomizer = s -> s + (3 - this.random.nextInt(7));
+
+        //Find suitable spawn location
+        BlockPos pos = new BlockPos(
+                randomizer.apply(this.center.getX()),
+                this.center.getY() + 5,
+                randomizer.apply(this.center.getZ())
+        );
+        while(!this.level.getBlockState(pos).isAir()) pos = pos.offset(randomizer.apply(pos.getX()), 1, randomizer.apply(pos.getZ()));
+
+        //Spawn chest
+        this.level.setBlock(pos, Blocks.CHEST.defaultBlockState(), 2);
+
+        //Find chest & fill
+        BlockEntity blockEntity = this.level.getExistingBlockEntity(pos);
+        if(blockEntity instanceof Container container)
+        {
+            LootContext context = new LootContext.Builder(this.level)
+                    .withLuck(this.level.getDifficulty() == Difficulty.HARD ? 1.0F : 0.0F)
+                    .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
+                    .create(LootContextParamSets.CHEST);
+
+            table.fill(container, context);
+            container.setChanged();
+        }
+        else LOGGER.warn("Could not find container for " + type + " Raid Loot at {" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ() + "}!");
+
+        //Return position for messaging
+        return pos;
     }
 
     @ModifyVariable(at = @At("HEAD"), method = "joinRaid", ordinal = 0, argsOnly = true)
@@ -325,7 +328,7 @@ public abstract class RaidMixin
     @ModifyVariable(at = @At("HEAD"), method = "joinRaid", ordinal = 0, argsOnly = true)
     private Raider difficultraids_boostRaiderFromPlayerCount(Raider defaultRaider)
     {
-        float perPlayerHealthBoost = RaidDifficulty.get(this.getBadOmenLevel()).config().playerHealthBoostAmount.get().floatValue();
+        float perPlayerHealthBoost = this.difficultraids$getRaidDifficulty().config().playerHealthBoostAmount.get().floatValue();
         float healthBoost = perPlayerHealthBoost * (this.players - 1);
 
         AttributeModifier healthBoostModifier = new AttributeModifier("RAID_PLAYER_COUNT_HEALTH_BOOST", healthBoost, AttributeModifier.Operation.ADDITION);
@@ -334,5 +337,11 @@ public abstract class RaidMixin
         if(health != null) health.addPermanentModifier(healthBoostModifier);
 
         return defaultRaider;
+    }
+
+    @Unique
+    public RaidDifficulty difficultraids$getRaidDifficulty()
+    {
+        return RaidDifficulty.get(this.getBadOmenLevel());
     }
 }

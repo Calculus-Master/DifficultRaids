@@ -85,7 +85,7 @@ public class DREntityAttributeRegistry
         event.put(DifficultRaidsEntityTypes.DART_ILLAGER.get(), DEFAULT.get()
                 .add(Attributes.MOVEMENT_SPEED, 0.42F)
                 .add(Attributes.FOLLOW_RANGE, 18.0D)
-                .add(Attributes.MAX_HEALTH, 12.0D)
+                .add(Attributes.MAX_HEALTH, 16.0D)
                 .add(Attributes.ATTACK_DAMAGE, 5.0D)
                 .build()
         );

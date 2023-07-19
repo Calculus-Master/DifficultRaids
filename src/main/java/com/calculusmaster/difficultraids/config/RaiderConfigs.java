@@ -353,6 +353,9 @@ public class RaiderConfigs
         private final ForgeConfigSpec.IntValue sharpnessLevel_config;
         public int sharpnessLevel;
 
+        private final ForgeConfigSpec.IntValue knockbackLevel_config;
+        public int knockbackLevel;
+
         private final ForgeConfigSpec.DoubleValue swordDropChance_config;
         public float swordDropChance;
 
@@ -363,6 +366,16 @@ public class RaiderConfigs
             this.sharpnessLevel_config = spec
                     .comment("Level of Sharpness that Dart swords will be enchanted with. 0 to disable.")
                     .defineInRange("dart_sharpnessLevel", switch(rd)
+                    {
+                        case DEFAULT, HERO -> 1;
+                        case LEGEND -> 2;
+                        case MASTER -> 3;
+                        case GRANDMASTER -> 4;
+                    }, 0, Integer.MAX_VALUE);
+
+            this.knockbackLevel_config = spec
+                    .comment("Level of Knockback that Dart swords will be enchanted with. 0 to disable.")
+                    .defineInRange("dart_knockbackLevel", switch(rd)
                     {
                         case DEFAULT, HERO -> 2;
                         case LEGEND -> 3;
@@ -379,6 +392,7 @@ public class RaiderConfigs
         public void initialize()
         {
             this.sharpnessLevel = this.sharpnessLevel_config.get();
+            this.knockbackLevel = this.knockbackLevel_config.get();
             this.swordDropChance = this.swordDropChance_config.get().floatValue();
         }
     }
@@ -470,8 +484,8 @@ public class RaiderConfigs
         private final ForgeConfigSpec.DoubleValue reflectedDamagePercentage_config;
         public float reflectedDamagePercentage;
 
-        private final ForgeConfigSpec.IntValue minionSummonCount_config;
-        public int minionSummonCount;
+        private final ForgeConfigSpec.IntValue minionChargeSummonCount_config;
+        public int minionChargeSummonCount;
 
         private final ForgeConfigSpec.IntValue minionMaxProtectionLevel_config;
         public int minionMaxProtectionLevel;
@@ -495,14 +509,13 @@ public class RaiderConfigs
                         case GRANDMASTER -> 0.75F;
                     }, 0., 1.);
 
-            this.minionSummonCount_config = spec
+            this.minionChargeSummonCount_config = spec
                     .comment("Number of minions that Necromancers will summon at a time.")
-                    .defineInRange("necromancer_minionSummonCount", switch(rd)
+                    .defineInRange("necromancer_minionChargeSummonCount", switch(rd)
                     {
-                        case DEFAULT, HERO -> 3;
-                        case LEGEND -> 5;
-                        case MASTER -> 7;
-                        case GRANDMASTER -> 10;
+                        case DEFAULT, HERO, LEGEND -> 1;
+                        case MASTER -> 2;
+                        case GRANDMASTER -> 3;
                     }, 0, Integer.MAX_VALUE);
 
             this.minionMaxProtectionLevel_config = spec
@@ -540,7 +553,7 @@ public class RaiderConfigs
         public void initialize()
         {
             this.reflectedDamagePercentage = this.reflectedDamagePercentage_config.get().floatValue();
-            this.minionSummonCount = this.minionSummonCount_config.get();
+            this.minionChargeSummonCount = this.minionChargeSummonCount_config.get();
             this.minionMaxProtectionLevel = this.minionMaxProtectionLevel_config.get();
             this.hordeSize = this.hordeSize_config.get();
             this.hordeLifetime = this.hordeLifetime_config.get();

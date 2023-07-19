@@ -1,6 +1,6 @@
 package com.calculusmaster.difficultraids;
 
-import com.calculusmaster.difficultraids.data.RaidWaveReloadListener;
+import com.calculusmaster.difficultraids.data.raiderentries.RaidWaveReloadListener;
 import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
 import com.calculusmaster.difficultraids.raids.RaidEnemyRegistry;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;

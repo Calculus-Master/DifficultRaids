@@ -1,4 +1,4 @@
-package com.calculusmaster.difficultraids.data;
+package com.calculusmaster.difficultraids.data.raiderentries;
 
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.mojang.serialization.Codec;

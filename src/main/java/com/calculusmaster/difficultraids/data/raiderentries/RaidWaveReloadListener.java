@@ -1,4 +1,4 @@
-package com.calculusmaster.difficultraids.data;
+package com.calculusmaster.difficultraids.data.raiderentries;
 
 import com.calculusmaster.difficultraids.raids.RaidEnemyRegistry;
 import com.google.gson.JsonElement;
@@ -16,7 +16,7 @@ import java.io.Reader;
 import java.util.*;
 import java.util.function.Function;
 
-import static com.calculusmaster.difficultraids.data.DifficultyRaiderEntries.CODEC;
+import static com.calculusmaster.difficultraids.data.raiderentries.DifficultyRaiderEntries.CODEC;
 
 public class RaidWaveReloadListener extends SimplePreparableReloadListener<Map<ResourceLocation, RaiderEntriesHolder>>
 {
