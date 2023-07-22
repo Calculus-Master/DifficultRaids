@@ -29,7 +29,7 @@ apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
 
 
-version = '2.0-beta.10'
+version = '2.0-beta.11'
 group = 'com.calculusmaster.difficultraids'
 archivesBaseName = 'difficultraids-1.19.2'
 
@@ -190,6 +190,9 @@ dependencies {
 
     //Pyrologer & Friends
     implementation fg.deobf("curse.maven:pyrologer-and-friends-573099:4433602")
+
+    //L Ender's Cataclysm
+    implementation fg.deobf("curse.maven:l_ender-s-cataclysm-551586:4654770")
 
     //Mob Entity Path Visualizer 1.1.0-release.6
     runtimeOnly fg.deobf("curse.maven:mob-entity-path-visualizer-590716:4063117")

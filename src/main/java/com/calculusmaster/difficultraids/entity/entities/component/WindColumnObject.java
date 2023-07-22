@@ -15,7 +15,7 @@ import net.minecraft.world.phys.AABB;
 
 import java.util.Random;
 
-public class XydraxWindColumn
+public class WindColumnObject
 {
     private final XydraxEliteEntity owner;
     private final ServerLevel level;
@@ -28,7 +28,7 @@ public class XydraxWindColumn
 
     private final int height = 20;
 
-    public XydraxWindColumn(XydraxEliteEntity owner, BlockPos startPos, int life)
+    public WindColumnObject(XydraxEliteEntity owner, BlockPos startPos, int life)
     {
         this.owner = owner;
         this.level = (ServerLevel)owner.getLevel();

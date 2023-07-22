@@ -19,6 +19,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -33,8 +34,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.PlayLevelSoundEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.EntityMobGriefingEvent;
 import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -190,5 +193,22 @@ public class DRForgeBusEvents
                 necro.playSound(SoundEvents.WITCH_DRINK, 12.0F, 0.7F);
             });
         }
+    }
+
+    @SubscribeEvent
+    public static void onMobGriefing(EntityMobGriefingEvent event)
+    {
+        if(event.getEntity() instanceof AshenmancerIllagerEntity ashenmancer && !ashenmancer.config().ashenmancer.allowMobGriefing)
+            event.setResult(Event.Result.DENY);
+    }
+
+    @SubscribeEvent
+    public static void onLivingHurt(LivingHurtEvent event)
+    {
+        if(event.getSource().equals(DamageSource.WITHER)
+                && event.getSource().getEntity() instanceof AshenmancerIllagerEntity ashenmancer
+                && ashenmancer.isInDifficultRaid()
+        )
+            event.setAmount(ashenmancer.config().ashenmancer.witherSkullWitherTickDamage);
     }
 }

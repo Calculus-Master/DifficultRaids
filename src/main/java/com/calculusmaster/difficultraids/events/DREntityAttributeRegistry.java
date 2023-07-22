@@ -90,6 +90,14 @@ public class DREntityAttributeRegistry
                 .build()
         );
 
+        event.put(DifficultRaidsEntityTypes.ASHENMANCER_ILLAGER.get(), DEFAULT.get()
+                .add(Attributes.MOVEMENT_SPEED, 0.35F)
+                .add(Attributes.FOLLOW_RANGE, 18.0D)
+                .add(Attributes.MAX_HEALTH, 40.0D)
+                .add(Attributes.FOLLOW_RANGE, 24.0D)
+                .build()
+        );
+
         //Elites
 
         event.put(DifficultRaidsEntityTypes.NUAOS_ELITE.get(), DEFAULT.get()

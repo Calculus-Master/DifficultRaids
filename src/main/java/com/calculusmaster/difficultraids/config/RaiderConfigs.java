@@ -481,6 +481,26 @@ public class RaiderConfigs
         public static final TagKey<EntityType<?>> TAG_MINION_TYPES_MASTER = TagKey.create(Registry.ENTITY_TYPE_REGISTRY, new ResourceLocation("difficultraids:necromancer/minion_types_master"));
         public static final TagKey<EntityType<?>> TAG_MINION_TYPES_GRANDMASTER = TagKey.create(Registry.ENTITY_TYPE_REGISTRY, new ResourceLocation("difficultraids:necromancer/minion_types_grandmaster"));
 
+        public static final TagKey<Item> TAG_HELMETS_HERO = ItemTags.create(new ResourceLocation("difficultraids:necromancer/helmets_hero"));
+        public static final TagKey<Item> TAG_HELMETS_LEGEND = ItemTags.create(new ResourceLocation("difficultraids:necromancer/helmets_legend"));
+        public static final TagKey<Item> TAG_HELMETS_MASTER = ItemTags.create(new ResourceLocation("difficultraids:necromancer/helmets_master"));
+        public static final TagKey<Item> TAG_HELMETS_GRANDMASTER = ItemTags.create(new ResourceLocation("difficultraids:necromancer/helmets_grandmaster"));
+
+        public static final TagKey<Item> TAG_CHESTPLATES_HERO = ItemTags.create(new ResourceLocation("difficultraids:necromancer/chestplates_hero"));
+        public static final TagKey<Item> TAG_CHESTPLATES_LEGEND = ItemTags.create(new ResourceLocation("difficultraids:necromancer/chestplates_legend"));
+        public static final TagKey<Item> TAG_CHESTPLATES_MASTER = ItemTags.create(new ResourceLocation("difficultraids:necromancer/chestplates_master"));
+        public static final TagKey<Item> TAG_CHESTPLATES_GRANDMASTER = ItemTags.create(new ResourceLocation("difficultraids:necromancer/chestplates_grandmaster"));
+
+        public static final TagKey<Item> TAG_LEGGINGS_HERO = ItemTags.create(new ResourceLocation("difficultraids:necromancer/leggings_hero"));
+        public static final TagKey<Item> TAG_LEGGINGS_LEGEND = ItemTags.create(new ResourceLocation("difficultraids:necromancer/leggings_legend"));
+        public static final TagKey<Item> TAG_LEGGINGS_MASTER = ItemTags.create(new ResourceLocation("difficultraids:necromancer/leggings_master"));
+        public static final TagKey<Item> TAG_LEGGINGS_GRANDMASTER = ItemTags.create(new ResourceLocation("difficultraids:necromancer/leggings_grandmaster"));
+
+        public static final TagKey<Item> TAG_BOOTS_HERO = ItemTags.create(new ResourceLocation("difficultraids:necromancer/boots_hero"));
+        public static final TagKey<Item> TAG_BOOTS_LEGEND = ItemTags.create(new ResourceLocation("difficultraids:necromancer/boots_legend"));
+        public static final TagKey<Item> TAG_BOOTS_MASTER = ItemTags.create(new ResourceLocation("difficultraids:necromancer/boots_master"));
+        public static final TagKey<Item> TAG_BOOTS_GRANDMASTER = ItemTags.create(new ResourceLocation("difficultraids:necromancer/boots_grandmaster"));
+
         private final ForgeConfigSpec.DoubleValue reflectedDamagePercentage_config;
         public float reflectedDamagePercentage;
 
@@ -568,6 +588,50 @@ public class RaiderConfigs
                 case MASTER -> TAG_MINION_TYPES_MASTER;
                 case GRANDMASTER -> TAG_MINION_TYPES_GRANDMASTER;
             }).getRandomElement(RandomSource.create()).orElse(EntityType.ZOMBIE);
+        }
+
+        public Item getMinionHelmet()
+        {
+            return ForgeRegistries.ITEMS.tags().getTag(switch(this.rd)
+            {
+                case DEFAULT, HERO -> TAG_HELMETS_HERO;
+                case LEGEND -> TAG_HELMETS_LEGEND;
+                case MASTER -> TAG_HELMETS_MASTER;
+                case GRANDMASTER -> TAG_HELMETS_GRANDMASTER;
+            }).getRandomElement(RandomSource.create()).orElse(Items.IRON_HELMET);
+        }
+
+        public Item getMinionChestplate()
+        {
+            return ForgeRegistries.ITEMS.tags().getTag(switch(this.rd)
+            {
+                case DEFAULT, HERO -> TAG_CHESTPLATES_HERO;
+                case LEGEND -> TAG_CHESTPLATES_LEGEND;
+                case MASTER -> TAG_CHESTPLATES_MASTER;
+                case GRANDMASTER -> TAG_CHESTPLATES_GRANDMASTER;
+            }).getRandomElement(RandomSource.create()).orElse(Items.IRON_CHESTPLATE);
+        }
+
+        public Item getMinionLeggings()
+        {
+            return ForgeRegistries.ITEMS.tags().getTag(switch(this.rd)
+            {
+                case DEFAULT, HERO -> TAG_LEGGINGS_HERO;
+                case LEGEND -> TAG_LEGGINGS_LEGEND;
+                case MASTER -> TAG_LEGGINGS_MASTER;
+                case GRANDMASTER -> TAG_LEGGINGS_GRANDMASTER;
+            }).getRandomElement(RandomSource.create()).orElse(Items.IRON_LEGGINGS);
+        }
+
+        public Item getMinionBoots()
+        {
+            return ForgeRegistries.ITEMS.tags().getTag(switch(this.rd)
+            {
+                case DEFAULT, HERO -> TAG_BOOTS_HERO;
+                case LEGEND -> TAG_BOOTS_LEGEND;
+                case MASTER -> TAG_BOOTS_MASTER;
+                case GRANDMASTER -> TAG_BOOTS_GRANDMASTER;
+            }).getRandomElement(RandomSource.create()).orElse(Items.IRON_BOOTS);
         }
     }
 
@@ -909,6 +973,273 @@ public class RaiderConfigs
             this.slownessAuraRadius = this.slownessAuraRadius_config.get().floatValue();
             this.barrageSnowballDamage = this.barrageSnowballDamage_config.get().floatValue();
             this.snowballBlastDamage = this.snowballBlastDamage_config.get().floatValue();
+        }
+    }
+
+    public static class Ashenmancer extends RaiderConfig
+    {
+        public static final TagKey<Item> TAG_SWORDS_HERO = ItemTags.create(new ResourceLocation("difficultraids:ashenmancer/swords_hero"));
+        public static final TagKey<Item> TAG_SWORDS_LEGEND = ItemTags.create(new ResourceLocation("difficultraids:ashenmancer/swords_legend"));
+        public static final TagKey<Item> TAG_SWORDS_MASTER = ItemTags.create(new ResourceLocation("difficultraids:ashenmancer/swords_master"));
+        public static final TagKey<Item> TAG_SWORDS_GRANDMASTER = ItemTags.create(new ResourceLocation("difficultraids:ashenmancer/swords_grandmaster"));
+
+        public static final TagKey<Item> TAG_HELMETS_HERO = ItemTags.create(new ResourceLocation("difficultraids:ashenmancer/helmets_hero"));
+        public static final TagKey<Item> TAG_HELMETS_LEGEND = ItemTags.create(new ResourceLocation("difficultraids:ashenmancer/helmets_legend"));
+        public static final TagKey<Item> TAG_HELMETS_MASTER = ItemTags.create(new ResourceLocation("difficultraids:ashenmancer/helmets_master"));
+        public static final TagKey<Item> TAG_HELMETS_GRANDMASTER = ItemTags.create(new ResourceLocation("difficultraids:ashenmancer/helmets_grandmaster"));
+
+        public static final TagKey<Item> TAG_CHESTPLATES_HERO = ItemTags.create(new ResourceLocation("difficultraids:ashenmancer/chestplates_hero"));
+        public static final TagKey<Item> TAG_CHESTPLATES_LEGEND = ItemTags.create(new ResourceLocation("difficultraids:ashenmancer/chestplates_legend"));
+        public static final TagKey<Item> TAG_CHESTPLATES_MASTER = ItemTags.create(new ResourceLocation("difficultraids:ashenmancer/chestplates_master"));
+        public static final TagKey<Item> TAG_CHESTPLATES_GRANDMASTER = ItemTags.create(new ResourceLocation("difficultraids:ashenmancer/chestplates_grandmaster"));
+
+        public static final TagKey<Item> TAG_LEGGINGS_HERO = ItemTags.create(new ResourceLocation("difficultraids:ashenmancer/leggings_hero"));
+        public static final TagKey<Item> TAG_LEGGINGS_LEGEND = ItemTags.create(new ResourceLocation("difficultraids:ashenmancer/leggings_legend"));
+        public static final TagKey<Item> TAG_LEGGINGS_MASTER = ItemTags.create(new ResourceLocation("difficultraids:ashenmancer/leggings_master"));
+        public static final TagKey<Item> TAG_LEGGINGS_GRANDMASTER = ItemTags.create(new ResourceLocation("difficultraids:ashenmancer/leggings_grandmaster"));
+
+        public static final TagKey<Item> TAG_BOOTS_HERO = ItemTags.create(new ResourceLocation("difficultraids:ashenmancer/boots_hero"));
+        public static final TagKey<Item> TAG_BOOTS_LEGEND = ItemTags.create(new ResourceLocation("difficultraids:ashenmancer/boots_legend"));
+        public static final TagKey<Item> TAG_BOOTS_MASTER = ItemTags.create(new ResourceLocation("difficultraids:ashenmancer/boots_master"));
+        public static final TagKey<Item> TAG_BOOTS_GRANDMASTER = ItemTags.create(new ResourceLocation("difficultraids:ashenmancer/boots_grandmaster"));
+
+        private final ForgeConfigSpec.IntValue maxMinionCount_config;
+        public int maxMinionCount;
+
+        private final ForgeConfigSpec.IntValue minionMaxProtectionLevel_config;
+        public int minionMaxProtectionLevel;
+
+        private final ForgeConfigSpec.IntValue minionMaxSharpnessLevel_config;
+        public int minionMaxSharpnessLevel;
+
+        private final ForgeConfigSpec.BooleanValue allowMobGriefing_config;
+        public boolean allowMobGriefing;
+
+        private final ForgeConfigSpec.DoubleValue witherSkullWitherTickDamage_config;
+        public float witherSkullWitherTickDamage;
+
+        private final ForgeConfigSpec.IntValue ashenadoDuration_config;
+        public int ashenadoDuration;
+
+        private final ForgeConfigSpec.DoubleValue pusherSkullForce_config;
+        public float pusherSkullForce;
+
+        private final ForgeConfigSpec.IntValue flamerSkullFireDuration_config;
+        public int flamerSkullFireDuration;
+
+        private final ForgeConfigSpec.IntValue multishotSkullCount_config;
+        public int multishotSkullCount;
+
+        private final ForgeConfigSpec.DoubleValue speederSkullSpeed_config;
+        public float speederSkullSpeed;
+
+        private final ForgeConfigSpec.IntValue blinderSkullBlindnessDuration_config;
+        public int blinderSkullBlindnessDuration;
+
+        private final ForgeConfigSpec.IntValue turretSkullCount_config;
+        public int turretSkullCount;
+
+        private final ForgeConfigSpec.IntValue turretInterval_config;
+        public int turretInterval;
+
+        public Ashenmancer(RaidDifficulty rd, ForgeConfigSpec.Builder spec)
+        {
+            super(rd);
+
+            this.maxMinionCount_config = spec
+                    .comment("Maximum number of Ashenmancer minions that can be spawned at once.")
+                    .defineInRange("ashenmancer_maxMinionCount", switch(rd)
+                    {
+                        case DEFAULT, HERO -> 2;
+                        case LEGEND -> 3;
+                        case MASTER -> 4;
+                        case GRANDMASTER -> 6;
+                    }, 0, Integer.MAX_VALUE);
+
+            this.minionMaxProtectionLevel_config = spec
+                    .comment("Maximum level of Protection that Ashenmancer minions can have on their armor.")
+                    .defineInRange("ashenmancer_minionMaxProtectionLevel", switch(rd)
+                    {
+                        case DEFAULT, HERO -> 2;
+                        case LEGEND -> 3;
+                        case MASTER -> 4;
+                        case GRANDMASTER -> 6;
+                    }, 0, Integer.MAX_VALUE);
+
+            this.minionMaxSharpnessLevel_config = spec
+                    .comment("Maximum level of Sharpness that Ashenmancer minions can have on their swords.")
+                    .defineInRange("ashenmancer_minionMaxSharpnessLevel", switch(rd)
+                    {
+                        case DEFAULT, HERO -> 3;
+                        case LEGEND -> 4;
+                        case MASTER -> 5;
+                        case GRANDMASTER -> 6;
+                    }, 0, Integer.MAX_VALUE);
+
+            this.allowMobGriefing_config = spec
+                    .comment("Whether or not Ashenmancer minions are allowed to grief blocks. Enabling this will cause Ashenmancer wither skulls to explode.")
+                    .define("ashenmancer_allowMobGriefing", false);
+
+            this.witherSkullWitherTickDamage_config = spec
+                    .comment("Damage dealt by the Wither effect applied by Ashenmancer Wither Skulls. Warning: This ignores armor!")
+                    .defineInRange("ashenmancer_witherSkullWitherTickDamage", switch(rd)
+                    {
+                        case DEFAULT, HERO -> 1.0F;
+                        case LEGEND -> 2.0F;
+                        case MASTER -> 4.0F;
+                        case GRANDMASTER -> 7.0F;
+                    }, 0., Double.MAX_VALUE);
+
+            this.ashenadoDuration_config = spec
+                    .comment("Duration (in ticks) of the Ashenmancer's Ashenado.")
+                    .defineInRange("ashenmancer_ashenadoDuration", switch(rd)
+                    {
+                        case DEFAULT, HERO -> 20 * 10;
+                        case LEGEND -> 20 * 16;
+                        case MASTER -> 20 * 22;
+                        case GRANDMASTER -> 20 * 30;
+                    }, 0, Integer.MAX_VALUE);
+
+            this.pusherSkullForce_config = spec
+                    .comment("Force applied by the Ashenmancer's Pusher Wither Skulls.")
+                    .defineInRange("ashenmancer_pusherSkullForce", switch(rd)
+                    {
+                        case DEFAULT, HERO -> 1.5F;
+                        case LEGEND -> 2.0F;
+                        case MASTER -> 3.0F;
+                        case GRANDMASTER -> 5.0F;
+                    }, 0., Double.MAX_VALUE);
+
+            this.flamerSkullFireDuration_config = spec
+                    .comment("Duration (in ticks) enemies will be set on fire by the Ashenmancer's Flamer Wither Skulls.")
+                    .defineInRange("ashenmancer_flamerSkullFireDuration", switch(rd)
+                    {
+                        case DEFAULT, HERO -> 20 * 5;
+                        case LEGEND -> 20 * 8;
+                        case MASTER -> 20 * 12;
+                        case GRANDMASTER -> 20 * 16;
+                    }, 0, Integer.MAX_VALUE);
+
+            this.multishotSkullCount_config = spec
+                    .comment("Number of Wither Skulls that will be fired by the Ashenmancer's Multishot Wither Skull attack.")
+                    .defineInRange("ashenmancer_multishotSkullCount", switch(rd)
+                    {
+                        case DEFAULT, HERO -> 3;
+                        case LEGEND -> 5;
+                        case MASTER -> 7;
+                        case GRANDMASTER -> 9;
+                    }, 0, Integer.MAX_VALUE);
+
+            this.speederSkullSpeed_config = spec
+                    .comment("Speed of the Ashenmancer's Speeder Wither Skulls.")
+                    .defineInRange("ashenmancer_speederSkullSpeed", switch(rd)
+                    {
+                        case DEFAULT, HERO -> 1.15F;
+                        case LEGEND -> 1.35F;
+                        case MASTER -> 1.75F;
+                        case GRANDMASTER -> 2.0F;
+                    }, 0., Double.MAX_VALUE);
+
+            this.blinderSkullBlindnessDuration_config = spec
+                    .comment("Duration (in ticks) enemies will be affected with Darkness by the Ashenmancer's Blinder Wither Skulls.")
+                    .defineInRange("ashenmancer_blinderSkullBlindnessDuration", switch(rd)
+                    {
+                        case DEFAULT, HERO -> 20 * 3;
+                        case LEGEND -> 20 * 4;
+                        case MASTER -> 20 * 6;
+                        case GRANDMASTER -> 20 * 8;
+                    }, 0, Integer.MAX_VALUE);
+
+            this.turretSkullCount_config = spec
+                    .comment("Total number of Wither Skulls fired during the Ashenmancer's Turret attack.")
+                    .defineInRange("ashenmancer_turretSkullCount", switch(rd)
+                    {
+                        case DEFAULT, HERO -> 16;
+                        case LEGEND -> 24;
+                        case MASTER -> 32;
+                        case GRANDMASTER -> 48;
+                    }, 0, Integer.MAX_VALUE);
+
+            this.turretInterval_config = spec
+                    .comment("Interval (in ticks) between each Wither Skull fired during the Ashenmancer's Turret attack. Warning: This can cause a lot of lag at short intervals!")
+                    .defineInRange("ashenmancer_turretInterval", switch(rd)
+                    {
+                        case DEFAULT, HERO, LEGEND -> 15;
+                        case MASTER, GRANDMASTER -> 12;
+                    }, 1, Integer.MAX_VALUE);
+        }
+
+        @Override
+        public void initialize()
+        {
+            this.minionMaxProtectionLevel = this.minionMaxProtectionLevel_config.get();
+            this.maxMinionCount = this.maxMinionCount_config.get();
+            this.minionMaxSharpnessLevel = this.minionMaxSharpnessLevel_config.get();
+            this.allowMobGriefing = this.allowMobGriefing_config.get();
+            this.witherSkullWitherTickDamage = this.witherSkullWitherTickDamage_config.get().floatValue();
+            this.ashenadoDuration = this.ashenadoDuration_config.get();
+            this.pusherSkullForce = this.pusherSkullForce_config.get().floatValue();
+            this.flamerSkullFireDuration = this.flamerSkullFireDuration_config.get();
+            this.multishotSkullCount = this.multishotSkullCount_config.get();
+            this.speederSkullSpeed = this.speederSkullSpeed_config.get().floatValue();
+            this.blinderSkullBlindnessDuration = this.blinderSkullBlindnessDuration_config.get();
+            this.turretSkullCount = this.turretSkullCount_config.get();
+            this.turretInterval = this.turretInterval_config.get();
+        }
+
+        public Item getMinionSword()
+        {
+            return ForgeRegistries.ITEMS.tags().getTag(switch(this.rd)
+            {
+                case DEFAULT, HERO -> TAG_SWORDS_HERO;
+                case LEGEND -> TAG_SWORDS_LEGEND;
+                case MASTER -> TAG_SWORDS_MASTER;
+                case GRANDMASTER -> TAG_SWORDS_GRANDMASTER;
+            }).getRandomElement(RandomSource.create()).orElse(Items.DIAMOND_SWORD);
+        }
+
+        public Item getMinionHelmet()
+        {
+            return ForgeRegistries.ITEMS.tags().getTag(switch(this.rd)
+            {
+                case DEFAULT, HERO -> TAG_HELMETS_HERO;
+                case LEGEND -> TAG_HELMETS_LEGEND;
+                case MASTER -> TAG_HELMETS_MASTER;
+                case GRANDMASTER -> TAG_HELMETS_GRANDMASTER;
+            }).getRandomElement(RandomSource.create()).orElse(Items.DIAMOND_HELMET);
+        }
+
+        public Item getMinionChestplate()
+        {
+            return ForgeRegistries.ITEMS.tags().getTag(switch(this.rd)
+            {
+                case DEFAULT, HERO -> TAG_CHESTPLATES_HERO;
+                case LEGEND -> TAG_CHESTPLATES_LEGEND;
+                case MASTER -> TAG_CHESTPLATES_MASTER;
+                case GRANDMASTER -> TAG_CHESTPLATES_GRANDMASTER;
+            }).getRandomElement(RandomSource.create()).orElse(Items.DIAMOND_CHESTPLATE);
+        }
+
+        public Item getMinionLeggings()
+        {
+            return ForgeRegistries.ITEMS.tags().getTag(switch(this.rd)
+            {
+                case DEFAULT, HERO -> TAG_LEGGINGS_HERO;
+                case LEGEND -> TAG_LEGGINGS_LEGEND;
+                case MASTER -> TAG_LEGGINGS_MASTER;
+                case GRANDMASTER -> TAG_LEGGINGS_GRANDMASTER;
+            }).getRandomElement(RandomSource.create()).orElse(Items.DIAMOND_LEGGINGS);
+        }
+
+        public Item getMinionBoots()
+        {
+            return ForgeRegistries.ITEMS.tags().getTag(switch(this.rd)
+            {
+                case DEFAULT, HERO -> TAG_BOOTS_HERO;
+                case LEGEND -> TAG_BOOTS_LEGEND;
+                case MASTER -> TAG_BOOTS_MASTER;
+                case GRANDMASTER -> TAG_BOOTS_GRANDMASTER;
+            }).getRandomElement(RandomSource.create()).orElse(Items.DIAMOND_BOOTS);
         }
     }
 

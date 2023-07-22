@@ -1,7 +1,7 @@
 package com.calculusmaster.difficultraids.entity.entities.elite;
 
 import com.calculusmaster.difficultraids.config.RaidDifficultyConfig;
-import com.calculusmaster.difficultraids.entity.entities.component.XydraxWindColumn;
+import com.calculusmaster.difficultraids.entity.entities.component.WindColumnObject;
 import com.calculusmaster.difficultraids.entity.entities.core.AbstractEvokerVariant;
 import com.calculusmaster.difficultraids.raids.RaidDifficulty;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
@@ -52,7 +52,7 @@ public class XydraxEliteEntity extends AbstractEvokerVariant
     private final ServerBossEvent ELITE_EVENT = new ServerBossEvent(ELITE_NAME, BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.PROGRESS);
 
     private boolean isHealing = false;
-    private final List<XydraxWindColumn> windColumns = new ArrayList<>();
+    private final List<WindColumnObject> windColumns = new ArrayList<>();
     private int vortexTicks = 0;
     private BlockPos vortexFloor = BlockPos.ZERO;
     private AABB vortexAABB = new AABB(0, 0, 0, 0, 0, 0);
@@ -181,9 +181,9 @@ public class XydraxEliteEntity extends AbstractEvokerVariant
 
         if(!this.windColumns.isEmpty())
         {
-            this.windColumns.removeIf(XydraxWindColumn::isComplete);
+            this.windColumns.removeIf(WindColumnObject::isComplete);
 
-            this.windColumns.forEach(XydraxWindColumn::tick);
+            this.windColumns.forEach(WindColumnObject::tick);
         }
 
         if(this.isVortexActive())
@@ -266,7 +266,7 @@ public class XydraxEliteEntity extends AbstractEvokerVariant
         int[] data = new int[this.windColumns.size() * 4];
         for(int i = 0; i < data.length; i += 4)
         {
-            XydraxWindColumn column = this.windColumns.get(i / 4);
+            WindColumnObject column = this.windColumns.get(i / 4);
             data[i] = column.getPosition().getX();
             data[i + 1] = column.getPosition().getY();
             data[i + 2] = column.getPosition().getZ();
@@ -281,7 +281,7 @@ public class XydraxEliteEntity extends AbstractEvokerVariant
         {
             BlockPos pos = new BlockPos(data[i], data[i + 1], data[i + 2]);
             int life = data[i + 3];
-            this.windColumns.add(new XydraxWindColumn(this, pos, life));
+            this.windColumns.add(new WindColumnObject(this, pos, life));
         }
     }
 
@@ -350,7 +350,7 @@ public class XydraxEliteEntity extends AbstractEvokerVariant
                     raidDifficulty.config().xydrax.windColumnLifetime.get(1) + 1
             );
 
-            XydraxWindColumn column = new XydraxWindColumn(this, pos, life);
+            WindColumnObject column = new WindColumnObject(this, pos, life);
             this.windColumns.add(column);
         });
     }

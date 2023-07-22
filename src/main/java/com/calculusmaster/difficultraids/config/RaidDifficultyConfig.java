@@ -23,6 +23,7 @@ public class RaidDifficultyConfig
     public RaiderConfigs.Tank tank;
     public RaiderConfigs.Assassin assassin;
     public RaiderConfigs.Frostmage frostmage;
+    public RaiderConfigs.Ashenmancer ashenmancer;
 
     public RaiderConfigs.Nuaos nuaos;
     public RaiderConfigs.Xydrax xydrax;
@@ -56,6 +57,7 @@ public class RaidDifficultyConfig
         this.tank.initialize();
         this.assassin.initialize();
         this.frostmage.initialize();
+        this.ashenmancer.initialize();
 
         this.nuaos.initialize();
         this.xydrax.initialize();

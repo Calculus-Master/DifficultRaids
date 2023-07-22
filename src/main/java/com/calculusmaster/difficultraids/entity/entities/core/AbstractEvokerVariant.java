@@ -152,7 +152,14 @@ public abstract class AbstractEvokerVariant extends AbstractIllagerVariant
 
         VOLDON_SUMMON_FAMILIARS(25, 0.05D, 0.05D, 0.05D),
         VOLDON_TELEPORT_FAMILIAR(26, 0.8D, 0.1D, 0.5D),
-        VOLDON_SACRIFICE_FAMILIAR(27, 0.6D, 0.6D, 0.1D);
+        VOLDON_SACRIFICE_FAMILIAR(27, 0.6D, 0.6D, 0.1D),
+
+        ASHENMANCER_SUMMON_MINIONS(28, 0.1D, 0.1D, 0.1D),
+        ASHENMANCER_SHOOT_SKULL(29, 0.1D, 0.1D, 0.4D),
+        ASHENMANCER_ASHENADO(30, 0.05, 0.05, 0.05),
+        ASHENMANCER_TURRET(31, 0.8, 0.35, 0.07)
+
+        ;
 
         final int ID;
         final double[] spellColor;

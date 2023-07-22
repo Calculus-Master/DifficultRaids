@@ -25,6 +25,7 @@
     "item.difficultraids.tank_illager_spawn_egg": "Tank Spawn Egg",
     "item.difficultraids.assassin_illager_spawn_egg": "Assassin Spawn Egg",
     "item.difficultraids.frost_illager_spawn_egg": "Frostmage Spawn Egg",
+    "item.difficultraids.ashenmancer_illager_spawn_egg": "Ashenmancer Spawn Egg",
 
     "enchantment.difficultraids.raiders_bane": "Bane of Raiders",
     "enchantment.difficultraids.raiders_bane.desc": "Deals extra damage to all Raiders.",
@@ -51,6 +52,7 @@
     "entity.difficultraids.tank_illager": "Tank",
     "entity.difficultraids.assassin_illager": "Assassin",
     "entity.difficultraids.frost_illager": "Frostmage",
+    "entity.difficultraids.ashenmancer_illager": "Ashenmancer",
 
     "entity.difficultraids.frost_snowball": "Frost Snowball",
     "entity.difficultraids.shaman_debuff_bullet": "Shaman Debuff Bullet",

@@ -155,6 +155,7 @@ public class DifficultRaidsConfig
         ENABLED_RAIDERS.put(RaidEnemyRegistry.TANK, GENERAL.define("enableTanks", true));
         ENABLED_RAIDERS.put(RaidEnemyRegistry.ASSASSIN, GENERAL.define("enableAssassins", true));
         ENABLED_RAIDERS.put(RaidEnemyRegistry.FROSTMAGE, GENERAL.define("enableFrostmages", true));
+        ENABLED_RAIDERS.put(RaidEnemyRegistry.ASHENMANCER, GENERAL.define("enableAshenmancers", true));
 
         GENERAL.push("Requires HunterIllager");
         ENABLED_RAIDERS.put(RaidEnemyRegistry.HUNTER, GENERAL.define("enableHunters", true));
@@ -275,6 +276,11 @@ public class DifficultRaidsConfig
             //Frostmage
             spec.push("Frostmage Settings");
             config.frostmage = new RaiderConfigs.Frostmage(rd, spec);
+            spec.pop();
+
+            //Ashenmancer
+            spec.push("Ashenmancer Settings");
+            config.ashenmancer = new RaiderConfigs.Ashenmancer(rd, spec);
             spec.pop();
 
             spec.push("Elite Raiders");

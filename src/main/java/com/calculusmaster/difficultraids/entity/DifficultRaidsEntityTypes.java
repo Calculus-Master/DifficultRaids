@@ -46,6 +46,9 @@ public class DifficultRaidsEntityTypes
     public static final RegistryObject<EntityType<FrostIllagerEntity>> FROST_ILLAGER =
             registerIllager("frost_illager", FrostIllagerEntity::new);
 
+    public static final RegistryObject<EntityType<AshenmancerIllagerEntity>> ASHENMANCER_ILLAGER =
+            registerIllager("ashenmancer_illager", AshenmancerIllagerEntity::new);
+
     //Component Entities
     public static final RegistryObject<EntityType<FrostSnowballEntity>> FROST_SNOWBALL = ENTITY_TYPES.register("frost_snowball",
             () -> EntityType.Builder.of(FrostSnowballEntity::new, MobCategory.MISC)

@@ -193,7 +193,7 @@ public class VoldonEliteEntity extends AbstractEvokerVariant implements RangedAt
         {
             this.familiars.addAll(serverLevel.getEntitiesOfClass(VoldonFamiliarEntity.class, this.getBoundingBox().inflate(FAMILIAR_CHECK_RADIUS), e -> e.getTags().contains(this.familiarTag)));
 
-            this.checkFamiliars = this.tickCount >= 100 || this.familiars.isEmpty();
+            this.checkFamiliars = this.tickCount <= 100 && this.familiars.isEmpty();
         }
     }
 

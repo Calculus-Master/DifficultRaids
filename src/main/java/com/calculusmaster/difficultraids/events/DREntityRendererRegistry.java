@@ -31,6 +31,7 @@ public class DREntityRendererRegistry
         event.registerEntityRenderer(DifficultRaidsEntityTypes.TANK_ILLAGER.get(), TankIllagerRenderer::new);
         event.registerEntityRenderer(DifficultRaidsEntityTypes.ASSASSIN_ILLAGER.get(), AssassinIllagerRenderer::new);
         event.registerEntityRenderer(DifficultRaidsEntityTypes.FROST_ILLAGER.get(), FrostIllagerRenderer::new);
+        event.registerEntityRenderer(DifficultRaidsEntityTypes.ASHENMANCER_ILLAGER.get(), AshenmancerIllagerRenderer::new);
         event.registerEntityRenderer(DifficultRaidsEntityTypes.FROST_SNOWBALL.get(), ThrownItemRenderer::new);
         event.registerEntityRenderer(DifficultRaidsEntityTypes.SHAMAN_DEBUFF_BULLET.get(), ShulkerBulletRenderer::new);
 

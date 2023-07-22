@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:chainmail_chestplate",
+    "minecraft:iron_chestplate",
+    "minecraft:diamond_chestplate"
+  ]
+}

@@ -76,9 +76,9 @@ public class VoldonFamiliarEntity extends AbstractPillagerVariant
 
         this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, Raider.class)).setAlertOthers());
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
         if(Compat.GUARD_VILLAGERS.isLoaded()) this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Guard.class, true));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractVillager.class, true));
-        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
     }
 
     @Override

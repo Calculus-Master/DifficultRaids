@@ -2,7 +2,6 @@ package com.calculusmaster.difficultraids.raids;
 
 import com.calculusmaster.difficultraids.DifficultRaids;
 import com.calculusmaster.difficultraids.data.raiderentries.RaiderEntriesHolder;
-import com.calculusmaster.difficultraids.entity.DifficultRaidsEntityTypes;
 import com.calculusmaster.difficultraids.setup.DifficultRaidsConfig;
 import com.calculusmaster.difficultraids.util.Compat;
 import com.infamous.dungeons_mobs.mod.ModEntityTypes;
@@ -42,6 +41,7 @@ public class RaidEnemyRegistry
     public static final String TANK = "TANK_ILLAGER";
     public static final String ASSASSIN = "ASSASSIN_ILLAGER";
     public static final String FROSTMAGE = "FROST_ILLAGER";
+    public static final String ASHENMANCER = "ASHENMANCER_ILLAGER";
 
     public static final String NUAOS = "NUAOS_ELITE";
     public static final String XYDRAX = "XYDRAX_ELITE";
@@ -118,14 +118,15 @@ public class RaidEnemyRegistry
     public static void registerRaiders()
     {
         RaidEnemyRegistry.createRaiderType(ILLUSIONER, EntityType.ILLUSIONER);
-        RaidEnemyRegistry.createRaiderType(WARRIOR, DifficultRaidsEntityTypes.WARRIOR_ILLAGER.get());
-        RaidEnemyRegistry.createRaiderType(DART, DifficultRaidsEntityTypes.DART_ILLAGER.get());
-        RaidEnemyRegistry.createRaiderType(CONDUCTOR, DifficultRaidsEntityTypes.ELECTRO_ILLAGER.get());
-        RaidEnemyRegistry.createRaiderType(NECROMANCER, DifficultRaidsEntityTypes.NECROMANCER_ILLAGER.get());
-        RaidEnemyRegistry.createRaiderType(SHAMAN, DifficultRaidsEntityTypes.SHAMAN_ILLAGER.get());
-        RaidEnemyRegistry.createRaiderType(TANK, DifficultRaidsEntityTypes.TANK_ILLAGER.get());
-        RaidEnemyRegistry.createRaiderType(ASSASSIN, DifficultRaidsEntityTypes.ASSASSIN_ILLAGER.get());
-        RaidEnemyRegistry.createRaiderType(FROSTMAGE, DifficultRaidsEntityTypes.FROST_ILLAGER.get());
+        RaidEnemyRegistry.createRaiderType(WARRIOR, WARRIOR_ILLAGER.get());
+        RaidEnemyRegistry.createRaiderType(DART, DART_ILLAGER.get());
+        RaidEnemyRegistry.createRaiderType(CONDUCTOR, ELECTRO_ILLAGER.get());
+        RaidEnemyRegistry.createRaiderType(NECROMANCER, NECROMANCER_ILLAGER.get());
+        RaidEnemyRegistry.createRaiderType(SHAMAN, SHAMAN_ILLAGER.get());
+        RaidEnemyRegistry.createRaiderType(TANK, TANK_ILLAGER.get());
+        RaidEnemyRegistry.createRaiderType(ASSASSIN, ASSASSIN_ILLAGER.get());
+        RaidEnemyRegistry.createRaiderType(FROSTMAGE, FROST_ILLAGER.get());
+        RaidEnemyRegistry.createRaiderType(ASHENMANCER, ASHENMANCER_ILLAGER.get());
 
         RaidEnemyRegistry.createRaiderType(NUAOS, NUAOS_ELITE.get());
         RaidEnemyRegistry.createRaiderType(XYDRAX, XYDRAX_ELITE.get());
@@ -202,6 +203,7 @@ public class RaidEnemyRegistry
                 .withRaider(CONDUCTOR,          0, 0, 0, 0, 0, 0, 0, 1)
                 .withRaider(NECROMANCER,        0, 0, 0, 0, 1, 0, 0, 0)
                 .withRaider(FROSTMAGE,          0, 0, 0, 0, 0, 1, 0, 0)
+                .withRaider(ASHENMANCER,        0, 0, 0, 0, 0, 0, 0, 1)
                 .withRaider(SHAMAN,             0, 0, 0, 1, 0, 0, 1, 1)
                 .withRaider(ENCHANTER,          0, 0, 1, 1, 1, 1, 0, 1)
                 .withRaider(IGNITER,            0, 0, 1, 2, 2, 2, 2, 4)
@@ -260,6 +262,7 @@ public class RaidEnemyRegistry
                 .withRaider(CONDUCTOR,          0, 0, 1, 0, 0, 0, 1, 1)
                 .withRaider(NECROMANCER,        0, 0, 0, 2, 0, 1, 2, 1)
                 .withRaider(FROSTMAGE,          0, 0, 0, 0, 2, 2, 0, 1)
+                .withRaider(ASHENMANCER,        0, 0, 0, 1, 0, 1, 0, 1)
                 .withRaider(SHAMAN,             0, 0, 1, 1, 1, 2, 2, 3)
                 .withRaider(ENCHANTER,          0, 1, 2, 0, 0, 2, 0, 2)
                 .withRaider(IGNITER,            0, 2, 2, 3, 2, 3, 2, 5)
@@ -318,6 +321,7 @@ public class RaidEnemyRegistry
                 .withRaider(EVOKER,             0, 1, 2, 3, 4, 1, 1, 3)
                 .withRaider(CONDUCTOR,          0, 1, 2, 0, 1, 2, 2, 3)
                 .withRaider(NECROMANCER,        0, 1, 0, 3, 1, 2, 0, 3)
+                .withRaider(ASHENMANCER,        0, 1, 0, 2, 1, 2, 0, 2)
                 .withRaider(FROSTMAGE,          0, 1, 0, 0, 1, 2, 4, 3)
                 .withRaider(SHAMAN,             0, 2, 2, 2, 2, 3, 3, 3)
                 .withRaider(ENCHANTER,          0, 1, 1, 1, 1, 1, 1, 3)
@@ -379,6 +383,7 @@ public class RaidEnemyRegistry
                 .withRaider(EVOKER,             0, 1, 2, 3, 4, 1, 1, 3)
                 .withRaider(CONDUCTOR,          0, 1, 2, 0, 1, 2, 2, 3)
                 .withRaider(NECROMANCER,        0, 1, 0, 3, 1, 2, 0, 3)
+                .withRaider(ASHENMANCER,        0, 1, 1, 3, 1, 3, 1, 3)
                 .withRaider(FROSTMAGE,          0, 1, 0, 0, 1, 2, 4, 3)
                 .withRaider(SHAMAN,             0, 2, 2, 2, 2, 3, 3, 3)
                 .withRaider(ENCHANTER,          0, 1, 1, 1, 1, 1, 1, 3)

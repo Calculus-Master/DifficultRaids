@@ -100,6 +100,9 @@ public class DifficultRaidsItems
     public static final RegistryObject<Item> SPAWN_EGG_FROST_ILLAGER =
             registerSpawnEgg("frost_illager", DifficultRaidsEntityTypes.FROST_ILLAGER, 0x5AB1C4);
 
+    public static final RegistryObject<Item> SPAWN_EGG_ASHENMANCER_ILLAGER =
+            registerSpawnEgg("ashenmancer_illager", DifficultRaidsEntityTypes.ASHENMANCER_ILLAGER, 0x5E5746);
+
     private static <T extends Mob> RegistryObject<Item> registerSpawnEgg(String name, RegistryObject<EntityType<T>> entityType, int highlight)
     {
         return ITEMS.register(name + "_spawn_egg", () -> new ForgeSpawnEggItem(entityType, 0x565B5C, highlight, new Item.Properties().tab(CreativeModeTab.TAB_MISC)));

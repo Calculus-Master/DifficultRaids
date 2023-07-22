@@ -8,7 +8,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.entity.raid.Raider;
@@ -39,7 +38,7 @@ public class AdvanceRaidWaveCommand
                         {
                             List<Raider> alive = raid.getAllRaiders().stream().filter(LivingEntity::isAlive).toList();
 
-                            alive.forEach(r -> r.hurt(DamageSource.STARVE, r.getHealth() + 1.0F));
+                            alive.forEach(LivingEntity::kill);
                             css.getSource().sendSuccess(Component.literal("Wave successfully cleared!"), true);
                         }
 
